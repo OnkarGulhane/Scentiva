@@ -163,10 +163,10 @@ const INITIAL_WISHLIST: Product[] = [PRODUCTS[2], PRODUCTS[4]];
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isHydrated, setIsHydrated] = useState<boolean>(false);
 
-  // Auth state
+  // Auth state (Demo Session)
   const [currentUser, setCurrentUser] = useState<DemoUser | null>(INITIAL_DEMO_USER);
 
-  // Products state
+  // Products state (Canonical Storefront Data)
   const [products, setProducts] = useState<Product[]>(() => ProductService.getAll());
 
   // Cart state
@@ -215,6 +215,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       const storedCoupon = safeGetStorage<Coupon | null>('scentiva_coupon', null);
       if (storedCoupon) setAppliedCoupon(storedCoupon);
+
+      const storedProducts = safeGetStorage<Product[] | null>('scentiva_products', null);
+      if (storedProducts && storedProducts.length > 0) setProducts(storedProducts);
     } catch (err) {
       console.warn('Failed to hydrate from localStorage:', err);
     } finally {
@@ -222,7 +225,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  // Persistent LocalStorage synchronization (only runs after client hydration)
+  // Persistent LocalStorage synchronization
   useEffect(() => {
     if (!isHydrated) return;
     try {
@@ -299,7 +302,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return `₹${Math.round(amount).toLocaleString('en-IN')}`;
   };
 
-  // Auth Operations
+  // Demo Auth Operations
   const signIn = (email: string) => {
     const demoUser: DemoUser = {
       id: `usr-${Date.now()}`,
@@ -309,8 +312,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       points: 500
     };
     setCurrentUser(demoUser);
-    showToast(`Welcome back, ${demoUser.name}! (Demo Sign-in)`, 'success');
-    return { success: true, message: 'Signed in successfully' };
+    showToast(`Welcome back, ${demoUser.name}! (Demo Session Active)`, 'success');
+    return { success: true, message: 'Signed in successfully (Demo Session)' };
   };
 
   const signUp = (name: string, email: string) => {
@@ -323,7 +326,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
     setCurrentUser(newUser);
     showToast(`Welcome to SCENTIVA Privé, ${newUser.name}! (Demo Sign-up)`, 'success');
-    return { success: true, message: 'Account created successfully' };
+    return { success: true, message: 'Account created successfully (Demo)' };
   };
 
   const signOut = () => {
@@ -331,9 +334,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast('Signed out of demo session', 'info');
   };
 
-  // Cart Actions
+  // Cart Actions with Stock & Variant Hardening
   const addToCart = (product: Product, variant?: ProductVariant, quantity: number = 1) => {
     const targetVariant = variant || product.variants[0];
+
+    if (!targetVariant || !targetVariant.inStock || product.stock <= 0) {
+      showToast(`${product.name} (${targetVariant?.size || 'Variant'}) is currently out of stock.`, 'warning');
+      return;
+    }
+
+    const availableStock = typeof product.stock === 'number' ? product.stock : 10;
+    const safeQty = Math.max(1, quantity);
+
     setCart(prev => {
       const existingIndex = prev.findIndex(
         item => item.productId === product.id && item.selectedVariant.sku === targetVariant.sku
@@ -341,8 +353,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       if (existingIndex > -1) {
         const updated = [...prev];
-        const newQty = Math.min(10, updated[existingIndex].quantity + quantity);
-        updated[existingIndex].quantity = newQty;
+        const newQty = Math.min(availableStock, updated[existingIndex].quantity + safeQty);
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          product,
+          selectedVariant: targetVariant,
+          quantity: newQty
+        };
         return updated;
       } else {
         return [
@@ -351,13 +368,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             productId: product.id,
             product,
             selectedVariant: targetVariant,
-            quantity: Math.min(10, Math.max(1, quantity))
+            quantity: Math.min(availableStock, safeQty)
           }
         ];
       }
     });
 
-    showToast(`Added ${product.name} (${targetVariant.size}) to your cart!`, 'success');
+    showToast(`Added ${product.name} (${targetVariant.size}) to your bag!`, 'success');
   };
 
   const removeFromCart = (productId: string, variantSku: string) => {
@@ -370,13 +387,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       removeFromCart(productId, variantSku);
       return;
     }
-    const safeQty = Math.min(10, quantity);
+
     setCart(prev =>
-      prev.map(item =>
-        item.productId === productId && item.selectedVariant.sku === variantSku
-          ? { ...item, quantity: safeQty }
-          : item
-      )
+      prev.map(item => {
+        if (item.productId === productId && item.selectedVariant.sku === variantSku) {
+          const availableStock = typeof item.product.stock === 'number' ? item.product.stock : 10;
+          const safeQty = Math.min(availableStock, quantity);
+          return { ...item, quantity: safeQty };
+        }
+        return item;
+      })
     );
   };
 
@@ -385,21 +405,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setAppliedCoupon(null);
   };
 
-  // Cart Calculations
+  // Cart Calculation Engine (Single Source of Truth)
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
   const cartSubtotal = cart.reduce((total, item) => total + (item.selectedVariant.price * item.quantity), 0);
 
+  // Dynamic coupon validation & recalculation
   let cartDiscount = 0;
-  if (appliedCoupon) {
+  if (appliedCoupon && cartSubtotal >= (appliedCoupon.minOrderValue || 0)) {
     if (appliedCoupon.discountType === 'percentage') {
       cartDiscount = Math.round((cartSubtotal * appliedCoupon.discountValue) / 100);
     } else {
-      cartDiscount = appliedCoupon.discountValue;
+      cartDiscount = Math.min(cartSubtotal, appliedCoupon.discountValue);
     }
   }
 
-  // Free delivery threshold: above ₹999
-  const cartDeliveryFee = cartSubtotal === 0 || cartSubtotal >= 999 ? 0 : 199;
+  // Free standard delivery above ₹999, else ₹99 (₹0 if bag is empty)
+  const cartDeliveryFee = cartSubtotal === 0 || cartSubtotal >= 999 ? 0 : 99;
   const cartTotal = Math.max(0, cartSubtotal - cartDiscount + cartDeliveryFee);
 
   const applyCoupon = (code: string) => {
@@ -482,24 +503,30 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast('Address removed', 'info');
   };
 
-  // Orders Management
+  // Order Creation & Management (Demo Order Flow)
   const placeOrder = (orderData: {
     shippingAddress: Address;
     deliveryMethod: 'Standard Delivery' | 'Express Luxury Delivery';
     paymentMethod: 'UPI / QR' | 'Credit / Debit Card' | 'Net Banking' | 'Cash on Delivery';
   }): Order => {
-    const fee = orderData.deliveryMethod === 'Express Luxury Delivery' ? 199 : 0;
-    const finalTotal = cartTotal + fee;
+    if (cart.length === 0) {
+      throw new Error('Cannot place an order with an empty cart.');
+    }
+
+    const baseDeliveryFee = cartSubtotal === 0 || cartSubtotal >= 999 ? 0 : 99;
+    const expressFee = orderData.deliveryMethod === 'Express Luxury Delivery' ? 199 : 0;
+    const totalDeliveryFee = baseDeliveryFee + expressFee;
+    const finalTotal = Math.max(0, cartSubtotal - cartDiscount + totalDeliveryFee);
 
     const newOrder = OrderService.create({
-      cart,
+      cart: [...cart],
       shippingAddress: orderData.shippingAddress,
       deliveryMethod: orderData.deliveryMethod,
       paymentMethod: orderData.paymentMethod,
       subtotal: cartSubtotal,
       discount: cartDiscount,
-      couponCode: appliedCoupon?.code,
-      deliveryFee: fee,
+      couponCode: appliedCoupon && cartDiscount > 0 ? appliedCoupon.code : undefined,
+      deliveryFee: totalDeliveryFee,
       total: finalTotal
     });
 
@@ -520,7 +547,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  // Admin Products State
+  // Admin Products State & Storefront Synchronization
   const addProduct = (prodData: Omit<Product, 'id' | 'slug'>) => {
     const created = ProductService.create(prodData);
     setProducts(prev => [created, ...prev]);
@@ -531,13 +558,34 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const res = ProductService.update(id, updated);
     if (res) {
       setProducts(prev => prev.map(p => (p.id === id ? res : p)));
-      showToast('Product updated successfully', 'success');
+      
+      // Synchronize active cart items so prices & stock stay unified
+      setCart(prev =>
+        prev.map(item => {
+          if (item.productId === id) {
+            const updatedVariant = res.variants.find(v => v.sku === item.selectedVariant.sku) || res.variants[0];
+            return {
+              ...item,
+              product: res,
+              selectedVariant: updatedVariant || item.selectedVariant,
+              quantity: Math.min(res.stock, item.quantity)
+            };
+          }
+          return item;
+        })
+      );
+
+      // Synchronize wishlist
+      setWishlist(prev => prev.map(item => (item.id === id ? res : item)));
+      showToast('Product updated across store catalog!', 'success');
     }
   };
 
   const deleteProduct = (id: string) => {
     ProductService.delete(id);
     setProducts(prev => prev.filter(p => p.id !== id));
+    setCart(prev => prev.filter(item => item.productId !== id));
+    setWishlist(prev => prev.filter(item => item.id !== id));
     showToast('Product removed from catalog', 'info');
   };
 
