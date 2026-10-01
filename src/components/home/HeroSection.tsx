@@ -42,9 +42,9 @@ export const HeroSection: React.FC = () => {
       <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-brand-gold-100/35 blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Typography & CTAs (Immediate First Render) */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left z-10">
+          <div className="lg:col-span-6 space-y-6 text-center lg:text-left z-10">
             {/* Eyebrow */}
             <div className="hero-eyebrow inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-plum-900 text-brand-blush-200 text-xs font-semibold tracking-widest uppercase shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-brand-gold-500" />
@@ -117,9 +117,9 @@ export const HeroSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: 3D Interactive Perfume Flacon */}
-          <div className="lg:col-span-5 relative flex items-center justify-center">
-            <div className="w-full relative rounded-3xl bg-gradient-to-tr from-brand-blush-100/60 via-white to-brand-gold-100/40 p-2 sm:p-3 shadow-modal border border-white/90">
+          {/* Right Column: Signature 3D Interactive Perfume Flacon (Grand Scale) */}
+          <div className="lg:col-span-6 relative flex items-center justify-center w-full">
+            <div className="w-full relative rounded-3xl bg-gradient-to-tr from-brand-blush-100/70 via-white to-brand-gold-100/50 p-3 sm:p-4 shadow-modal border border-white/95 overflow-hidden">
               {featureFlags.isEnabled('ENABLE_3D_HERO') ? (
                 <Suspense fallback={<StaticFlaconFallback />}>
                   <Hero3DCanvasLazy />
