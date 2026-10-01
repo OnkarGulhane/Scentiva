@@ -1,132 +1,160 @@
 # SCENTIVA — Repository Memory & Architecture Blueprint
 > **Brand:** SCENTIVA — "SINCE 2026"  
-> **Type:** Haute Parfumerie & Multi-Brand Fragrance Marketplace  
-> **Target Form Factor:** Mobile-first customer storefront + Desktop web experience + Operational admin console  
-> **Architecture:** Next.js 14 App Router (SSG/SSR) + TypeScript 5.5 + Tailwind CSS + Three.js / R3F + GSAP Motion  
-> **Last Updated:** 2026-10-01  
+> **Type:** Haute Parfumerie & Luxury Multi-Brand Fragrance Marketplace  
+> **Target Form Factors:** Mobile-first customer storefront + Desktop immersive experience + Operational admin console  
+> **Frontend Architecture:** Next.js 14 App Router (SSG/SSR) + TypeScript 5.5 + Tailwind CSS + Three.js / R3F + GSAP Motion  
+> **Backend Architecture:** Spring Boot 3.3.4 (Java 21 LTS) Modular Monolith + PostgreSQL 17 + Flyway + Spring Security 6 (JWT)  
+> **Last Updated:** 2026-10-02  
 > **Repository Remote:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)  
+> **Current Status:** Phases 0–14 100% Complete & Verified (223/223 Java tests passing, 45/45 Next.js static pages prerendered). Phase 15 (Docker & Multi-Env Hardening) scheduled for next session.
 
 ---
 
-## 1. System Architecture & Tech Stack
+## 1. System Topology & Full-Stack Architecture
 
-- **Framework:** Next.js 14 (`next` v14.2.24, React 18.3.1, React DOM)
-- **Routing Engine:** Next.js 14 App Router (`src/app/` with 45 static/dynamic routes)
-- **Type System:** TypeScript 5.5 (`strict: true`, `noEmit: true`, path alias `@/* -> ./src/*`)
-- **Styling:** TailwindCSS v3.4 + Custom CSS Design Tokens ([src/styles/tokens.css](file:///e:/Scentiva/src/styles/tokens.css), [src/styles/index.css](file:///e:/Scentiva/src/styles/index.css))
-- **Typography:** Google Fonts `Cormorant Garamond` (display/editorial serif) + `Inter` (UI/controls/pricing)
-- **3D & WebGL Engine:** Three.js + `@react-three/fiber` + `@react-three/drei` ([src/components/home/Hero3DCanvas.tsx](file:///e:/Scentiva/src/components/home/Hero3DCanvas.tsx)):
-  - **Geometry & Center:** Vertical span `3.86` units compensated with `group position={[0, -0.42, 0]}`.
-  - **Camera Framing:** Calibrated to `position: [0, 0, 5.2]`, `FOV 46°` providing **87.5% vertical bottle occupancy** and **12.5% visual breathing room** (100% full bottle visibility, 0% cropping across all viewports).
-  - **Interactivity:** 360° `OrbitControls` mouse/touch drag rotation, `Float` levitation, golden mist `Sparkles`, `Auto: ON/OFF` toggle button.
-  - **Performance:** `IntersectionObserver` toggles `frameloop` to `never` when scrolled offscreen, saving GPU/CPU.
-  - **Fallback:** Procedural luxury `StaticFlaconFallback` for non-WebGL / low-power devices.
-- **Motion Architecture:** Lenis smooth scrolling singleton ([src/motion/smoothScroll.ts](file:///e:/Scentiva/src/motion/smoothScroll.ts)) + GSAP v3 + ScrollTrigger + Scoped lifecycle context hooks ([src/motion/gsapContext.ts](file:///e:/Scentiva/src/motion/gsapContext.ts), [src/motion/scrollReveal.ts](file:///e:/Scentiva/src/motion/scrollReveal.ts), [src/motion/motionTokens.ts](file:///e:/Scentiva/src/motion/motionTokens.ts)) + `canvas-confetti`.
-- **Backend Readiness & API Abstraction:**
-  - Typed ApiClient Gateway ([src/lib/api/apiClient.ts](file:///e:/Scentiva/src/lib/api/apiClient.ts)) with `NEXT_PUBLIC_API_URL` environment configuration, 10s abort timeouts, 5xx retry policies, and error normalization.
-  - Centralized Domain Contracts in [src/types/index.ts](file:///e:/Scentiva/src/types/index.ts) (`Product`, `Brand`, `Category`, `ProductVariant`, `OlfactoryPyramid`, `Order`, `CartItem`, `Address`, `Coupon`, `Review`, `ApiResponse<T>`, `ApiPaginatedResponse<T>`, `ApiErrorResponse`, `AnalyticsPayload`, `FeatureFlags`).
-  - Dedicated Application Services in `src/services/` (`ProductService`, `BrandService`, `CategoryService`, `SearchService`, `OrderService`, `InventoryService`, `PromotionService`, `CustomerService`, `ContentService`, `RecommendationService`, `AnalyticsService`, `FeatureFlags`).
-- **State & Storage Architecture:**
-  - React Context API ([src/context/StoreContext.tsx](file:///e:/Scentiva/src/context/StoreContext.tsx)) with two-phase SSR-safe hydration (`safeGetStorage` + post-mount sync).
-  - Single source of truth calculation engine: $\text{total} = \max(0, \text{subtotal} - \text{discount} + \text{deliveryFee})$.
-  - Stock enforcement in `addToCart` & `updateCartQuantity`.
-  - Admin-to-Storefront live synchronization across catalog, PDP, active bag items, and wishlist.
-
----
-
-## 2. Design System & Token Specifications
-
-### Color Palette (Nocturne Gallery Identity)
-| Token Name | HEX | Usage |
-|---|---|---|
-| `color.brand.plum.950` | `#321027` | Deepest brand surface, dark hero background, footer, typography |
-| `color.brand.plum.900` | `#451333` | Primary brand background, primary CTA buttons, emblem base |
-| `color.brand.plum.800` | `#5B1B43` | Active/hover dark brand surfaces |
-| `color.brand.plum.700` | `#742653` | Accent panels, selection indicators |
-| `color.brand.blush.300` | `#E9B7D8` | Logo accent, badge highlights on dark surfaces |
-| `color.brand.blush.200` | `#F2D2E7` | Soft accent background |
-| `color.brand.blush.100` | `#FAEAF4` | Subtle blush pill and surface fill |
-| `color.brand.rose.500` | `#B85B88` | Accent actions, category eyebrows, wishlist active state |
-| `color.brand.gold.500` | `#C7A66A` | Prestige badges, ratings, highlights, secondary buy CTAs |
-| `color.brand.gold.100` | `#F5EBD7` | Soft gold badge background |
-| `color.neutral.50` | `#FAF8F7` | Main canvas light page background |
-| `color.neutral.100` | `#F2EEEC` | Secondary subtle container fill |
-| `color.neutral.200` | `#E4DCDA` | Card borders, dividers |
-| `color.neutral.800` | `#342C30` | Primary readable text |
-| `color.neutral.950` | `#1D171B` | Strong headings, dark modals |
-
----
-
-## 3. Route & Screen Inventory (Next.js App Router — 45 Routes)
-
-### Customer Storefront (30 Routes)
-1. `/` — [src/app/page.tsx](file:///e:/Scentiva/src/app/page.tsx): 3D flacon hero, brand ticker, category cards, best sellers, fragrance quiz teaser, journal, trust badges.
-2. `/shop` — [src/app/shop/page.tsx](file:///e:/Scentiva/src/app/shop/page.tsx): Full fragrance catalog with faceted filters, concentration switcher, price slider.
-3. `/search` — [src/app/search/page.tsx](file:///e:/Scentiva/src/app/search/page.tsx): Autocomplete search route with NLP query parsing and zero-result recovery.
-4. `/brands` — [src/app/brands/page.tsx](file:///e:/Scentiva/src/app/brands/page.tsx): Brand directory with tier filters.
-5. `/brands/[slug]` — [src/app/brands/[slug]/page.tsx](file:///e:/Scentiva/src/app/brands/[slug]/page.tsx): Brand detail with origin, bio, and dedicated flacons.
-6. `/categories/[slug]` — [src/app/categories/[slug]/page.tsx](file:///e:/Scentiva/src/app/categories/[slug]/page.tsx): Category collections (For Her, For Him, Unisex, Luxury & Niche, Everyday Fresh, Gift Sets).
-7. `/product/[slug]` — [src/app/product/[slug]/page.tsx](file:///e:/Scentiva/src/app/product/[slug]/page.tsx): Product detail with dynamic OpenGraph, Schema.org JSON-LD, size/concentration selector, olfactory pyramid, and reviews.
-8. `/find-your-scent` — [src/app/find-your-scent/page.tsx](file:///e:/Scentiva/src/app/find-your-scent/page.tsx): 5-step interactive scent quiz.
-9. `/find-your-scent/results` — [src/app/find-your-scent/results/page.tsx](file:///e:/Scentiva/src/app/find-your-scent/results/page.tsx): Scent recommendation results with match score % and rationale.
-10. `/wishlist` — [src/app/wishlist/page.tsx](file:///e:/Scentiva/src/app/wishlist/page.tsx): Saved items with quick buy.
-11. `/cart` — [src/app/cart/page.tsx](file:///e:/Scentiva/src/app/cart/page.tsx): Shopping bag with coupons and threshold delivery calculator.
-12. `/checkout` — [src/app/checkout/page.tsx](file:///e:/Scentiva/src/app/checkout/page.tsx): 4-step demo checkout.
-13. `/checkout/payment` — [src/app/checkout/payment/page.tsx](file:///e:/Scentiva/src/app/checkout/payment/page.tsx): Payment method selector (UPI, Card, Net Banking, COD).
-14. `/order/success` — [src/app/order/success/page.tsx](file:///e:/Scentiva/src/app/order/success/page.tsx): Confetti animation & order confirmation.
-15. `/account` — [src/app/account/page.tsx](file:///e:/Scentiva/src/app/account/page.tsx): Connoisseur dashboard & VIP tier.
-16. `/account/sign-in` — [src/app/account/sign-in/page.tsx](file:///e:/Scentiva/src/app/account/sign-in/page.tsx): Demo sign-in with 1-click prefill.
-17. `/account/sign-up` — [src/app/account/sign-up/page.tsx](file:///e:/Scentiva/src/app/account/sign-up/page.tsx): Registration with welcome perks.
-18. `/account/orders` — [src/app/account/orders/page.tsx](file:///e:/Scentiva/src/app/account/orders/page.tsx): Order history with status pills.
-19. `/account/orders/[id]` — [src/app/account/orders/[id]/page.tsx](file:///e:/Scentiva/src/app/account/orders/[id]/page.tsx): Dynamic order tracking timeline.
-20. `/account/addresses` — [src/app/account/addresses/page.tsx](file:///e:/Scentiva/src/app/account/addresses/page.tsx): Address book CRUD.
-21. `/offers` — [src/app/offers/page.tsx](file:///e:/Scentiva/src/app/offers/page.tsx): Promo coupons with 1-click copy.
-22. `/gifts` — [src/app/gifts/page.tsx](file:///e:/Scentiva/src/app/gifts/page.tsx): Curated Gift sets & discovery coffrets.
-23. `/stories` — [src/app/stories/page.tsx](file:///e:/Scentiva/src/app/stories/page.tsx): Editorial journal & masterclasses.
-24. `/stories/[slug]` — [src/app/stories/[slug]/page.tsx](file:///e:/Scentiva/src/app/stories/[slug]/page.tsx): Dynamic masterclass article.
-25. `/help` — [src/app/help/page.tsx](file:///e:/Scentiva/src/app/help/page.tsx): FAQ & authenticity info.
-26. `/contact` — [src/app/contact/page.tsx](file:///e:/Scentiva/src/app/contact/page.tsx): Concierge contact form.
-27. `/policies/shipping` — [src/app/policies/shipping/page.tsx](file:///e:/Scentiva/src/app/policies/shipping/page.tsx): Shipping policy.
-28: `/policies/returns` — [src/app/policies/returns/page.tsx](file:///e:/Scentiva/src/app/policies/returns/page.tsx): Return policy.
-29. `/policies/privacy` — [src/app/policies/privacy/page.tsx](file:///e:/Scentiva/src/app/policies/privacy/page.tsx): Privacy policy.
-30. `/policies/terms` — [src/app/policies/terms/page.tsx](file:///e:/Scentiva/src/app/policies/terms/page.tsx): Terms of service.
-
-### Admin Operations Console (13 Routes)
-31. `/admin` — [src/app/admin/page.tsx](file:///e:/Scentiva/src/app/admin/page.tsx): Sales metrics, orders trend chart, conversion rate.
-32. `/admin/login` — [src/app/admin/login/page.tsx](file:///e:/Scentiva/src/app/admin/login/page.tsx): Admin login.
-33. `/admin/products` — [src/app/admin/products/page.tsx](file:///e:/Scentiva/src/app/admin/products/page.tsx): Product management table.
-34. `/admin/products/new` — [src/app/admin/products/new/page.tsx](file:///e:/Scentiva/src/app/admin/products/new/page.tsx): Add new fragrance form.
-35. `/admin/brands` — [src/app/admin/brands/page.tsx](file:///e:/Scentiva/src/app/admin/brands/page.tsx): Brand manager.
-36. `/admin/categories` — [src/app/admin/categories/page.tsx](file:///e:/Scentiva/src/app/admin/categories/page.tsx): Category manager.
-37. `/admin/inventory` — [src/app/admin/inventory/page.tsx](file:///e:/Scentiva/src/app/admin/inventory/page.tsx): Stock adjustment controls.
-38. `/admin/orders` — [src/app/admin/orders/page.tsx](file:///e:/Scentiva/src/app/admin/orders/page.tsx): Order fulfillment pipeline.
-39. `/admin/customers` — [src/app/admin/customers/page.tsx](file:///e:/Scentiva/src/app/admin/customers/page.tsx): Customer registry.
-40. `/admin/promotions` — [src/app/admin/promotions/page.tsx](file:///e:/Scentiva/src/app/admin/promotions/page.tsx): Active coupons.
-41. `/admin/content` — [src/app/admin/content/page.tsx](file:///e:/Scentiva/src/app/admin/content/page.tsx): Editorial CMS.
-42. `/admin/reports` — [src/app/admin/reports/page.tsx](file:///e:/Scentiva/src/app/admin/reports/page.tsx): Analytics & reports.
-43. `/admin/settings` — [src/app/admin/settings/page.tsx](file:///e:/Scentiva/src/app/admin/settings/page.tsx): Store settings.
-
-### SEO & API Handlers (2 Routes)
-44. `/sitemap.xml` — [src/app/sitemap.ts](file:///e:/Scentiva/src/app/sitemap.ts)
-45. `/robots.txt` — [src/app/robots.ts](file:///e:/Scentiva/src/app/robots.ts)
-46. `/api/health` — [src/app/api/health/route.ts](file:///e:/Scentiva/src/app/api/health/route.ts)
-47. `/api/products` — [src/app/api/products/route.ts](file:///e:/Scentiva/src/app/api/products/route.ts)
-
----
-
-## 4. Phased Backend Roadmap (Future Implementation Upon Request)
-
-```text
-Phase 1: Spring Boot Catalog & Brand REST API (PostgreSQL + Flyway)
-Phase 2: Authentication Microservice (JWT / OAuth2 / Spring Security)
-Phase 3: Cart, Coupon & Promotion Engine Service
-Phase 4: Order Management, Inventory Lock & Payment Webhooks (Razorpay / Stripe)
-Phase 5: Vector Search / LLM Recommendation Microservice
+```
+                                  SCENTIVA ARCHITECTURE
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                FRONTEND LAYER (Next.js 14)                             │
+│  - App Router (45 Static/Dynamic Pages)               - 3D Hero WebGL Flacon (R3F)     │
+│  - Custom Design Tokens (Plum/Gold/Blush)             - GSAP / ScrollTrigger / Lenis   │
+│  - StoreContext (SSR Hydration Resilience)            - Dual-Mode API Gateway Layer    │
+└─────────────────────────────────────────▲──────────────────────────────────────────────┘
+                                          │  REST HTTP (JSON Envelopes)
+                                          │  X-Correlation-ID / Bearer JWT
+┌─────────────────────────────────────────▼──────────────────────────────────────────────┐
+│                            BACKEND LAYER (Spring Boot 3.3.4)                           │
+│  ┌──────────────────────────────────────────────────────────────────────────────────┐  │
+│  │                              API GATEWAY & CONTROLLERS                           │  │
+│  │  AuthController   BrandController      ProductController   InventoryController   │  │
+│  │  CartController   CheckoutController   OrderController     ShippingController    │  │
+│  │  ReviewController ReturnController     NotificationCtrl    AdminDashboardCtrl    │  │
+│  │  AiConciergeCtrl  StoryController      BannerController    SeoController / Mtrcs │  │
+│  └──────────────────────────────────────▲───────────────────────────────────────────┘  │
+│                                         │                                              │
+│  ┌──────────────────────────────────────▼───────────────────────────────────────────┐  │
+│  │                             DOMAIN SERVICES & ENGINES                            │  │
+│  │  AuthService       ProductService      InventoryService (Pessimistic Lock / TTL) │  │
+│  │  CartService       CheckoutService     PaymentService (DemoPaymentProvider SPI)  │  │
+│  │  OrderService      ShippingService     AiConciergeService (Olfactory Vector NLP) │  │
+│  │  ReviewService     ReturnService       CmsStoryService / SeoService / AuditLog   │  │
+│  └──────────────────────────────────────▲───────────────────────────────────────────┘  │
+│                                         │                                              │
+│  ┌──────────────────────────────────────▼───────────────────────────────────────────┐  │
+│  │                            DATA ACCESS LAYER (Spring Data JPA)                   │  │
+│  │  UserRepository    ProductRepository   InventoryRecordRepository (@Lock PESSIM.) │  │
+│  │  CartRepository    OrderRepository     PaymentRepository   ReviewRepository      │  │
+│  └──────────────────────────────────────▲───────────────────────────────────────────┘  │
+└─────────────────────────────────────────┼──────────────────────────────────────────────┘
+                                          │  Flyway SQL Migrations (V1, V2, V3)
+┌─────────────────────────────────────────▼──────────────────────────────────────────────┐
+│                               PERSISTENCE (PostgreSQL 17)                              │
+│  - 30+ Relational Tables       - NUMERIC(12,2) Exact Decimal Financial Precision       │
+│  - Optimistic Locks (@Version) - Soft Delete (is_deleted)      - Audit Timestamps      │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 5. Verification Baseline
-- **TypeScript:** 0 compiler errors (`strict: true`).
-- **Production Build:** Passing cleanly (`next build` -> 45/45 static pages prerendered, 87.3 kB shared baseline JS, Exit Code 0).
-- **Git Remote:** Branch `main` fully synchronized with GitHub.
+## 2. Frontend Specifications (Next.js 14 App Router)
+
+- **Framework & Runtime:** Next.js 14 (`next` v14.2.24), React 18.3.1, React DOM, TypeScript 5.5 (`strict: true`, path alias `@/* -> ./src/*`).
+- **Styling & Design Tokens:** TailwindCSS v3.4 + Custom CSS Tokens ([src/styles/tokens.css](file:///e:/Scentiva/src/styles/tokens.css), [src/styles/index.css](file:///e:/Scentiva/src/styles/index.css)).
+  - Deep Plum Surfaces: `#321027`, `#451333`, `#5B1B43`
+  - Prestige Gold Accents: `#C7A66A`, `#F5EBD7`
+  - Blush Highlights: `#E9B7D8`, `#F2D2E7`, `#FAEAF4`
+  - Canvas Neutrals: `#FAF8F7`, `#F2EEEC`, `#E4DCDA`, `#342C30`, `#1D171B`
+- **Typography:** Google Fonts `Cormorant Garamond` (Editorial serif for luxury headers) + `Inter` (Precise UI/pricing/body).
+- **3D & WebGL Engine:** Three.js + `@react-three/fiber` + `@react-three/drei` ([src/components/home/Hero3DCanvas.tsx](file:///e:/Scentiva/src/components/home/Hero3DCanvas.tsx)):
+  - Centering offset: `group position={[0, -0.42, 0]}` across `3.86` vertical units.
+  - Camera Framing: `position: [0, 0, 5.2]`, `FOV 46°` (87.5% bottle occupancy, 12.5% visual breathing room, 0% cropping across all viewports).
+  - Offscreen GPU throttle: `IntersectionObserver` switches `frameloop` to `never` when scrolled out of view.
+- **Frontend Dual-Mode API Gateway Layer:**
+  - [src/lib/api/apiClient.ts](file:///e:/Scentiva/src/lib/api/apiClient.ts): Standardized HTTP client with automatic JWT token attachment, unique `X-Correlation-ID` header propagation, timeout management, and retry handling.
+  - Domain Services:
+    - [src/services/authApiService.ts](file:///e:/Scentiva/src/services/authApiService.ts)
+    - [src/services/catalogApiService.ts](file:///e:/Scentiva/src/services/catalogApiService.ts)
+    - [src/services/cartApiService.ts](file:///e:/Scentiva/src/services/cartApiService.ts)
+    - [src/services/checkoutApiService.ts](file:///e:/Scentiva/src/services/checkoutApiService.ts)
+    - [src/services/orderApiService.ts](file:///e:/Scentiva/src/services/orderApiService.ts)
+    - [src/services/aiApiService.ts](file:///e:/Scentiva/src/services/aiApiService.ts)
+    - [src/services/cmsApiService.ts](file:///e:/Scentiva/src/services/cmsApiService.ts)
+    - [src/services/adminApiService.ts](file:///e:/Scentiva/src/services/adminApiService.ts)
+
+---
+
+## 3. Backend Architecture & Domain Modules (Spring Boot 3.3.4)
+
+### Module Hierarchy (`com.scentiva.modules.*`)
+1. **`common`:** Base entity (`id`, `createdAt`, `updatedAt`, `isDeleted`, `version`), response envelopes (`ApiResponse<T>`, `ApiPaginatedResponse<T>`, `ApiErrorResponse`), global exception handling (`GlobalExceptionHandler`), and Swagger/OpenAPI 3.0 docs.
+2. **`auth` & `security`:** JWT Provider (HMAC SHA-512), `JwtAuthenticationFilter`, `CustomUserDetailsService`, `UserPrincipal`, BCrypt password encoder (work factor 12), and role-based access control (`ROLE_CUSTOMER`, `ROLE_ADMIN`, `ROLE_SUPER_ADMIN`).
+3. **`customer`:** Customer profiles, loyalty tiers (`BRONZE`, `SILVER`, `GOLD`, `PLATINUM`, `VIP`), cascading multi-address book (`SHIPPING`, `BILLING`) with default address switching.
+4. **`catalog`:** Brands (with luxury tiers), categories, products, olfactory pyramids (top, heart, base notes, sillage, longevity), product variants (exact `BigDecimal` pricing, SKU uniqueness, concentration, volume), and multi-image galleries.
+5. **`inventory`:** Multi-location fulfillment centers (Pune, Mumbai, Delhi), `InventoryRecord` with pessimistic write locks (`@Lock(LockModeType.PESSIMISTIC_WRITE)`), 15-minute checkout stock hold TTL, dynamic release, deduction on order dispatch, and immutable `InventoryMovement` ledgers.
+6. **`cart`:** Persistent shopping bag, item addition/updates with server-authoritative stock checks, unit price freezing upon addition, cart merging upon login, dynamic free shipping qualification (Threshold: ₹2,000 / Standard Fee: ₹150).
+7. **`promotion`:** Active marketing campaigns, coupon engine (`PERCENTAGE`, `FIXED_AMOUNT`, `FREE_SHIPPING`) with maximum discount caps, minimum order value thresholds, expiry, usage quotas, and redemption tracking.
+8. **`payment`:** Payment SPI abstraction (`PaymentProvider`), `DemoPaymentProvider` (simulating instant capture, 3D-Secure OTP challenge, card decline, and refunds), transactions log, and idempotency protection.
+9. **`order`:** Full lifecycle state machine (`PLACED` → `CONFIRMED` → `PROCESSING` → `SHIPPED` → `DELIVERED` / `CANCELLED` / `REFUNDED`), immutable JSON snapshots (`OrderSnapshot`), and automated restock + refund triggers upon cancellation.
+10. **`shipping`:** Shipping SPI abstraction (`ShippingProvider`), `ManualShippingProvider` (generating `SC-TRK-*` courier tracking numbers), carrier status transitions (`DISPATCHED` → `IN_TRANSIT` → `OUT_FOR_DELIVERY` → `DELIVERED`), and timeline events.
+11. **`review`:** Product reviews with verified-purchase enforcement against delivered orders, 1-5 star ratings, automated sentiment heuristics, and backoffice moderation (`PENDING`, `APPROVED`, `REJECTED`).
+12. **`returns`:** Customer return workflow with item-level reasons, return status transitions (`REQUESTED` → `APPROVED` → `PICKED_UP` → `RECEIVED` → `REFUNDED`), stock return adjustments, and payment refund processing.
+13. **`notification`:** Multi-channel notifications (`IN_APP`, `EMAIL`, `SMS`, `WHATSAPP`), Spring `@EventListener` triggers for order lifecycle events, unread badge counters, and mark-as-read endpoints.
+14. **`admin`:** Backoffice executive analytics (GMV revenue, time-series sales trends, top product performance, order state breakdowns), customer management, user governance, and store settings.
+15. **`ai`:** AI Concierge Matchmaker (`DefaultAiConciergeProvider`), 5-question Scent Quiz with personality archetype scoring ("The Velvet Nocturne", "The Parisian Blossom", "The Amber Alchemist"), natural language sensory semantic search, catalog editorial narrative generation, and sentiment consensus summarization.
+16. **`cms` & `seo`:** Olfactory journal articles, scheduled promotional banners, dynamic XML sitemaps, OpenGraph metadata, and Schema.org `Product`/`Brand` JSON-LD microdata.
+17. **`observability`:** Distributed request tracing with `X-Correlation-ID` filter, MDC logging, immutable administrative `AuditLog` records, and real-time JVM system metrics.
+
+---
+
+## 4. Authoritative Financial & Arithmetic Invariants
+
+- **Zero Float Invariant:** All money values in Java are strictly `BigDecimal` with `RoundingMode.HALF_UP` and stored in PostgreSQL as `NUMERIC(12,2)`.
+- **Order Total Equation:**
+  $$\text{subtotal} = \sum (\text{item.unitPrice} \times \text{item.quantity})$$
+  $$\text{discount} = \min(\text{calculatedDiscount}, \text{subtotal})$$
+  $$\text{deliveryFee} = \begin{cases} 0.00 & \text{if } (\text{subtotal} - \text{discount}) \ge \text{freeDeliveryThreshold} \\ \text{standardFee} & \text{otherwise} \end{cases}$$
+  $$\text{totalAmount} = \max(0.00, \text{subtotal} - \text{discount} + \text{taxAmount} + \text{deliveryFee})$$
+- **Stock Integrity:** Available Stock = $\text{quantityOnHand} - \text{quantityReserved}$. Available stock can never be negative. Reservations must use pessimistic write locks to prevent race conditions.
+
+---
+
+## 5. Automated Verification & Stress Testing Suite
+
+- **Total Backend Tests:** **223 / 223 tests passing (100% BUILD SUCCESS, 0 failures, 0 errors)**
+- **Stress & Concurrency Proofs (Phase 14):**
+  1. `InventoryConcurrencyStressTest.java`: 100 concurrent threads competing for 5 scarce units. Exactly 5 succeed, 95 rejected gracefully with `InsufficientStockException`, resulting in 0 available stock and 0 negative balance.
+  2. `CheckoutIdempotencyStressTest.java`: 20 concurrent threads submitting the exact same `idempotencyKey`. Exactly 1 order created in DB, 0 duplicate charges, all threads receive identical order confirmation.
+  3. `FinancialMathPrecisionTest.java`: Verified exact ₹0.01 precision across ₹28.55 Cr GMV orders, cap validations, and non-negative boundaries.
+  4. `SecurityRbacMatrixStressTest.java`: Validated access matrix across `ANONYMOUS`, `CUSTOMER`, and `ADMIN` roles for all secured endpoints.
+- **Frontend Verification:**
+  - `npm run build` cleanly prerenders 45 / 45 static pages with 0 TypeScript compiler errors (Exit Code 0).
+
+---
+
+## 6. Project Roadmap & Next Phase (Phase 15)
+
+| Phase | Description | Status |
+|---|---|---|
+| **Phase 0** | Baseline Audit, Master SRS & Toolchain Setup | ✅ COMPLETED (`a5e67ae`) |
+| **Phase 1** | Spring Boot 3.3.4 Foundation & Flyway DB Migrations | ✅ COMPLETED (`fedea5c`) |
+| **Phase 2** | Database & Domain Entities & Repositories | ✅ COMPLETED (`3b2b2b7`) |
+| **Phase 3** | Authentication, JWT Token Provider & Security Filter | ✅ COMPLETED (`189cf2c`) |
+| **Phase 4** | Catalog & Perfume Domain Services & Controllers | ✅ COMPLETED (`5bfa79d`) |
+| **Phase 5** | Multi-Location Inventory & Stock Reservation Engine | ✅ COMPLETED (`a15b16e`) |
+| **Phase 6** | Customer Profile, Address Book, Bag & Wishlist | ✅ COMPLETED (`d758d16`) |
+| **Phase 7** | Checkout Orchestration, Coupon Engine & Payment Provider | ✅ COMPLETED (`8b60956`) |
+| **Phase 8** | Orders, Payment Lifecycle & Shipping Abstraction | ✅ COMPLETED (`07b35da`) |
+| **Phase 9** | Promotions, Reviews, Returns & Notifications | ✅ COMPLETED (`36334bf`) |
+| **Phase 10** | Backoffice Admin Console & Analytics APIs | ✅ COMPLETED (`4ad526f`) |
+| **Phase 11** | AI Concierge, Scent Finder Quiz & Semantic Search | ✅ COMPLETED (`5dab4f9`) |
+| **Phase 12** | Editorial CMS, Banners, SEO & Observability | ✅ COMPLETED (`37f2570`) |
+| **Phase 13** | Frontend REST API Integration & Gateway Layer | ✅ COMPLETED (`e9e27cf`) |
+| **Phase 14** | Concurrency, Idempotency, Precision & Security Stress Testing | ✅ COMPLETED (`cea7211`) |
+| **Phase 15** | **Production Hardening, Docker Containerization & Multi-Env Config** | ⏳ **READY FOR NEXT SESSION** |
+
+### Phase 15 Scope for Next Session:
+1. Multi-stage Dockerfile for Spring Boot 3.3.4 backend (Maven 3.9 + Eclipse Temurin 21 JRE Alpine image with healthcheck).
+2. Multi-stage Dockerfile for Next.js 14 frontend (Node 20 Alpine standalone output).
+3. Production `docker-compose.yml` orchestrating PostgreSQL 17 (port 5432 with healthcheck & persistent volume), Spring Boot (port 8080), and Next.js (port 3000).
+4. `application-prod.yml` configuration with zero hardcoded secrets and environment variable bindings.
+5. Final multi-container orchestration smoke test and verification.
