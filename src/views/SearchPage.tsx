@@ -19,6 +19,7 @@ import {
   Tag,
   Clock
 } from 'lucide-react';
+import { analytics } from '../services/analyticsService';
 
 const FRAGRANCE_FAMILIES: FragranceFamily[] = [
   'Fresh',
@@ -52,6 +53,7 @@ export const SearchPage: React.FC = () => {
     setInputQuery(queryParam);
     if (queryParam.trim()) {
       SearchService.addRecentSearch(queryParam);
+      analytics.trackSearchStarted(queryParam.trim());
     }
   }, [queryParam]);
 
@@ -59,7 +61,7 @@ export const SearchPage: React.FC = () => {
 
   // Execute Search via SearchService
   const searchResult = useMemo(() => {
-    return SearchService.search(
+    const res = SearchService.search(
       {
         query: queryParam,
         brands: selectedBrands.length > 0 ? selectedBrands : undefined,
@@ -70,6 +72,12 @@ export const SearchPage: React.FC = () => {
       1,
       pageSize
     );
+
+    if (queryParam.trim() && res.totalCount === 0) {
+      analytics.trackSearchZeroResult(queryParam.trim());
+    }
+
+    return res;
   }, [queryParam, selectedBrands, selectedFamilies, priceRange, sortBy, pageSize]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {

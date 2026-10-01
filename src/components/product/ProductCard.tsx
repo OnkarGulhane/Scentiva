@@ -7,6 +7,7 @@ import { useStore } from '../../context/StoreContext';
 import { Heart, ShoppingBag, Star, Eye } from 'lucide-react';
 import { Badge } from '../common/Badge';
 import { SCENTIVA_FALLBACK_IMAGE } from '../../data/mediaCatalog';
+import { analytics } from '../../services/analyticsService';
 
 interface ProductCardProps {
   product: Product;
@@ -22,6 +23,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, featured = fa
   const [isHovered, setIsHovered] = useState(false);
 
   const isWishlisted = isInWishlist(product.id);
+  const isOutOfStock = product.stock <= 0 || !selectedVariant.inStock;
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isWishlisted) {
+      analytics.trackWishlistAdded(product.id, product.name);
+    } else {
+      analytics.trackWishlistRemoved(product.id);
+    }
+    toggleWishlist(product);
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isOutOfStock) return;
+    analytics.trackCartAdded(product.id, selectedVariant.sku, selectedVariant.price, 1);
+    addToCart(product, selectedVariant, 1);
+  };
 
   return (
     <div
@@ -47,6 +68,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, featured = fa
               {product.discountPercentage}% OFF
             </Badge>
           )}
+          {isOutOfStock && (
+            <Badge variant="outline" size="sm" className="bg-neutral-900/80 text-white border-none">
+              Out of Stock
+            </Badge>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5 pointer-events-auto">
@@ -55,25 +81,22 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, featured = fa
             onClick={e => {
               e.preventDefault();
               e.stopPropagation();
+              analytics.trackProductViewed(product.id, product.name, selectedVariant.price);
               setQuickViewProduct(product);
             }}
             className="w-8 h-8 rounded-full bg-white/90 backdrop-blur-md shadow-sm border border-neutral-200/80 flex items-center justify-center text-neutral-700 hover:text-brand-plum-900 hover:scale-110 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex"
-            aria-label="Quick View"
+            aria-label={`Quick View for ${product.name}`}
           >
             <Eye className="w-4 h-4" />
           </button>
 
           {/* Wishlist Button */}
           <button
-            onClick={e => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleWishlist(product);
-            }}
+            onClick={handleWishlistToggle}
             className={`w-8 h-8 rounded-full bg-white/90 backdrop-blur-md shadow-sm border border-neutral-200/80 flex items-center justify-center transition-all hover:scale-110 ${
               isWishlisted ? 'text-brand-rose-500 bg-brand-blush-100/80' : 'text-neutral-500 hover:text-brand-rose-500'
             }`}
-            aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`}
           >
             <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
           </button>
@@ -83,6 +106,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, featured = fa
       {/* Product Image Stage */}
       <Link
         to={`/product/${product.slug}`}
+        onClick={() => analytics.trackProductViewed(product.id, product.name, selectedVariant.price)}
         className="block relative aspect-[4/5] overflow-hidden bg-neutral-100/60"
       >
         <img
@@ -124,7 +148,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, featured = fa
 
           {/* Product Title */}
           <h3 className="font-serif text-base font-medium text-neutral-900 group-hover:text-brand-plum-900 transition-colors line-clamp-1">
-            <Link to={`/product/${product.slug}`}>
+            <Link 
+              to={`/product/${product.slug}`}
+              onClick={() => analytics.trackProductViewed(product.id, product.name, selectedVariant.price)}
+            >
               {product.name}
             </Link>
           </h3>
@@ -174,12 +201,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, featured = fa
           </div>
 
           <button
-            onClick={() => addToCart(product, selectedVariant, 1)}
-            className="px-3.5 py-2 rounded-xl bg-brand-plum-900 hover:bg-brand-plum-800 active:scale-95 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
-            aria-label={`Add ${product.name} to bag`}
+            onClick={handleAddToCart}
+            disabled={isOutOfStock}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all ${
+              isOutOfStock
+                ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
+                : 'bg-brand-plum-900 hover:bg-brand-plum-800 active:scale-95 text-white'
+            }`}
+            aria-label={isOutOfStock ? `${product.name} is out of stock` : `Add ${product.name} to bag`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Add</span>
+            <span className="hidden sm:inline">{isOutOfStock ? 'Sold Out' : 'Add'}</span>
           </button>
         </div>
       </div>

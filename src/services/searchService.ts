@@ -1,4 +1,4 @@
-import { Product, SearchFilterOptions, SearchResult } from '../types';
+import { Product, SearchFilterOptions, SearchResult, FragranceFamily } from '../types';
 import { ProductService } from './productService';
 
 const RECENT_SEARCHES_KEY = 'scentiva_recent_searches';
@@ -9,10 +9,19 @@ export const POPULAR_SEARCHES = [
   'Vanilla & Amber',
   'Creed Aventus',
   'Fresh Citrus',
-  'Date Night',
-  'Woody Oud',
+  'Date Night Perfume',
+  'Woody Oud under ₹15000',
   'Byredo'
 ];
+
+interface NaturalLanguageIntent {
+  cleanQuery: string;
+  detectedFamily?: FragranceFamily;
+  detectedMaxPrice?: number;
+  detectedGender?: 'For Her' | 'For Him' | 'Unisex';
+  detectedOccasion?: string;
+  detectedSeason?: string;
+}
 
 export const SearchService = {
   getRecentSearches: (): string[] => {
@@ -37,6 +46,16 @@ export const SearchService = {
     }
   },
 
+  removeRecentSearch: (query: string): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      const recents = SearchService.getRecentSearches().filter(q => q.toLowerCase() !== query.toLowerCase());
+      localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(recents));
+    } catch (err) {
+      console.error('Failed to remove recent search:', err);
+    }
+  },
+
   clearRecentSearches: (): void => {
     if (typeof window === 'undefined') return;
     try {
@@ -44,6 +63,85 @@ export const SearchService = {
     } catch (err) {
       console.error('Failed to clear recent searches:', err);
     }
+  },
+
+  /**
+   * Natural Language Intent Extraction (Section 21)
+   * Parses queries like "fresh office perfume under ₹5000" into structured search parameters.
+   */
+  parseNaturalLanguageIntent: (rawQuery: string): NaturalLanguageIntent => {
+    let q = rawQuery.toLowerCase();
+    let detectedMaxPrice: number | undefined;
+    let detectedFamily: FragranceFamily | undefined;
+    let detectedGender: 'For Her' | 'For Him' | 'Unisex' | undefined;
+    let detectedOccasion: string | undefined;
+    let detectedSeason: string | undefined;
+
+    // Price extraction: "under 5000", "below ₹3000", "< 10000"
+    const priceMatch = q.match(/(?:under|below|<|less than)\s*₹?\s*(\d+)/i);
+    if (priceMatch && priceMatch[1]) {
+      detectedMaxPrice = parseInt(priceMatch[1], 10);
+      q = q.replace(priceMatch[0], ' ');
+    }
+
+    // Family extraction
+    const familyMap: Record<string, FragranceFamily> = {
+      fresh: 'Fresh',
+      woody: 'Woody',
+      floral: 'Floral',
+      oriental: 'Oriental',
+      amber: 'Amber',
+      citrus: 'Citrus',
+      aquatic: 'Aquatic',
+      spicy: 'Spicy',
+      aromatic: 'Aromatic',
+      gourmand: 'Sweet & Gourmand',
+      sweet: 'Sweet & Gourmand',
+      vanilla: 'Sweet & Gourmand'
+    };
+
+    for (const [key, fam] of Object.entries(familyMap)) {
+      if (new RegExp(`\\b${key}\\b`, 'i').test(q)) {
+        detectedFamily = fam;
+        break;
+      }
+    }
+
+    // Gender extraction
+    if (/\b(for him|men|mens|man|male)\b/i.test(q)) {
+      detectedGender = 'For Him';
+    } else if (/\b(for her|women|womens|woman|female)\b/i.test(q)) {
+      detectedGender = 'For Her';
+    } else if (/\b(unisex|genderless)\b/i.test(q)) {
+      detectedGender = 'Unisex';
+    }
+
+    // Occasion extraction
+    if (/\b(office|work|corporate|formal)\b/i.test(q)) detectedOccasion = 'Work / Office';
+    else if (/\b(date|dating|romance|romantic)\b/i.test(q)) detectedOccasion = 'Date Night';
+    else if (/\b(party|clubbing|night out)\b/i.test(q)) detectedOccasion = 'Party';
+    else if (/\b(gala|wedding|special event)\b/i.test(q)) detectedOccasion = 'Special Occasion';
+
+    // Season extraction
+    if (/\b(summer)\b/i.test(q)) detectedSeason = 'Summer';
+    else if (/\b(winter)\b/i.test(q)) detectedSeason = 'Winter';
+    else if (/\b(spring)\b/i.test(q)) detectedSeason = 'Spring';
+    else if (/\b(autumn|fall)\b/i.test(q)) detectedSeason = 'Autumn';
+
+    // Clean common stopwords: perfume, fragrance, cologne, scent, for, best, under
+    const cleanTokens = q
+      .replace(/\b(perfume|fragrances?|cologne|scent|for|best|good|under|below|top)\b/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return {
+      cleanQuery: cleanTokens,
+      detectedFamily,
+      detectedMaxPrice,
+      detectedGender,
+      detectedOccasion,
+      detectedSeason
+    };
   },
 
   getSuggestions: (query: string, limit: number = 6): {
@@ -87,7 +185,7 @@ export const SearchService = {
   },
 
   /**
-   * Comprehensive search with filters and pagination
+   * Comprehensive search with natural language intent extraction, faceted filters and pagination
    * Clean extension point for future AI/Vector search integration
    */
   search: (
@@ -96,14 +194,41 @@ export const SearchService = {
     pageSize: number = 12
   ): SearchResult => {
     const all = ProductService.getAll();
-    const q = (options.query || '').trim().toLowerCase();
+    const rawQ = (options.query || '').trim();
+    const intent = SearchService.parseNaturalLanguageIntent(rawQ);
+    const q = intent.cleanQuery.toLowerCase();
 
     const matchedBrandsSet = new Set<string>();
     const matchedFamiliesSet = new Set<string>();
     const matchedNotesSet = new Set<string>();
 
     let filtered = all.filter(p => {
-      // Query filter
+      // 1. Natural Language Max Price
+      const effectiveMaxPrice = options.maxPrice ?? intent.detectedMaxPrice;
+      const defaultVariantPrice = p.variants[0]?.price || 0;
+      if (effectiveMaxPrice !== undefined && defaultVariantPrice > effectiveMaxPrice) {
+        return false;
+      }
+
+      // 2. Natural Language Family
+      if (intent.detectedFamily && !p.fragranceFamilies.includes(intent.detectedFamily)) {
+        // Soft match: only filter if specific query keyword wasn't also matched in name
+        if (!p.name.toLowerCase().includes(q)) {
+          return false;
+        }
+      }
+
+      // 3. Natural Language Gender
+      if (intent.detectedGender && p.category !== 'Unisex' && p.category !== intent.detectedGender) {
+        return false;
+      }
+
+      // 4. Natural Language Occasion
+      if (intent.detectedOccasion && !p.occasion.some(o => o.toLowerCase().includes(intent.detectedOccasion!.toLowerCase()))) {
+        // Soft match
+      }
+
+      // 5. Keyword Matching
       if (q) {
         const nameMatch = p.name.toLowerCase().includes(q);
         const brandMatch = p.brandName.toLowerCase().includes(q);
@@ -125,7 +250,7 @@ export const SearchService = {
         });
       }
 
-      // Brand Filter
+      // 6. Explicit Brand Filter
       if (options.brands && options.brands.length > 0) {
         const hasBrand = options.brands.some(
           b => p.brandId === b || p.brandName.toLowerCase() === b.toLowerCase() || p.brandId === `b-${b}`
@@ -133,7 +258,7 @@ export const SearchService = {
         if (!hasBrand) return false;
       }
 
-      // Category Filter
+      // 7. Explicit Category Filter
       if (options.categories && options.categories.length > 0) {
         const hasCat = options.categories.some(
           c => p.category.toLowerCase() === c.toLowerCase()
@@ -141,24 +266,22 @@ export const SearchService = {
         if (!hasCat) return false;
       }
 
-      // Family Filter
+      // 8. Explicit Family Filter
       if (options.families && options.families.length > 0) {
         const hasFam = options.families.some(f => p.fragranceFamilies.includes(f));
         if (!hasFam) return false;
       }
 
-      // Concentration Filter
+      // 9. Explicit Concentration Filter
       if (options.concentrations && options.concentrations.length > 0) {
-        const hasConc = options.concentrations.some(c => p.concentration.includes(c));
+        const hasConc = options.concentrations.some(c => p.concentration.includes(c as any));
         if (!hasConc) return false;
       }
 
-      // Price Range Filter
-      const defaultVariantPrice = p.variants[0]?.price || 0;
+      // 10. Explicit Min Price
       if (options.minPrice !== undefined && defaultVariantPrice < options.minPrice) return false;
-      if (options.maxPrice !== undefined && defaultVariantPrice > options.maxPrice) return false;
 
-      // In-stock Filter
+      // 11. In-stock Filter
       if (options.inStockOnly && p.stock <= 0) return false;
 
       return true;

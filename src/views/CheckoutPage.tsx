@@ -22,6 +22,7 @@ import {
   Loader2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { analytics } from '../services/analyticsService';
 
 export const CheckoutPage: React.FC = () => {
   const {
@@ -114,6 +115,8 @@ export const CheckoutPage: React.FC = () => {
         deliveryMethod,
         paymentMethod
       });
+
+      analytics.trackPurchaseCompleted(order.id, order.orderNumber, order.total, order.paymentMethod);
 
       confetti({
         particleCount: 100,

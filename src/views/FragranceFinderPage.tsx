@@ -14,12 +14,13 @@ import {
   Check, 
   Heart, 
   ShoppingBag, 
-  Star,
-  Share2,
-  CheckCircle2,
-  Award
+  Star, 
+  Share2, 
+  CheckCircle2, 
+  Award 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { analytics } from '../services/analyticsService';
 
 export const FragranceFinderPage: React.FC = () => {
   const { products, formatPrice, addToCart, toggleWishlist, isInWishlist, showToast } = useStore();
@@ -47,9 +48,11 @@ export const FragranceFinderPage: React.FC = () => {
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
+      analytics.trackScentFinderStarted(currentStep + 1);
       setCurrentStep(prev => prev + 1);
     } else {
       setIsFinished(true);
+      analytics.trackScentFinderCompleted(selectedFamily || undefined, selectedOccasion, matchedProducts.length);
       navigate('/find-your-scent/results', { replace: true });
       confetti({
         particleCount: 80,

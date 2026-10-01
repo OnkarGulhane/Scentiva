@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from '../hooks/useNavigation';
 import { Link } from '../components/common/Link';
 import { useStore } from '../context/StoreContext';
@@ -8,6 +8,7 @@ import { ProductVariant } from '../types';
 import { ProductCard } from '../components/product/ProductCard';
 import { Badge } from '../components/common/Badge';
 import { SCENTIVA_FALLBACK_IMAGE } from '../data/mediaCatalog';
+import { analytics } from '../services/analyticsService';
 import { 
   Heart, 
   ShoppingBag, 
@@ -21,12 +22,12 @@ import {
   Clock, 
   Wind, 
   Droplets,
-  Plus,
-  Minus,
-  ArrowRight,
-  Share2,
-  ChevronRight,
-  MessageSquare
+  Plus, 
+  Minus, 
+  ArrowRight, 
+  Share2, 
+  ChevronRight, 
+  MessageSquare 
 } from 'lucide-react';
 
 export const ProductDetailPage: React.FC = () => {
@@ -36,20 +37,8 @@ export const ProductDetailPage: React.FC = () => {
 
   const product = products.find(p => p.slug === slug || p.id === slug);
 
-  if (!product) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
-        <h2 className="font-serif text-3xl font-bold text-neutral-900 mb-2">Fragrance Not Found</h2>
-        <p className="text-xs text-neutral-500 mb-6">The requested flacon may have been archived or moved.</p>
-        <Link to="/shop" className="px-6 py-2.5 rounded-full bg-brand-plum-900 text-white text-xs font-semibold">
-          Explore All Fragrances
-        </Link>
-      </div>
-    );
-  }
-
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
-    product.variants[0] || { size: '50ml', price: 7999, sku: 'DEF', inStock: true }
+    product?.variants[0] || { size: '50ml', price: 7999, sku: 'DEF', inStock: true }
   );
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -62,20 +51,61 @@ export const ProductDetailPage: React.FC = () => {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
 
-  const isWishlisted = isInWishlist(product.id);
+  const isWishlisted = product ? isInWishlist(product.id) : false;
+
+  useEffect(() => {
+    if (product) {
+      analytics.trackFragranceProfileViewed(product.id, product.name, product.brandName);
+      if (product.variants[0]) {
+        setSelectedVariant(product.variants[0]);
+      }
+    }
+  }, [product]);
+
+  if (!product) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
+        <h2 className="font-serif text-3xl font-bold text-neutral-900 mb-2">Fragrance Not Found</h2>
+        <p className="text-xs text-neutral-500 mb-6">The requested flacon may have been archived or moved in the vault.</p>
+        <Link to="/shop" className="px-6 py-2.5 rounded-full bg-brand-plum-900 text-white text-xs font-semibold">
+          Explore All Fragrances
+        </Link>
+      </div>
+    );
+  }
 
   const handlePincodeCheck = (e: React.FormEvent) => {
     e.preventDefault();
     if (pincodeInput.length === 6 && /^\d+$/.test(pincodeInput)) {
-      setPincodeStatus('Available! Express Delivery estimated within 2–3 business days via BlueDart Apex Air.');
+      setPincodeStatus('Available! Express Luxury Delivery estimated within 2–3 business days via BlueDart Apex Air.');
     } else {
       setPincodeStatus('Please enter a valid 6-digit Indian PIN code.');
     }
   };
 
+  const handleNoteClick = (note: string) => {
+    analytics.trackFragranceNoteClicked(note, 'pdp');
+    navigate(`/search?q=${encodeURIComponent(note)}`);
+  };
+
+  const handleAddToCart = () => {
+    analytics.trackCartAdded(product.id, selectedVariant.sku, selectedVariant.price, quantity);
+    addToCart(product, selectedVariant, quantity);
+  };
+
   const handleBuyNow = () => {
+    analytics.trackCartAdded(product.id, selectedVariant.sku, selectedVariant.price, quantity);
     addToCart(product, selectedVariant, quantity);
     navigate('/checkout');
+  };
+
+  const handleWishlistToggle = () => {
+    if (!isWishlisted) {
+      analytics.trackWishlistAdded(product.id, product.name);
+    } else {
+      analytics.trackWishlistRemoved(product.id);
+    }
+    toggleWishlist(product);
   };
 
   const handleAddReview = (e: React.FormEvent) => {
@@ -84,7 +114,7 @@ export const ProductDetailPage: React.FC = () => {
       showToast('Please complete all review fields', 'warning');
       return;
     }
-    showToast('Thank you! Your verified review has been submitted for moderation.', 'success');
+    showToast('Thank you! Your verified review has been submitted for connoisseur moderation.', 'success');
     setShowReviewModal(false);
     setReviewName('');
     setReviewComment('');
@@ -94,8 +124,38 @@ export const ProductDetailPage: React.FC = () => {
     .filter(p => p.id !== product.id && (p.category === product.category || p.brandId === product.brandId))
     .slice(0, 4);
 
+  // Schema.org JSON-LD Structured Data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: `${product.brandName} ${product.name}`,
+    image: product.images,
+    description: product.description,
+    brand: {
+      '@type': 'Brand',
+      name: product.brandName,
+    },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'INR',
+      price: selectedVariant.price,
+      availability: selectedVariant.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      url: `https://scentiva.luxury/product/${product.slug}`,
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: product.rating,
+      reviewCount: product.reviewCount,
+    },
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 py-8 lg:py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Breadcrumb navigation */}
         <nav className="flex items-center gap-1.5 text-xs text-neutral-500 font-medium">
@@ -112,14 +172,14 @@ export const ProductDetailPage: React.FC = () => {
 
         {/* Product Stage Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
-          {/* Left Column: Image Gallery (5 Cols) */}
+          {/* Left Column: Image Gallery (6 Cols) */}
           <div className="lg:col-span-6 space-y-4 sticky top-24">
             <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-white border border-neutral-200/80 shadow-card">
               <img
                 src={product.images[activeImageIndex] || product.images[0] || SCENTIVA_FALLBACK_IMAGE}
                 alt={`${product.brandName} ${product.name} luxury flacon`}
                 onError={(e) => { e.currentTarget.src = SCENTIVA_FALLBACK_IMAGE; }}
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-cover object-center transition-all duration-300"
               />
 
               {product.discountPercentage && product.discountPercentage > 0 && (
@@ -131,11 +191,11 @@ export const ProductDetailPage: React.FC = () => {
               )}
 
               <button
-                onClick={() => toggleWishlist(product)}
+                onClick={handleWishlistToggle}
                 className={`absolute top-4 right-4 p-3 rounded-full bg-white/90 backdrop-blur-md shadow-md transition-all hover:scale-110 ${
                   isWishlisted ? 'text-brand-rose-500 bg-brand-blush-100' : 'text-neutral-600 hover:text-brand-rose-500'
                 }`}
-                aria-label="Wishlist"
+                aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
               >
                 <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
               </button>
@@ -166,7 +226,7 @@ export const ProductDetailPage: React.FC = () => {
             )}
           </div>
 
-          {/* Right Column: Product Info & Purchase Form (7 Cols) */}
+          {/* Right Column: Product Info & Purchase Form (6 Cols) */}
           <div className="lg:col-span-6 space-y-6">
             <div className="space-y-2 border-b border-neutral-200 pb-6">
               <Link
@@ -188,9 +248,9 @@ export const ProductDetailPage: React.FC = () => {
                   <Star className="w-4 h-4 fill-brand-gold-500 text-brand-gold-500" />
                   <span>{product.rating}</span>
                 </div>
-                <span className="text-xs text-neutral-500">({product.reviewCount} Verified Connoisseur Reviews)</span>
+                <span className="text-xs text-neutral-500">({product.reviewCount} Verified Reviews)</span>
                 <span className="text-xs text-semantic-success font-semibold flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> In Stock ({product.stock} bottles)
+                  <CheckCircle2 className="w-3.5 h-3.5" /> In Stock ({product.stock} flacons)
                 </span>
               </div>
             </div>
@@ -212,7 +272,7 @@ export const ProductDetailPage: React.FC = () => {
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-neutral-400">Inclusive of all taxes & luxury presentation packaging</p>
+              <p className="text-[11px] text-neutral-400">Inclusive of all taxes & luxury presentation coffret</p>
             </div>
 
             {/* Size Variant Selector */}
@@ -247,6 +307,7 @@ export const ProductDetailPage: React.FC = () => {
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="p-1 text-neutral-600 hover:text-neutral-950"
+                    aria-label="Decrease quantity"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
@@ -254,6 +315,7 @@ export const ProductDetailPage: React.FC = () => {
                   <button
                     onClick={() => setQuantity(quantity + 1)}
                     className="p-1 text-neutral-600 hover:text-neutral-950"
+                    aria-label="Increase quantity"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -261,8 +323,9 @@ export const ProductDetailPage: React.FC = () => {
 
                 {/* Add to Bag CTA */}
                 <button
-                  onClick={() => addToCart(product, selectedVariant, quantity)}
+                  onClick={handleAddToCart}
                   className="flex-1 py-4 px-6 rounded-2xl bg-brand-plum-900 hover:bg-brand-plum-800 active:scale-98 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-card hover:shadow-card-hover transition-all"
+                  aria-label={`Add ${product.name} to bag`}
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>Add to Bag • {formatPrice(selectedVariant.price * quantity)}</span>
@@ -315,11 +378,11 @@ export const ProductDetailPage: React.FC = () => {
               </div>
               <div className="p-2 rounded-xl bg-white border border-neutral-200/60 flex flex-col items-center gap-1">
                 <Truck className="w-4 h-4 text-brand-gold-500" />
-                <span>Free Express Shipping</span>
+                <span>Free Express Air</span>
               </div>
               <div className="p-2 rounded-xl bg-white border border-neutral-200/60 flex flex-col items-center gap-1">
                 <RotateCcw className="w-4 h-4 text-brand-gold-500" />
-                <span>7-Day Return Policy</span>
+                <span>7-Day Return Guarantee</span>
               </div>
             </div>
           </div>
@@ -337,6 +400,7 @@ export const ProductDetailPage: React.FC = () => {
               <h3 className="font-serif text-2xl sm:text-3xl font-bold text-neutral-900">
                 Fragrance Notes Pyramid
               </h3>
+              <p className="text-xs text-neutral-500">Click any note to explore matching fragrances in the vault.</p>
             </div>
 
             <div className="space-y-4">
@@ -348,9 +412,13 @@ export const ProductDetailPage: React.FC = () => {
                 </div>
                 <div className="flex flex-wrap gap-2 pt-1.5">
                   {product.notes.top.map((note, i) => (
-                    <span key={i} className="text-xs bg-white text-neutral-800 px-3 py-1 rounded-full border border-neutral-200 font-medium">
-                      {note}
-                    </span>
+                    <button 
+                      key={i} 
+                      onClick={() => handleNoteClick(note)}
+                      className="text-xs bg-white hover:bg-brand-plum-900 hover:text-white text-neutral-800 px-3 py-1 rounded-full border border-neutral-200 font-medium transition-colors cursor-pointer"
+                    >
+                      {note} ↗
+                    </button>
                   ))}
                 </div>
               </div>
@@ -363,9 +431,13 @@ export const ProductDetailPage: React.FC = () => {
                 </div>
                 <div className="flex flex-wrap gap-2 pt-1.5">
                   {product.notes.heart.map((note, i) => (
-                    <span key={i} className="text-xs bg-white text-neutral-800 px-3 py-1 rounded-full border border-neutral-200 font-medium">
-                      {note}
-                    </span>
+                    <button 
+                      key={i} 
+                      onClick={() => handleNoteClick(note)}
+                      className="text-xs bg-white hover:bg-brand-plum-900 hover:text-white text-neutral-800 px-3 py-1 rounded-full border border-neutral-200 font-medium transition-colors cursor-pointer"
+                    >
+                      {note} ↗
+                    </button>
                   ))}
                 </div>
               </div>
@@ -378,9 +450,13 @@ export const ProductDetailPage: React.FC = () => {
                 </div>
                 <div className="flex flex-wrap gap-2 pt-1.5">
                   {product.notes.base.map((note, i) => (
-                    <span key={i} className="text-xs bg-white text-neutral-800 px-3 py-1 rounded-full border border-neutral-200 font-medium">
-                      {note}
-                    </span>
+                    <button 
+                      key={i} 
+                      onClick={() => handleNoteClick(note)}
+                      className="text-xs bg-white hover:bg-brand-plum-900 hover:text-white text-neutral-800 px-3 py-1 rounded-full border border-neutral-200 font-medium transition-colors cursor-pointer"
+                    >
+                      {note} ↗
+                    </button>
                   ))}
                 </div>
               </div>
@@ -395,7 +471,7 @@ export const ProductDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Performance Radar & Longevity (5 Cols) */}
+          {/* Performance Profile (5 Cols) */}
           <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200 shadow-xs space-y-6">
             <div className="space-y-1">
               <span className="text-xs font-semibold uppercase tracking-widest text-brand-rose-500">
@@ -625,7 +701,7 @@ export const ProductDetailPage: React.FC = () => {
           </span>
         </div>
         <button
-          onClick={() => addToCart(product, selectedVariant, 1)}
+          onClick={handleAddToCart}
           className="flex-1 py-3 px-4 rounded-xl bg-brand-plum-900 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all"
         >
           <ShoppingBag className="w-4 h-4" />

@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Truck
 } from 'lucide-react';
+import { analytics } from '../../services/analyticsService';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -52,6 +53,7 @@ export const CartDrawer: React.FC = () => {
   };
 
   const handleProceedToCheckout = () => {
+    analytics.trackCheckoutStarted(cartTotal, cart.length);
     setIsCartDrawerOpen(false);
     navigate('/checkout');
   };
