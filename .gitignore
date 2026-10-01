@@ -31,3 +31,18 @@ pnpm-debug.log*
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Maven & Java build artifacts
+backend/target/
+target/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
