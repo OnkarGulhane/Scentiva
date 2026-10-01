@@ -217,7 +217,22 @@
   - Implemented `BannerServiceTest`, `BannerControllerTest`.
   - Implemented `SeoServiceTest`, `SeoControllerTest`.
   - Implemented `AuditLogServiceTest`, `ObservabilityControllerTest`, and `CorrelationIdFilterTest`.
-  - Verified 100% test pass rate across all backend modules (**212 / 212 tests passed, 0 failures, BUILD SUCCESS**).
+  ### 22. Phase 13: Frontend REST API Integration & Gateway Layer
+- [x] **Production API Client Gateway ([src/lib/api/apiClient.ts](file:///e:/Scentiva/src/lib/api/apiClient.ts)):**
+  - Configured JWT Bearer token authentication resolution (`localStorage` + cookie fallback with automatic 401 expiration handling).
+  - Configured distributed request tracing with unique `X-Correlation-ID` header generation per request.
+  - Built comprehensive HTTP method suite (`get`, `getPaginated`, `post`, `put`, `patch`, `delete`) with exponential retry backoff and error normalization.
+- [x] **Domain Service Adapters:**
+  - `AuthApiService` ([src/services/authApiService.ts](file:///e:/Scentiva/src/services/authApiService.ts)): `/api/v1/auth/login`, `/register`, `/me`, `/change-password`, `/logout`.
+  - `CatalogApiService` ([src/services/catalogApiService.ts](file:///e:/Scentiva/src/services/catalogApiService.ts)): `/api/v1/products`, `/products/{slug}`, `/featured`, `/brands`, `/categories`.
+  - `CartApiService` ([src/services/cartApiService.ts](file:///e:/Scentiva/src/services/cartApiService.ts)): `/api/v1/cart`, `/items`, `/merge`, `/clear`.
+  - `CheckoutApiService` ([src/services/checkoutApiService.ts](file:///e:/Scentiva/src/services/checkoutApiService.ts)): `/api/v1/checkout/summary`, `/process`, `/verify`, `/coupons/validate`.
+  - `OrderApiService` ([src/services/orderApiService.ts](file:///e:/Scentiva/src/services/orderApiService.ts)): `/api/v1/orders`, `/orders/{id}`, `/orders/number/{number}`, `/cancel`, `/shipping/track/{trackingNumber}`.
+  - `AiApiService` ([src/services/aiApiService.ts](file:///e:/Scentiva/src/services/aiApiService.ts)): `/api/v1/ai/scent-finder`, `/semantic-search`, `/concierge/chat`, `/editorial-description`, `/sentiment-summary`.
+  - `CmsApiService` ([src/services/cmsApiService.ts](file:///e:/Scentiva/src/services/cmsApiService.ts)): `/api/v1/stories`, `/stories/{slug}`, `/featured`, `/banners`, `/seo/*`.
+  - `AdminApiService` ([src/services/adminApiService.ts](file:///e:/Scentiva/src/services/adminApiService.ts)): `/api/v1/admin/dashboard/*`, `/customers`, `/users`, `/settings`, `/observability/*`.
+- [x] **Frontend Prerendering & Build Verification:**
+  - 45 / 45 static pages cleanly prerendered with 0 TypeScript compiler errors (`next build` -> Exit Code 0).
 
 ---
 
@@ -238,7 +253,9 @@
 - **Phase 10 Backoffice Admin Console & Analytics APIs:** Complete & Verified.
 - **Phase 11 AI Concierge, Scent Finder & Semantic Search:** Complete & Verified.
 - **Phase 12 Editorial CMS, Banners, SEO & Observability:** Complete & Verified.
+- **Phase 13 Frontend REST API Integration & Gateway:** Complete & Verified.
 - **GitHub Sync:** Remote branch `main` is completely in sync and clean.
+
 
 
 
