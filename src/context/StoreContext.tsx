@@ -22,6 +22,9 @@ export interface DemoUser {
 }
 
 interface StoreContextType {
+  // Hydration state
+  isHydrated: boolean;
+
   // Demo Auth
   currentUser: DemoUser | null;
   isLoggedIn: boolean;
@@ -140,105 +143,133 @@ const INITIAL_ADDRESSES: Address[] = [
   }
 ];
 
+const INITIAL_CART: CartItem[] = [
+  {
+    productId: PRODUCTS[0].id,
+    product: PRODUCTS[0],
+    selectedVariant: PRODUCTS[0].variants[1],
+    quantity: 1
+  },
+  {
+    productId: PRODUCTS[1].id,
+    product: PRODUCTS[1],
+    selectedVariant: PRODUCTS[1].variants[1],
+    quantity: 1
+  }
+];
+
+const INITIAL_WISHLIST: Product[] = [PRODUCTS[2], PRODUCTS[4]];
+
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isHydrated, setIsHydrated] = useState<boolean>(false);
+
   // Auth state
-  const [currentUser, setCurrentUser] = useState<DemoUser | null>(() => {
-    return safeGetStorage<DemoUser | null>('scentiva_user', INITIAL_DEMO_USER);
-  });
+  const [currentUser, setCurrentUser] = useState<DemoUser | null>(INITIAL_DEMO_USER);
 
   // Products state
-  const [products, setProducts] = useState<Product[]>(() => {
-    return ProductService.getAll();
-  });
+  const [products, setProducts] = useState<Product[]>(() => ProductService.getAll());
 
   // Cart state
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    return safeGetStorage<CartItem[]>('scentiva_cart', [
-      {
-        productId: PRODUCTS[0].id,
-        product: PRODUCTS[0],
-        selectedVariant: PRODUCTS[0].variants[1],
-        quantity: 1
-      },
-      {
-        productId: PRODUCTS[1].id,
-        product: PRODUCTS[1],
-        selectedVariant: PRODUCTS[1].variants[1],
-        quantity: 1
-      }
-    ]);
-  });
+  const [cart, setCart] = useState<CartItem[]>(INITIAL_CART);
 
   // Wishlist state
-  const [wishlist, setWishlist] = useState<Product[]>(() => {
-    return safeGetStorage<Product[]>('scentiva_wishlist', [PRODUCTS[2], PRODUCTS[4]]);
-  });
+  const [wishlist, setWishlist] = useState<Product[]>(INITIAL_WISHLIST);
 
   // Addresses state
-  const [addresses, setAddresses] = useState<Address[]>(() => {
-    return safeGetStorage<Address[]>('scentiva_addresses', INITIAL_ADDRESSES);
-  });
+  const [addresses, setAddresses] = useState<Address[]>(INITIAL_ADDRESSES);
 
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(() => {
-    return addresses.find(a => a.isDefault) || addresses[0] || null;
+    return INITIAL_ADDRESSES.find(a => a.isDefault) || INITIAL_ADDRESSES[0] || null;
   });
 
   // Orders state
-  const [orders, setOrders] = useState<Order[]>(() => {
-    return OrderService.getAll();
-  });
+  const [orders, setOrders] = useState<Order[]>(() => OrderService.getAll());
 
   // Coupon state
-  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(() => {
-    return safeGetStorage<Coupon | null>('scentiva_coupon', null);
-  });
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
 
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState<boolean>(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [toasts, setToasts] = useState<ToastState[]>([]);
 
-  // Persistent LocalStorage synchronization
+  // Safe client-side initial hydration from LocalStorage
   useEffect(() => {
+    try {
+      const storedUser = safeGetStorage<DemoUser | null>('scentiva_user', INITIAL_DEMO_USER);
+      if (storedUser !== undefined) setCurrentUser(storedUser);
+
+      const storedCart = safeGetStorage<CartItem[] | null>('scentiva_cart', null);
+      if (storedCart) setCart(storedCart);
+
+      const storedWishlist = safeGetStorage<Product[] | null>('scentiva_wishlist', null);
+      if (storedWishlist) setWishlist(storedWishlist);
+
+      const storedAddresses = safeGetStorage<Address[] | null>('scentiva_addresses', null);
+      if (storedAddresses) {
+        setAddresses(storedAddresses);
+        setSelectedAddress(storedAddresses.find(a => a.isDefault) || storedAddresses[0] || null);
+      }
+
+      const storedOrders = safeGetStorage<Order[] | null>('scentiva_orders', null);
+      if (storedOrders) setOrders(storedOrders);
+
+      const storedCoupon = safeGetStorage<Coupon | null>('scentiva_coupon', null);
+      if (storedCoupon) setAppliedCoupon(storedCoupon);
+    } catch (err) {
+      console.warn('Failed to hydrate from localStorage:', err);
+    } finally {
+      setIsHydrated(true);
+    }
+  }, []);
+
+  // Persistent LocalStorage synchronization (only runs after client hydration)
+  useEffect(() => {
+    if (!isHydrated) return;
     try {
       localStorage.setItem('scentiva_user', JSON.stringify(currentUser));
     } catch (e) {
       console.error(e);
     }
-  }, [currentUser]);
+  }, [currentUser, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     try {
       localStorage.setItem('scentiva_cart', JSON.stringify(cart));
     } catch (e) {
       console.error(e);
     }
-  }, [cart]);
+  }, [cart, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     try {
       localStorage.setItem('scentiva_wishlist', JSON.stringify(wishlist));
     } catch (e) {
       console.error(e);
     }
-  }, [wishlist]);
+  }, [wishlist, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     try {
       localStorage.setItem('scentiva_addresses', JSON.stringify(addresses));
     } catch (e) {
       console.error(e);
     }
-  }, [addresses]);
+  }, [addresses, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     try {
       localStorage.setItem('scentiva_orders', JSON.stringify(orders));
     } catch (e) {
       console.error(e);
     }
-  }, [orders]);
+  }, [orders, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     try {
       if (appliedCoupon) {
         localStorage.setItem('scentiva_coupon', JSON.stringify(appliedCoupon));
@@ -248,7 +279,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch (e) {
       console.error(e);
     }
-  }, [appliedCoupon]);
+  }, [appliedCoupon, isHydrated]);
 
   // Toast Helpers
   const showToast = (message: string, type: 'success' | 'info' | 'warning' | 'error' = 'success') => {
@@ -513,6 +544,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <StoreContext.Provider
       value={{
+        isHydrated,
         currentUser,
         isLoggedIn: !!currentUser,
         signIn,

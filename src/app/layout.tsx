@@ -37,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="w-full">
+    <html lang="en" className="w-full" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -46,7 +46,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-neutral-50 text-neutral-800 font-sans antialiased selection:bg-brand-plum-700 selection:text-brand-blush-100 min-h-screen w-full overflow-x-hidden">
+      <body 
+        className="bg-neutral-50 text-neutral-800 font-sans antialiased selection:bg-brand-plum-700 selection:text-brand-blush-100 min-h-screen w-full overflow-x-hidden"
+        suppressHydrationWarning
+      >
         <ClientProviders>
           <StoreLayoutShell>{children}</StoreLayoutShell>
         </ClientProviders>
