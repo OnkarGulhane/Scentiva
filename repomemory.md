@@ -4,6 +4,7 @@
 > **Target Form Factor:** Mobile-first customer storefront + Desktop web experience + Operational admin console  
 > **Architecture:** Next.js 14 App Router (SSG/SSR) + TypeScript 5.5 + Tailwind CSS + Three.js / R3F + GSAP Motion  
 > **Last Updated:** 2026-10-01  
+> **Repository Remote:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)  
 
 ---
 
@@ -14,13 +15,22 @@
 - **Type System:** TypeScript 5.5 (`strict: true`, `noEmit: true`, path alias `@/* -> ./src/*`)
 - **Styling:** TailwindCSS v3.4 + Custom CSS Design Tokens ([src/styles/tokens.css](file:///e:/Scentiva/src/styles/tokens.css), [src/styles/index.css](file:///e:/Scentiva/src/styles/index.css))
 - **Typography:** Google Fonts `Cormorant Garamond` (display/editorial serif) + `Inter` (UI/controls/pricing)
-- **3D & WebGL Engine:** Three.js + `@react-three/fiber` + `@react-three/drei` ([src/components/home/Hero3DCanvas.tsx](file:///e:/Scentiva/src/components/home/Hero3DCanvas.tsx)) with 360° `OrbitControls` drag rotation, `Float` levitation, golden mist `Sparkles`, and WebGL detection with luxury CSS fallback.
+- **3D & WebGL Engine:** Three.js + `@react-three/fiber` + `@react-three/drei` ([src/components/home/Hero3DCanvas.tsx](file:///e:/Scentiva/src/components/home/Hero3DCanvas.tsx)):
+  - **Geometry & Center:** Vertical span `3.86` units compensated with `group position={[0, -0.42, 0]}`.
+  - **Camera Framing:** Calibrated to `position: [0, 0, 5.2]`, `FOV 46°` providing **87.5% vertical bottle occupancy** and **12.5% visual breathing room** (100% full bottle visibility, 0% cropping across all viewports).
+  - **Interactivity:** 360° `OrbitControls` mouse/touch drag rotation, `Float` levitation, golden mist `Sparkles`, `Auto: ON/OFF` toggle button.
+  - **Performance:** `IntersectionObserver` toggles `frameloop` to `never` when scrolled offscreen, saving GPU/CPU.
+  - **Fallback:** Procedural luxury `StaticFlaconFallback` for non-WebGL / low-power devices.
 - **Motion Architecture:** Lenis smooth scrolling singleton ([src/motion/smoothScroll.ts](file:///e:/Scentiva/src/motion/smoothScroll.ts)) + GSAP v3 + ScrollTrigger + Scoped lifecycle context hooks ([src/motion/gsapContext.ts](file:///e:/Scentiva/src/motion/gsapContext.ts), [src/motion/scrollReveal.ts](file:///e:/Scentiva/src/motion/scrollReveal.ts), [src/motion/motionTokens.ts](file:///e:/Scentiva/src/motion/motionTokens.ts)) + `canvas-confetti`.
 - **Backend Readiness & API Abstraction:**
-  - Typed ApiClient Gateway ([src/lib/api/apiClient.ts](file:///e:/Scentiva/src/lib/api/apiClient.ts)) with `NEXT_PUBLIC_API_URL` environment configuration, abort timeouts, and retry handlers.
-  - Dedicated Domain Services in `src/services/` (`ProductService`, `BrandService`, `CategoryService`, `SearchService`, `OrderService`, `InventoryService`, `PromotionService`, `CustomerService`, `ContentService`, `RecommendationService`, `AnalyticsService`, `FeatureFlags`).
-  - Standardized AI Recommendation Interface (`IFragranceRecommendationService` with `DeterministicRecommendationService` in [src/services/recommendationService.ts](file:///e:/Scentiva/src/services/recommendationService.ts)).
-- **State & Storage:** React Context API ([src/context/StoreContext.tsx](file:///e:/Scentiva/src/context/StoreContext.tsx)) with two-phase SSR-safe hydration, demo authentication, order pipeline, and LocalStorage persistence.
+  - Typed ApiClient Gateway ([src/lib/api/apiClient.ts](file:///e:/Scentiva/src/lib/api/apiClient.ts)) with `NEXT_PUBLIC_API_URL` environment configuration, 10s abort timeouts, 5xx retry policies, and error normalization.
+  - Centralized Domain Contracts in [src/types/index.ts](file:///e:/Scentiva/src/types/index.ts) (`Product`, `Brand`, `Category`, `ProductVariant`, `OlfactoryPyramid`, `Order`, `CartItem`, `Address`, `Coupon`, `Review`, `ApiResponse<T>`, `ApiPaginatedResponse<T>`, `ApiErrorResponse`, `AnalyticsPayload`, `FeatureFlags`).
+  - Dedicated Application Services in `src/services/` (`ProductService`, `BrandService`, `CategoryService`, `SearchService`, `OrderService`, `InventoryService`, `PromotionService`, `CustomerService`, `ContentService`, `RecommendationService`, `AnalyticsService`, `FeatureFlags`).
+- **State & Storage Architecture:**
+  - React Context API ([src/context/StoreContext.tsx](file:///e:/Scentiva/src/context/StoreContext.tsx)) with two-phase SSR-safe hydration (`safeGetStorage` + post-mount sync).
+  - Single source of truth calculation engine: $\text{total} = \max(0, \text{subtotal} - \text{discount} + \text{deliveryFee})$.
+  - Stock enforcement in `addToCart` & `updateCartQuantity`.
+  - Admin-to-Storefront live synchronization across catalog, PDP, active bag items, and wishlist.
 
 ---
 
@@ -104,8 +114,19 @@
 
 ---
 
-## 4. Key Verification & Performance Baseline
-- **Build Status:** Passing cleanly with Exit Code 0 (`next build` generates 45 static pages).
-- **First Load JS:** 87.3 kB shared baseline bundle.
-- **TypeScript:** 0 compiler errors.
-- **GitHub Repository:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)
+## 4. Phased Backend Roadmap (Future Implementation Upon Request)
+
+```text
+Phase 1: Spring Boot Catalog & Brand REST API (PostgreSQL + Flyway)
+Phase 2: Authentication Microservice (JWT / OAuth2 / Spring Security)
+Phase 3: Cart, Coupon & Promotion Engine Service
+Phase 4: Order Management, Inventory Lock & Payment Webhooks (Razorpay / Stripe)
+Phase 5: Vector Search / LLM Recommendation Microservice
+```
+
+---
+
+## 5. Verification Baseline
+- **TypeScript:** 0 compiler errors (`strict: true`).
+- **Production Build:** Passing cleanly (`next build` -> 45/45 static pages prerendered, 87.3 kB shared baseline JS, Exit Code 0).
+- **Git Remote:** Branch `main` fully synchronized with GitHub.
