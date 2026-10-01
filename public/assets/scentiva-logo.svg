@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" fill="none">
+  <!-- Scentiva Horizontal Brand Logo (Dark on Light) -->
+  <g transform="translate(10, 8) scale(0.28)">
+    <circle cx="100" cy="115" r="95" fill="#451333" />
+    <path d="M75 52 C75 52, 85 45, 95 48 C98 38, 102 38, 105 48 C115 45, 125 52, 125 52 C125 52, 118 64, 100 64 C82 64, 75 52, 75 52 Z" fill="#E9B7D8" />
+    <circle cx="100" cy="38" r="4.5" fill="#C7A66A" />
+    <!-- Laurel Leaves -->
+    <path d="M58 80 C40 85, 30 102, 38 118 C30 114, 25 125, 34 138 C26 138, 26 152, 40 162 C34 168, 38 182, 52 188 C48 198, 62 208, 80 214 C70 205, 68 192, 70 180" fill="#F2D2E7" />
+    <path d="M142 80 C160 85, 170 102, 162 118 C170 114, 175 125, 166 138 C174 138, 174 152, 160 162 C166 168, 162 182, 148 188 C152 198, 138 208, 120 214 C130 205, 132 192, 130 180" fill="#F2D2E7" />
+    <!-- Flacon -->
+    <path d="M68 85 L132 85 L124 185 L76 185 Z" fill="#FAEAF4" stroke="#451333" stroke-width="2" />
+    <rect x="88" y="64" width="24" height="21" rx="3" fill="#E9B7D8" />
+    <rect x="80" y="102" width="40" height="58" rx="4" fill="#FFFFFF" />
+    <text x="100" y="141" font-family="'Cormorant Garamond', Georgia, serif" font-size="34" font-weight="700" fill="#321027" text-anchor="middle">S</text>
+  </g>
+  
+  <!-- Wordmark & Tagline -->
+  <text x="80" y="44" font-family="'Cormorant Garamond', Georgia, serif" font-size="36" font-weight="600" letter-spacing="3" fill="#321027">SCENTIVA</text>
+  <text x="82" y="62" font-family="'Inter', sans-serif" font-size="10.5" font-weight="600" letter-spacing="6" fill="#B85B88">SINCE 2026</text>
+</svg>
