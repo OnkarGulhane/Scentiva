@@ -2,31 +2,31 @@
 > **Brand:** SCENTIVA — "SINCE 2026"  
 > **Type:** Haute Parfumerie & Multi-Brand Fragrance Marketplace  
 > **Target Form Factor:** Mobile-first customer storefront + Desktop web experience + Operational admin console  
-> **Architecture:** Next.js 14 App Router (SSG/SSR) + TypeScript + Tailwind CSS  
+> **Architecture:** Next.js 14 App Router (SSG/SSR) + TypeScript 5.5 + Tailwind CSS + Three.js / R3F + GSAP Motion  
 > **Last Updated:** 2026-10-01  
 
 ---
 
 ## 1. System Architecture & Tech Stack
 
-- **Framework:** Next.js 14 (`next` v14.2.24, React 18, React DOM)
+- **Framework:** Next.js 14 (`next` v14.2.24, React 18.3.1, React DOM)
 - **Routing Engine:** Next.js 14 App Router (`src/app/` with 45 static/dynamic routes)
 - **Type System:** TypeScript 5.5 (`strict: true`, `noEmit: true`, path alias `@/* -> ./src/*`)
 - **Styling:** TailwindCSS v3.4 + Custom CSS Design Tokens ([src/styles/tokens.css](file:///e:/Scentiva/src/styles/tokens.css), [src/styles/index.css](file:///e:/Scentiva/src/styles/index.css))
 - **Typography:** Google Fonts `Cormorant Garamond` (display/editorial serif) + `Inter` (UI/controls/pricing)
-- **3D & WebGL Engine:** Three.js + `@react-three/fiber` + `@react-three/drei` ([src/components/home/Hero3DCanvas.tsx](file:///e:/Scentiva/src/components/home/Hero3DCanvas.tsx)) with WebGL detection, luxury CSS/SVG glass fallback, and reduced-motion adaptation.
+- **3D & WebGL Engine:** Three.js + `@react-three/fiber` + `@react-three/drei` ([src/components/home/Hero3DCanvas.tsx](file:///e:/Scentiva/src/components/home/Hero3DCanvas.tsx)) with 360° `OrbitControls` drag rotation, `Float` levitation, golden mist `Sparkles`, and WebGL detection with luxury CSS fallback.
 - **Motion Architecture:** Lenis smooth scrolling singleton ([src/motion/smoothScroll.ts](file:///e:/Scentiva/src/motion/smoothScroll.ts)) + GSAP v3 + ScrollTrigger + Scoped lifecycle context hooks ([src/motion/gsapContext.ts](file:///e:/Scentiva/src/motion/gsapContext.ts), [src/motion/scrollReveal.ts](file:///e:/Scentiva/src/motion/scrollReveal.ts), [src/motion/motionTokens.ts](file:///e:/Scentiva/src/motion/motionTokens.ts)) + `canvas-confetti`.
 - **Backend Readiness & API Abstraction:**
-  - Typed ApiClient Gateway ([src/lib/api/apiClient.ts](file:///e:/Scentiva/src/lib/api/apiClient.ts)) with `NEXT_PUBLIC_API_URL` environment configuration.
-  - Dedicated Domain Services in `src/services/` (`ProductService`, `BrandService`, `CategoryService`, `SearchService`, `OrderService`, `InventoryService`, `PromotionService`, `CustomerService`, `ContentService`, `RecommendationService`).
+  - Typed ApiClient Gateway ([src/lib/api/apiClient.ts](file:///e:/Scentiva/src/lib/api/apiClient.ts)) with `NEXT_PUBLIC_API_URL` environment configuration, abort timeouts, and retry handlers.
+  - Dedicated Domain Services in `src/services/` (`ProductService`, `BrandService`, `CategoryService`, `SearchService`, `OrderService`, `InventoryService`, `PromotionService`, `CustomerService`, `ContentService`, `RecommendationService`, `AnalyticsService`, `FeatureFlags`).
   - Standardized AI Recommendation Interface (`IFragranceRecommendationService` with `DeterministicRecommendationService` in [src/services/recommendationService.ts](file:///e:/Scentiva/src/services/recommendationService.ts)).
-- **State & Storage:** React Context API ([src/context/StoreContext.tsx](file:///e:/Scentiva/src/context/StoreContext.tsx)) with defensive JSON parsing, demo authentication, order pipeline, and LocalStorage persistence.
+- **State & Storage:** React Context API ([src/context/StoreContext.tsx](file:///e:/Scentiva/src/context/StoreContext.tsx)) with two-phase SSR-safe hydration, demo authentication, order pipeline, and LocalStorage persistence.
 
 ---
 
 ## 2. Design System & Token Specifications
 
-### Color Palette
+### Color Palette (Nocturne Gallery Identity)
 | Token Name | HEX | Usage |
 |---|---|---|
 | `color.brand.plum.950` | `#321027` | Deepest brand surface, dark hero background, footer, typography |
@@ -52,7 +52,7 @@
 ### Customer Storefront (30 Routes)
 1. `/` — [src/app/page.tsx](file:///e:/Scentiva/src/app/page.tsx): 3D flacon hero, brand ticker, category cards, best sellers, fragrance quiz teaser, journal, trust badges.
 2. `/shop` — [src/app/shop/page.tsx](file:///e:/Scentiva/src/app/shop/page.tsx): Full fragrance catalog with faceted filters, concentration switcher, price slider.
-3. `/search` — [src/app/search/page.tsx](file:///e:/Scentiva/src/app/search/page.tsx): Autocomplete search route with query parsing and empty state recovery.
+3. `/search` — [src/app/search/page.tsx](file:///e:/Scentiva/src/app/search/page.tsx): Autocomplete search route with NLP query parsing and zero-result recovery.
 4. `/brands` — [src/app/brands/page.tsx](file:///e:/Scentiva/src/app/brands/page.tsx): Brand directory with tier filters.
 5. `/brands/[slug]` — [src/app/brands/[slug]/page.tsx](file:///e:/Scentiva/src/app/brands/[slug]/page.tsx): Brand detail with origin, bio, and dedicated flacons.
 6. `/categories/[slug]` — [src/app/categories/[slug]/page.tsx](file:///e:/Scentiva/src/app/categories/[slug]/page.tsx): Category collections (For Her, For Him, Unisex, Luxury & Niche, Everyday Fresh, Gift Sets).
@@ -77,7 +77,7 @@
 25. `/help` — [src/app/help/page.tsx](file:///e:/Scentiva/src/app/help/page.tsx): FAQ & authenticity info.
 26. `/contact` — [src/app/contact/page.tsx](file:///e:/Scentiva/src/app/contact/page.tsx): Concierge contact form.
 27. `/policies/shipping` — [src/app/policies/shipping/page.tsx](file:///e:/Scentiva/src/app/policies/shipping/page.tsx): Shipping policy.
-28. `/policies/returns` — [src/app/policies/returns/page.tsx](file:///e:/Scentiva/src/app/policies/returns/page.tsx): Return policy.
+28: `/policies/returns` — [src/app/policies/returns/page.tsx](file:///e:/Scentiva/src/app/policies/returns/page.tsx): Return policy.
 29. `/policies/privacy` — [src/app/policies/privacy/page.tsx](file:///e:/Scentiva/src/app/policies/privacy/page.tsx): Privacy policy.
 30. `/policies/terms` — [src/app/policies/terms/page.tsx](file:///e:/Scentiva/src/app/policies/terms/page.tsx): Terms of service.
 
@@ -105,7 +105,7 @@
 ---
 
 ## 4. Key Verification & Performance Baseline
-- **Build Status:** Passing with Exit Code 0 (`next build` generates 45 static pages).
+- **Build Status:** Passing cleanly with Exit Code 0 (`next build` generates 45 static pages).
 - **First Load JS:** 87.3 kB shared baseline bundle.
 - **TypeScript:** 0 compiler errors.
-- **Server:** Running on `http://localhost:3000`.
+- **GitHub Repository:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)
