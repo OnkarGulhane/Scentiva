@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { HeroSection } from '@/components/home/HeroSection';
 import { BrandTicker } from '@/components/home/BrandTicker';
 import { CategoryCards } from '@/components/home/CategoryCards';
@@ -9,16 +9,14 @@ import { TrustBadges } from '@/components/home/TrustBadges';
 
 export default function HomePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-neutral-50 animate-pulse" />}>
-      <div className="min-h-screen w-full">
-        <HeroSection />
-        <BrandTicker />
-        <CategoryCards />
-        <BestSellers />
-        <ScentFinderTeaser />
-        <EditorialSection />
-        <TrustBadges />
-      </div>
-    </Suspense>
+    <div className="min-h-screen w-full">
+      <HeroSection />
+      <BrandTicker />
+      <CategoryCards />
+      <BestSellers />
+      <ScentFinderTeaser />
+      <EditorialSection />
+      <TrustBadges />
+    </div>
   );
 }

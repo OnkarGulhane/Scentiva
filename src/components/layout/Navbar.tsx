@@ -13,30 +13,47 @@ import {
   X, 
   Sparkles, 
   ChevronDown, 
+  ChevronRight,
   ArrowRight,
   ShieldCheck,
   Package,
   Layers,
   Flame,
-  Gift
+  Gift,
+  Compass,
+  Award
 } from 'lucide-react';
 import { BRANDS } from '../../data/brands';
 import { CATEGORIES } from '../../data/categories';
-import { SearchService, POPULAR_SEARCHES } from '../../services/searchService';
+import { SearchService } from '../../services/searchService';
 
 export const Navbar: React.FC = () => {
-  const { cartCount, wishlist, setIsCartDrawerOpen, products, isLoggedIn, currentUser } = useStore();
+  const { cartCount, wishlist, setIsCartDrawerOpen, products, isLoggedIn, currentUser, isHydrated } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileBrandsExpanded, setMobileBrandsExpanded] = useState(false);
+  const [mobileCollectionsExpanded, setMobileCollectionsExpanded] = useState(false);
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<'brands' | 'collections' | null>(null);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const dropdownContainerRef = useRef<HTMLDivElement>(null);
+
+  // Active route indicators
+  const currentPath = location.pathname;
+  const isBrandsActive = currentPath.startsWith('/brands');
+  const isCollectionsActive = currentPath.startsWith('/collections') || currentPath.startsWith('/categories');
+  const isShopActive = currentPath === '/shop';
+  const isGiftsActive = currentPath.startsWith('/gifts');
+  const isFinderActive = currentPath.startsWith('/find-your-scent');
+  const isOffersActive = currentPath.startsWith('/offers');
+  const isStoriesActive = currentPath.startsWith('/stories');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,21 +68,28 @@ export const Navbar: React.FC = () => {
     setMobileMenuOpen(false);
     setIsSearchOpen(false);
     setActiveDropdown(null);
-  }, [location]);
+  }, [currentPath]);
 
   // Click outside and keyboard Escape handler
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (searchContainerRef.current && !searchContainerRef.current.contains(target)) {
         setIsSearchOpen(false);
       }
+      if (dropdownContainerRef.current && !dropdownContainerRef.current.contains(target)) {
+        setActiveDropdown(null);
+      }
     };
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsSearchOpen(false);
         setMobileMenuOpen(false);
+        setActiveDropdown(null);
       }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
     return () => {
@@ -108,7 +132,7 @@ export const Navbar: React.FC = () => {
           </button>
 
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-3 group shrink-0">
             <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-brand-plum-900 p-1 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
               <img
                 src="/assets/scentiva-emblem.svg"
@@ -121,16 +145,20 @@ export const Navbar: React.FC = () => {
                 SCENTIVA
               </span>
               <span className="text-[9px] sm:text-[10px] font-sans font-semibold tracking-[0.3em] text-brand-rose-500 uppercase mt-0.5">
-                SINCE 2026
+                HAUTE PARFUMERIE
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2">
+          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-1.5" ref={dropdownContainerRef}>
             <Link
               to="/shop"
-              className="px-3.5 py-2 text-sm font-medium text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70 rounded-lg transition-colors"
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                isShopActive
+                  ? 'text-brand-plum-900 bg-brand-blush-100/70 font-semibold'
+                  : 'text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70'
+              }`}
             >
               All Perfumes
             </Link>
@@ -142,67 +170,145 @@ export const Navbar: React.FC = () => {
               onMouseLeave={() => setActiveDropdown(null)}
             >
               <button
-                className="flex items-center gap-1 px-3.5 py-2 text-sm font-medium text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70 rounded-lg transition-colors"
+                type="button"
+                onClick={() => setActiveDropdown(prev => prev === 'brands' ? null : 'brands')}
+                className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  isBrandsActive || activeDropdown === 'brands'
+                    ? 'text-brand-plum-900 bg-brand-blush-100/70 font-semibold'
+                    : 'text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70'
+                }`}
                 aria-expanded={activeDropdown === 'brands'}
+                aria-haspopup="true"
               >
                 <span>Brands</span>
-                <ChevronDown className="w-4 h-4 text-neutral-400" />
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'brands' ? 'rotate-180 text-brand-plum-900' : 'text-neutral-400'}`} />
               </button>
 
+              {/* Hover bridge & Dropdown Body */}
               {activeDropdown === 'brands' && (
-                <div className="absolute top-full left-0 w-80 bg-white rounded-xl shadow-modal border border-neutral-200/80 p-3 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
-                  <div className="p-2 border-b border-neutral-100 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Luxury Houses</span>
-                    <Link to="/brands" className="text-xs text-brand-rose-500 hover:underline font-medium">View All (10+)</Link>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5 pt-2">
-                    {BRANDS.slice(0, 8).map(brand => (
-                      <Link
-                        key={brand.id}
-                        to={`/brands/${brand.slug}`}
-                        className="px-3 py-2 text-xs font-medium text-neutral-700 hover:bg-brand-blush-100/60 hover:text-brand-plum-900 rounded-lg transition-colors flex items-center justify-between"
+                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="w-88 bg-white rounded-2xl shadow-modal border border-neutral-200/90 p-4 backdrop-blur-md">
+                    <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+                      <div className="flex items-center gap-1.5">
+                        <Award className="w-3.5 h-3.5 text-brand-gold-500" />
+                        <span className="text-[11px] font-bold text-brand-plum-950 uppercase tracking-wider">Luxury Maisons</span>
+                      </div>
+                      <Link 
+                        to="/brands" 
+                        onClick={() => setActiveDropdown(null)}
+                        className="text-xs text-brand-rose-600 hover:text-brand-plum-900 hover:underline font-semibold flex items-center gap-1"
                       >
-                        <span>{brand.name}</span>
-                        <span className="text-[10px] text-neutral-400">{brand.featuredProductCount}</span>
+                        <span>View All ({BRANDS.length})</span>
+                        <ArrowRight className="w-3 h-3" />
                       </Link>
-                    ))}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1.5 pt-3">
+                      {BRANDS.slice(0, 10).map(brand => (
+                        <Link
+                          key={brand.id}
+                          to={`/brands/${brand.slug}`}
+                          onClick={() => setActiveDropdown(null)}
+                          className="p-2 rounded-xl text-xs font-medium text-neutral-800 hover:bg-brand-blush-100/60 hover:text-brand-plum-900 transition-colors flex items-center justify-between group/brand"
+                        >
+                          <span className="font-semibold group-hover/brand:translate-x-0.5 transition-transform">{brand.name}</span>
+                          <span className="text-[10px] text-neutral-400 font-mono">{brand.tier}</span>
+                        </Link>
+                      ))}
+                    </div>
+
+                    <div className="pt-3 mt-3 border-t border-neutral-100">
+                      <Link
+                        to="/brands"
+                        onClick={() => setActiveDropdown(null)}
+                        className="w-full py-2 px-3 rounded-xl bg-brand-blush-100/50 hover:bg-brand-blush-200/60 text-brand-plum-950 font-semibold text-xs flex items-center justify-between transition-colors"
+                      >
+                        <span>Explore Full Brand Directory</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-brand-rose-500" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Categories Dropdown */}
+            {/* Collections Dropdown */}
             <div
               className="relative"
-              onMouseEnter={() => setActiveDropdown('categories')}
+              onMouseEnter={() => setActiveDropdown('collections')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
               <button
-                className="flex items-center gap-1 px-3.5 py-2 text-sm font-medium text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70 rounded-lg transition-colors"
-                aria-expanded={activeDropdown === 'categories'}
+                type="button"
+                onClick={() => setActiveDropdown(prev => prev === 'collections' ? null : 'collections')}
+                className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  isCollectionsActive || activeDropdown === 'collections'
+                    ? 'text-brand-plum-900 bg-brand-blush-100/70 font-semibold'
+                    : 'text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70'
+                }`}
+                aria-expanded={activeDropdown === 'collections'}
+                aria-haspopup="true"
               >
                 <span>Collections</span>
-                <ChevronDown className="w-4 h-4 text-neutral-400" />
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'collections' ? 'rotate-180 text-brand-plum-900' : 'text-neutral-400'}`} />
               </button>
 
-              {activeDropdown === 'categories' && (
-                <div className="absolute top-full left-0 w-80 bg-white rounded-xl shadow-modal border border-neutral-200/80 p-3 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
-                  <div className="space-y-1">
-                    {CATEGORIES.map(cat => (
-                      <Link
-                        key={cat.id}
-                        to={`/categories/${cat.slug}`}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-brand-blush-100/50 transition-colors group/item"
+              {/* Hover bridge & Dropdown Body */}
+              {activeDropdown === 'collections' && (
+                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="w-96 bg-white rounded-2xl shadow-modal border border-neutral-200/90 p-4 backdrop-blur-md">
+                    <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+                      <div className="flex items-center gap-1.5">
+                        <Layers className="w-3.5 h-3.5 text-brand-rose-500" />
+                        <span className="text-[11px] font-bold text-brand-plum-950 uppercase tracking-wider">Olfactory Universes</span>
+                      </div>
+                      <Link 
+                        to="/collections" 
+                        onClick={() => setActiveDropdown(null)}
+                        className="text-xs text-brand-rose-600 hover:text-brand-plum-900 hover:underline font-semibold flex items-center gap-1"
                       >
-                        <div className="w-10 h-10 rounded-md overflow-hidden bg-neutral-100 flex-shrink-0">
-                          <img src={cat.image} alt={cat.title} className="w-full h-full object-cover group-hover/item:scale-105 transition-transform" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-xs font-semibold text-neutral-800 group-hover/item:text-brand-plum-900">{cat.title}</div>
-                          <div className="text-[11px] text-neutral-500">{cat.tagline}</div>
-                        </div>
+                        <span>View All ({CATEGORIES.length})</span>
+                        <ArrowRight className="w-3 h-3" />
                       </Link>
-                    ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-3">
+                      {CATEGORIES.map(cat => (
+                        <Link
+                          key={cat.id}
+                          to={`/collections/${cat.slug}`}
+                          onClick={() => setActiveDropdown(null)}
+                          className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-brand-blush-100/50 transition-all group/item"
+                        >
+                          <div className="w-9 h-9 rounded-lg overflow-hidden bg-neutral-100 shrink-0 border border-neutral-200/60">
+                            <img 
+                              src={cat.image} 
+                              alt={cat.title} 
+                              className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500" 
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-bold text-neutral-900 group-hover/item:text-brand-plum-900 truncate">
+                              {cat.title}
+                            </div>
+                            <div className="text-[10px] text-neutral-500 truncate">
+                              {cat.tagline}
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+
+                    <div className="pt-3 mt-3 border-t border-neutral-100">
+                      <Link
+                        to="/collections"
+                        onClick={() => setActiveDropdown(null)}
+                        className="w-full py-2 px-3 rounded-xl bg-brand-blush-100/50 hover:bg-brand-blush-200/60 text-brand-plum-950 font-semibold text-xs flex items-center justify-between transition-colors"
+                      >
+                        <span>Browse All Fragrance Collections</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-brand-rose-500" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )}
@@ -210,7 +316,11 @@ export const Navbar: React.FC = () => {
 
             <Link
               to="/gifts"
-              className="px-3.5 py-2 text-sm font-medium text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70 rounded-lg transition-colors flex items-center gap-1.5"
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5 ${
+                isGiftsActive
+                  ? 'text-brand-plum-900 bg-brand-blush-100/70 font-semibold'
+                  : 'text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70'
+              }`}
             >
               <Gift className="w-3.5 h-3.5 text-brand-gold-500" />
               <span>Gift Coffrets</span>
@@ -218,7 +328,11 @@ export const Navbar: React.FC = () => {
 
             <Link
               to="/find-your-scent"
-              className="px-3.5 py-2 text-sm font-medium text-brand-plum-900 bg-brand-blush-100/70 hover:bg-brand-blush-200/70 rounded-lg transition-colors flex items-center gap-1.5"
+              className={`px-3.5 py-2 text-sm font-semibold rounded-lg transition-all flex items-center gap-1.5 shadow-2xs ${
+                isFinderActive
+                  ? 'text-white bg-brand-plum-900 shadow-sm'
+                  : 'text-brand-plum-900 bg-brand-blush-100/80 hover:bg-brand-blush-200/90'
+              }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-brand-gold-500" />
               <span>Scent Matcher</span>
@@ -226,7 +340,11 @@ export const Navbar: React.FC = () => {
 
             <Link
               to="/offers"
-              className="px-3.5 py-2 text-sm font-medium text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70 rounded-lg transition-colors flex items-center gap-1"
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 ${
+                isOffersActive
+                  ? 'text-brand-plum-900 bg-brand-blush-100/70 font-semibold'
+                  : 'text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70'
+              }`}
             >
               <Flame className="w-3.5 h-3.5 text-brand-rose-500" />
               <span>Offers</span>
@@ -234,7 +352,11 @@ export const Navbar: React.FC = () => {
 
             <Link
               to="/stories"
-              className="px-3.5 py-2 text-sm font-medium text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70 rounded-lg transition-colors"
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                isStoriesActive
+                  ? 'text-brand-plum-900 bg-brand-blush-100/70 font-semibold'
+                  : 'text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70'
+              }`}
             >
               Stories
             </Link>
@@ -278,7 +400,7 @@ export const Navbar: React.FC = () => {
                           <img
                             src={prod.images[0]}
                             alt={prod.name}
-                            className="w-10 h-10 object-cover rounded-lg bg-neutral-100 flex-shrink-0"
+                            className="w-10 h-10 object-cover rounded-lg bg-neutral-100 shrink-0"
                           />
                           <div className="flex-1 min-w-0">
                             <div className="text-xs font-semibold text-neutral-800 truncate">{prod.name}</div>
@@ -297,6 +419,7 @@ export const Navbar: React.FC = () => {
                             {suggestions.notes.map(n => (
                               <button
                                 key={n}
+                                type="button"
                                 onClick={() => {
                                   setIsSearchOpen(false);
                                   navigate(`/search?q=${encodeURIComponent(n)}`);
@@ -311,6 +434,7 @@ export const Navbar: React.FC = () => {
                       )}
 
                       <button
+                        type="button"
                         onClick={handleSearchSubmit}
                         className="w-full mt-2 py-2 text-xs text-center font-semibold text-brand-plum-900 bg-brand-blush-100/60 hover:bg-brand-blush-200/70 rounded-xl transition-colors"
                       >
@@ -340,35 +464,48 @@ export const Navbar: React.FC = () => {
               to="/wishlist"
               className="relative p-2 text-neutral-700 hover:text-brand-plum-900 rounded-full hover:bg-neutral-100 transition-colors"
               aria-label="View Wishlist"
+              title="View Wishlist"
             >
               <Heart className="w-5 h-5" />
-              {wishlist.length > 0 && (
+              {isHydrated && wishlist.length > 0 && (
                 <span className="absolute top-1 right-1 w-4 h-4 bg-brand-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
                   {wishlist.length}
                 </span>
               )}
             </Link>
 
-            {/* Cart Drawer Trigger */}
+            {/* Shopping Bag / Cart Drawer Trigger */}
             <button
+              type="button"
               onClick={() => setIsCartDrawerOpen(true)}
-              className="relative p-2 text-neutral-700 hover:text-brand-plum-900 rounded-full hover:bg-neutral-100 transition-colors"
+              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-brand-plum-950 bg-brand-blush-100/80 hover:bg-brand-blush-200/90 border border-brand-blush-300/70 transition-all shadow-sm hover:shadow group cursor-pointer"
               aria-label="Open Shopping Bag"
+              title="Open Shopping Bag"
             >
-              <ShoppingBag className="w-5 h-5" />
-              {cartCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-brand-plum-900 text-white rounded-full text-[10px] font-bold flex items-center justify-center animate-pulse-subtle">
-                  {cartCount}
-                </span>
-              )}
+              <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-brand-plum-900 group-hover:scale-110 transition-transform" />
+              <span className="hidden sm:inline text-xs font-semibold text-brand-plum-900">Bag</span>
+              <span className="bg-brand-plum-900 text-white rounded-full text-[10px] font-bold px-1.5 py-0.2 min-w-[18px] h-[18px] flex items-center justify-center shadow-xs">
+                {isHydrated ? cartCount : 0}
+              </span>
             </button>
 
-            {/* Account / Admin Portal */}
+            {/* Admin Console Direct Link */}
             <Link
-              to={isLoggedIn ? '/account' : '/account/sign-in'}
-              className="hidden sm:flex items-center gap-1.5 p-2 text-neutral-700 hover:text-brand-plum-900 rounded-full hover:bg-neutral-100 transition-colors"
-              aria-label={isLoggedIn ? `Account (${currentUser?.name})` : 'Sign In'}
-              title={isLoggedIn ? `Signed in as ${currentUser?.name}` : 'Sign In / Account'}
+              to="/admin"
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-brand-plum-950 hover:bg-brand-plum-900 text-brand-gold-300 hover:text-white text-xs font-semibold shadow-sm transition-all border border-brand-gold-500/30 group"
+              aria-label="Open Admin Operations Console"
+              title="Open Admin Operations Console"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-gold-400 group-hover:rotate-12 transition-transform" />
+              <span className="text-[11px] sm:text-xs font-medium tracking-wide">Admin</span>
+            </Link>
+
+            {/* Account / Profile Link */}
+            <Link
+              to={isHydrated && isLoggedIn ? '/account' : '/account/sign-in'}
+              className="hidden md:flex items-center gap-1.5 p-2 text-neutral-700 hover:text-brand-plum-900 rounded-full hover:bg-neutral-100 transition-colors"
+              aria-label={isHydrated && isLoggedIn ? `Account (${currentUser?.name})` : 'Sign In'}
+              title={isHydrated && isLoggedIn ? `Signed in as ${currentUser?.name}` : 'Sign In / Account'}
             >
               <User className="w-5 h-5" />
             </Link>
@@ -384,7 +521,7 @@ export const Navbar: React.FC = () => {
             onClick={() => setMobileMenuOpen(false)}
           />
 
-          <div className="relative ml-0 mr-auto w-full max-w-xs bg-white h-full shadow-modal flex flex-col z-10 animate-in slide-in-from-left duration-300">
+          <div className="relative ml-0 mr-auto w-full max-w-sm bg-white h-full shadow-modal flex flex-col z-10 animate-in slide-in-from-left duration-300">
             {/* Header */}
             <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -394,79 +531,189 @@ export const Navbar: React.FC = () => {
                 <span className="font-serif text-lg font-bold text-brand-plum-950">SCENTIVA</span>
               </div>
               <button
+                type="button"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-1 text-neutral-400 hover:text-neutral-700 rounded-full hover:bg-neutral-100"
+                className="p-1.5 text-neutral-400 hover:text-neutral-700 rounded-full hover:bg-neutral-100"
+                aria-label="Close menu"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Links */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 text-sm">
+            {/* Scrollable Links Area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 text-sm">
               <Link
                 to="/shop"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 font-medium text-neutral-800 hover:text-brand-plum-900"
+                className="flex items-center justify-between py-2.5 px-3 rounded-xl font-semibold text-neutral-900 hover:bg-neutral-100 transition-colors"
               >
-                All Perfumes
+                <span>All Perfumes</span>
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
               </Link>
-              <Link
-                to="/search"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 font-medium text-neutral-800 hover:text-brand-plum-900"
-              >
-                Search Vault
-              </Link>
-              <Link
-                to="/brands"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 font-medium text-neutral-800 hover:text-brand-plum-900"
-              >
-                Brand Houses
-              </Link>
+
+              {/* Brands Mobile Accordion */}
+              <div className="border border-neutral-200/80 rounded-2xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setMobileBrandsExpanded(prev => !prev)}
+                  className="w-full flex items-center justify-between p-3 text-left font-semibold text-neutral-900 bg-neutral-50/70 hover:bg-neutral-100 transition-colors"
+                  aria-expanded={mobileBrandsExpanded}
+                >
+                  <div className="flex items-center gap-2">
+                    <Award className="w-4 h-4 text-brand-gold-500" />
+                    <span>Luxury Brand Houses</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-neutral-500 transition-transform duration-200 ${mobileBrandsExpanded ? 'rotate-180' : ''}`} />
+                </button>
+
+                {mobileBrandsExpanded && (
+                  <div className="p-3 bg-white space-y-1 border-t border-neutral-100 animate-in fade-in duration-150">
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {BRANDS.map(brand => (
+                        <Link
+                          key={brand.id}
+                          to={`/brands/${brand.slug}`}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="p-2 rounded-lg text-xs font-medium text-neutral-800 hover:bg-brand-blush-100/60 hover:text-brand-plum-900 transition-colors"
+                        >
+                          {brand.name}
+                        </Link>
+                      ))}
+                    </div>
+                    <Link
+                      to="/brands"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block pt-2 text-xs font-semibold text-brand-rose-600 hover:underline text-center"
+                    >
+                      View All Brand Houses ({BRANDS.length}) →
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Collections Mobile Accordion */}
+              <div className="border border-neutral-200/80 rounded-2xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setMobileCollectionsExpanded(prev => !prev)}
+                  className="w-full flex items-center justify-between p-3 text-left font-semibold text-neutral-900 bg-neutral-50/70 hover:bg-neutral-100 transition-colors"
+                  aria-expanded={mobileCollectionsExpanded}
+                >
+                  <div className="flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-brand-rose-500" />
+                    <span>Fragrance Collections</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-neutral-500 transition-transform duration-200 ${mobileCollectionsExpanded ? 'rotate-180' : ''}`} />
+                </button>
+
+                {mobileCollectionsExpanded && (
+                  <div className="p-3 bg-white space-y-1.5 border-t border-neutral-100 animate-in fade-in duration-150">
+                    {CATEGORIES.map(cat => (
+                      <Link
+                        key={cat.id}
+                        to={`/collections/${cat.slug}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-brand-blush-100/50 transition-colors"
+                      >
+                        <img 
+                          src={cat.image} 
+                          alt={cat.title} 
+                          className="w-8 h-8 rounded-lg object-cover bg-neutral-100 shrink-0" 
+                        />
+                        <div>
+                          <div className="text-xs font-semibold text-neutral-900">{cat.title}</div>
+                          <div className="text-[10px] text-neutral-500">{cat.tagline}</div>
+                        </div>
+                      </Link>
+                    ))}
+                    <Link
+                      to="/collections"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block pt-2 text-xs font-semibold text-brand-rose-600 hover:underline text-center"
+                    >
+                      Browse All Collections Directory →
+                    </Link>
+                  </div>
+                )}
+              </div>
+
               <Link
                 to="/gifts"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 font-medium text-neutral-800 hover:text-brand-plum-900"
+                className="flex items-center justify-between py-2.5 px-3 rounded-xl font-semibold text-neutral-900 hover:bg-neutral-100 transition-colors"
               >
-                Gift Sets & Coffrets
+                <div className="flex items-center gap-2">
+                  <Gift className="w-4 h-4 text-brand-gold-500" />
+                  <span>Gift Sets & Coffrets</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
               </Link>
+
               <Link
                 to="/find-your-scent"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 font-medium text-brand-plum-900 font-semibold"
+                className="flex items-center justify-between py-2.5 px-3 rounded-xl font-semibold text-brand-plum-950 bg-brand-blush-100/80 hover:bg-brand-blush-200 transition-colors"
               >
-                ✨ Scent Sommelier Quiz
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-brand-gold-500" />
+                  <span>Scent Sommelier Quiz</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-brand-plum-900" />
               </Link>
+
               <Link
                 to="/offers"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 font-medium text-neutral-800 hover:text-brand-plum-900"
+                className="flex items-center justify-between py-2.5 px-3 rounded-xl font-semibold text-neutral-900 hover:bg-neutral-100 transition-colors"
               >
-                Coupons & Offers
+                <div className="flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-brand-rose-500" />
+                  <span>Coupons & Offers</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
               </Link>
+
               <Link
                 to="/stories"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 font-medium text-neutral-800 hover:text-brand-plum-900"
+                className="flex items-center justify-between py-2.5 px-3 rounded-xl font-semibold text-neutral-900 hover:bg-neutral-100 transition-colors"
               >
-                Editorial Masterclasses
+                <span>Editorial Masterclasses</span>
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
               </Link>
 
-              <div className="pt-4 border-t border-neutral-100 space-y-2">
+              <Link
+                to="/search"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between py-2.5 px-3 rounded-xl font-semibold text-neutral-900 hover:bg-neutral-100 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Search className="w-4 h-4 text-neutral-500" />
+                  <span>Search Catalog Vault</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
+              </Link>
+
+              <div className="pt-4 mt-2 border-t border-neutral-100 space-y-2">
                 <Link
                   to={isLoggedIn ? '/account' : '/account/sign-in'}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block py-2 font-medium text-neutral-800 hover:text-brand-plum-900"
+                  className="flex items-center justify-between py-2.5 px-3 rounded-xl font-semibold text-neutral-900 hover:bg-neutral-100 transition-colors"
                 >
-                  {isLoggedIn ? 'My Privé Account' : 'Sign In / Register'}
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-neutral-600" />
+                    <span>{isLoggedIn ? `Account (${currentUser?.name})` : 'Sign In / Register'}</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-neutral-400" />
                 </Link>
+
                 <Link
                   to="/admin"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block py-2 text-xs font-mono text-brand-plum-700 hover:underline"
+                  className="flex items-center gap-2 py-2.5 px-3 rounded-xl text-xs font-mono text-brand-plum-900 bg-brand-blush-100/50 hover:bg-brand-blush-100 transition-colors"
                 >
-                  ⚙️ Admin Operations Console
+                  <ShieldCheck className="w-4 h-4 text-brand-gold-600" />
+                  <span>Admin Operations Console</span>
                 </Link>
               </div>
             </div>

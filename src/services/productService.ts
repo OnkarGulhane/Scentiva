@@ -11,8 +11,7 @@ export const getStoredProducts = (): Product[] => {
     if (!raw) return PRODUCTS;
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) && parsed.length > 0 ? parsed : PRODUCTS;
-  } catch (err) {
-    console.warn('Failed to parse stored products, falling back to defaults:', err);
+  } catch {
     return PRODUCTS;
   }
 };

@@ -58,7 +58,13 @@ export const AnnouncementBar: React.FC = () => {
           </Link>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Link
+            to="/admin"
+            className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-brand-gold-300 hover:text-white uppercase tracking-wider bg-brand-plum-900/90 hover:bg-brand-plum-800 px-2 py-0.5 rounded-full border border-brand-gold-500/30 transition-colors"
+          >
+            <span>Admin Console</span>
+          </Link>
           <Link
             to="/find-your-scent"
             className="hidden lg:inline text-[11px] font-medium text-brand-blush-300 hover:text-white uppercase tracking-wider"

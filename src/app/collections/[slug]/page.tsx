@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { Metadata } from 'next';
 import { CategoryDetailPage } from '@/views/CategoryDetailPage';
 import { CategoryService } from '@/services/categoryService';
@@ -15,16 +15,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!category) {
     return {
       title: 'Collection Not Found | SCENTIVA Haute Parfumerie',
-      description: 'The requested fragrance category could not be located.',
+      description: 'The requested fragrance collection could not be located in our cellar vault.',
     };
   }
 
   return {
     title: `${category.title} Perfume Collection | SCENTIVA Vault`,
-    description: `Explore the finest ${category.title} fragrances curated by SCENTIVA. Certified authentic bottles with express delivery.`,
+    description: `Explore the finest ${category.title} fragrances curated by SCENTIVA. 100% authentic flacons with complimentary express delivery.`,
   };
 }
 
-export default function CategoryDetailRoute() {
+export default function CollectionDetailRoute() {
   return <CategoryDetailPage />;
 }

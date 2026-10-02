@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, ProductVariant, CartItem, Address, Order, Coupon, OrderStatus } from '../types';
 import { ProductService } from '../services/productService';
-import { OrderService } from '../services/orderService';
+import { OrderService, INITIAL_DEMO_ORDERS } from '../services/orderService';
 import { PromotionService } from '../services/promotionService';
 import { PRODUCTS } from '../data/products';
 
@@ -167,23 +167,21 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentUser, setCurrentUser] = useState<DemoUser | null>(INITIAL_DEMO_USER);
 
   // Products state (Canonical Storefront Data)
-  const [products, setProducts] = useState<Product[]>(() => ProductService.getAll());
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
 
-  // Cart state
+  // Cart state - initialized with rich demo items
   const [cart, setCart] = useState<CartItem[]>(INITIAL_CART);
 
-  // Wishlist state
+  // Wishlist state - initialized with rich demo items
   const [wishlist, setWishlist] = useState<Product[]>(INITIAL_WISHLIST);
 
   // Addresses state
   const [addresses, setAddresses] = useState<Address[]>(INITIAL_ADDRESSES);
 
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(() => {
-    return INITIAL_ADDRESSES.find(a => a.isDefault) || INITIAL_ADDRESSES[0] || null;
-  });
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(INITIAL_ADDRESSES[0] || null);
 
   // Orders state
-  const [orders, setOrders] = useState<Order[]>(() => OrderService.getAll());
+  const [orders, setOrders] = useState<Order[]>(INITIAL_DEMO_ORDERS);
 
   // Coupon state
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
@@ -198,20 +196,28 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const storedUser = safeGetStorage<DemoUser | null>('scentiva_user', INITIAL_DEMO_USER);
       if (storedUser !== undefined) setCurrentUser(storedUser);
 
-      const storedCart = safeGetStorage<CartItem[] | null>('scentiva_cart', null);
-      if (storedCart) setCart(storedCart);
+      const storedCart = safeGetStorage<CartItem[]>('scentiva_cart', INITIAL_CART);
+      if (storedCart && storedCart.length > 0) {
+        setCart(storedCart);
+      } else {
+        setCart(INITIAL_CART);
+      }
 
-      const storedWishlist = safeGetStorage<Product[] | null>('scentiva_wishlist', null);
-      if (storedWishlist) setWishlist(storedWishlist);
+      const storedWishlist = safeGetStorage<Product[]>('scentiva_wishlist', INITIAL_WISHLIST);
+      if (storedWishlist && storedWishlist.length > 0) {
+        setWishlist(storedWishlist);
+      } else {
+        setWishlist(INITIAL_WISHLIST);
+      }
 
       const storedAddresses = safeGetStorage<Address[] | null>('scentiva_addresses', null);
-      if (storedAddresses) {
+      if (storedAddresses && storedAddresses.length > 0) {
         setAddresses(storedAddresses);
         setSelectedAddress(storedAddresses.find(a => a.isDefault) || storedAddresses[0] || null);
       }
 
       const storedOrders = safeGetStorage<Order[] | null>('scentiva_orders', null);
-      if (storedOrders) setOrders(storedOrders);
+      if (storedOrders && storedOrders.length > 0) setOrders(storedOrders);
 
       const storedCoupon = safeGetStorage<Coupon | null>('scentiva_coupon', null);
       if (storedCoupon) setAppliedCoupon(storedCoupon);
