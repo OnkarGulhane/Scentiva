@@ -2,6 +2,7 @@
 > **Date:** October 2, 2026  
 > **Status:** Backend Modular Monolith, Full Domain Services, AI Concierge, Stress Testing, API Gateway, Dockerization & Multi-Env Cloud Hardening 100% Completed (Phases 0–15).  
 > **Repository:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)  
+> **Latest Git Commit:** `9dac396` on branch `main`  
 > **Deployment Architecture:** Next.js 14 on **Vercel** + Spring Boot 3.3.4 (Java 21) & PostgreSQL 17 on **Render**  
 > **Build Status:** 
 > - **Backend:** 223 / 223 Java Tests Passing (`mvn test` -> 100% BUILD SUCCESS, 0 Failures, 0 Errors)  
