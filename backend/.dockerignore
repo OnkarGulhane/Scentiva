@@ -1,0 +1,13 @@
+target/
+*.class
+.git/
+.gitignore
+.idea/
+*.iml
+.vscode/
+*.log
+logs/
+.env
+.env.local
+.DS_Store
+Thumbs.db

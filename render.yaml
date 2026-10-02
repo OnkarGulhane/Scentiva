@@ -1,0 +1,45 @@
+# ==============================================================================
+# SCENTIVA — Render Blueprint (Infrastructure-as-Code)
+# Deploys:
+#   1. scentiva-db      — Managed PostgreSQL 16/17 Database
+#   2. scentiva-backend — Spring Boot 3.3.4 (Java 21) Docker Web Service
+# ==============================================================================
+
+databases:
+  - name: scentiva-db
+    databaseName: scentiva_db
+    user: scentiva_user
+    plan: free
+    region: oregon
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: scentiva-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: oregon
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: scentiva-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: scentiva-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: scentiva-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://scentiva.vercel.app
+      - key: APP_BASE_URL
+        value: https://scentiva-backend.onrender.com

@@ -150,11 +150,15 @@
 | **Phase 12** | Editorial CMS, Banners, SEO & Observability | ✅ COMPLETED (`37f2570`) |
 | **Phase 13** | Frontend REST API Integration & Gateway Layer | ✅ COMPLETED (`e9e27cf`) |
 | **Phase 14** | Concurrency, Idempotency, Precision & Security Stress Testing | ✅ COMPLETED (`cea7211`) |
-| **Phase 15** | **Production Hardening, Docker Containerization & Multi-Env Config** | ⏳ **READY FOR NEXT SESSION** |
+| **Phase 15** | **Production Hardening, Docker Containerization & Multi-Env Config (Vercel + Render)** | ✅ **COMPLETED** |
 
-### Phase 15 Scope for Next Session:
-1. Multi-stage Dockerfile for Spring Boot 3.3.4 backend (Maven 3.9 + Eclipse Temurin 21 JRE Alpine image with healthcheck).
-2. Multi-stage Dockerfile for Next.js 14 frontend (Node 20 Alpine standalone output).
-3. Production `docker-compose.yml` orchestrating PostgreSQL 17 (port 5432 with healthcheck & persistent volume), Spring Boot (port 8080), and Next.js (port 3000).
-4. `application-prod.yml` configuration with zero hardcoded secrets and environment variable bindings.
-5. Final multi-container orchestration smoke test and verification.
+---
+
+## 7. Production Deployment & Cloud Architecture
+
+- **Frontend (Vercel Edge):** Next.js 14 App Router, auto-building on Git push, optimized via [vercel.json](file:///e:/Scentiva/vercel.json) with HTTP security headers and aggressive asset caching.
+- **Backend (Render Web Service):** Spring Boot 3.3.4 containerized with [backend/Dockerfile](file:///e:/Scentiva/backend/Dockerfile) (Eclipse Temurin 21 JRE Alpine + `-XX:+UseContainerSupport`), bound dynamically to `$PORT`, with `/api/v1/health` actuator checks.
+- **Persistence (Render PostgreSQL):** Managed PostgreSQL database with Flyway auto-migration (`V1`, `V2`, `V3`).
+- **Local Orchestration:** [docker-compose.yml](file:///e:/Scentiva/docker-compose.yml) providing single-command startup for PostgreSQL 17 + Spring Boot 3.3.4 + Next.js 14.
+- **Operational Guide:** Full deployment walkthrough in [docs/DEPLOYMENT_GUIDE.md](file:///e:/Scentiva/docs/DEPLOYMENT_GUIDE.md).
+

@@ -1,0 +1,116 @@
+# ==============================================================================
+# SCENTIVA — Full-Stack Multi-Container Orchestration (Docker Compose)
+# Services:
+#   1. postgres  — PostgreSQL 17 Alpine (Port 5432) + Persistent Volume + Healthcheck
+#   2. backend   — Spring Boot 3.3.4 (Port 8080) + Java 21 + Flyway Migrations
+#   3. frontend  — Next.js 14 App Router (Port 3000) + 3D WebGL + Standalone Node
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL 17 Database Service
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:17-alpine
+    container_name: scentiva-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: scentiva_db
+      POSTGRES_USER: scentiva_user
+      POSTGRES_PASSWORD: scentiva_secret_password_2026
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: Asia/Kolkata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scentiva_user -d scentiva_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - scentiva-network
+
+  # ----------------------------------------------------------------------------
+  # 2. Spring Boot 3.3.4 (Java 21) Backend Service
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: scentiva-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      PORT: 8080
+      SERVER_PORT: 8080
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/scentiva_db
+      SPRING_DATASOURCE_USERNAME: scentiva_user
+      SPRING_DATASOURCE_PASSWORD: scentiva_secret_password_2026
+      JWT_SECRET: scentiva-master-secret-key-2026-luxury-perfumery-enterprise-jwt-token-key-minimum-512-bits-long-signature
+      JWT_EXPIRATION_MS: 86400000
+      JWT_REFRESH_EXPIRATION_MS: 604800000
+      FRONTEND_URL: http://localhost:3000
+      APP_BASE_URL: http://localhost:8080
+      TZ: Asia/Kolkata
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    networks:
+      - scentiva-network
+
+  # ----------------------------------------------------------------------------
+  # 3. Next.js 14 App Router Frontend Service
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8080/api/v1
+    container_name: scentiva-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://localhost:8080/api/v1
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - scentiva-network
+
+# ------------------------------------------------------------------------------
+# Persistent Storage Volumes
+# ------------------------------------------------------------------------------
+volumes:
+  postgres_data:
+    name: scentiva_postgres_data
+
+# ------------------------------------------------------------------------------
+# Isolated Bridge Network
+# ------------------------------------------------------------------------------
+networks:
+  scentiva-network:
+    name: scentiva-network
+    driver: bridge
