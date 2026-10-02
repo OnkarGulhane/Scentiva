@@ -14,7 +14,7 @@ export const AdminLoginPage: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    showToast('Authenticated to SCENTIVA Admin Console (Demo)', 'success');
+    showToast('Authenticated to SCENTIVA Admin Console', 'success');
     navigate('/admin');
   };
 
@@ -42,10 +42,10 @@ export const AdminLoginPage: React.FC = () => {
           <div className="p-3.5 rounded-2xl bg-brand-gold-100/50 border border-brand-gold-500/30 text-xs text-brand-plum-950 space-y-1">
             <div className="flex items-center gap-1.5 font-bold">
               <ShieldCheck className="w-4 h-4 text-brand-gold-500" />
-              <span>Operations Demo Portal</span>
+              <span>Operations Console Portal</span>
             </div>
             <p className="text-[11px] text-neutral-600">
-              Role-based simulation with inventory replenishment, product CRUD, and real-time tracking dispatch simulation.
+              Role-based management with inventory replenishment, catalog administration, and dispatch tracking.
             </p>
           </div>
 

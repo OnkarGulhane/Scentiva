@@ -4,9 +4,9 @@
 > **Target Form Factors:** Mobile-first customer storefront + Desktop immersive experience + Operational admin console  
 > **Frontend Architecture:** Next.js 14 App Router (SSG/SSR) + TypeScript 5.5 + Tailwind CSS + Three.js / R3F + GSAP Motion  
 > **Backend Architecture:** Spring Boot 3.3.4 (Java 21 LTS) Modular Monolith + PostgreSQL 17 + Flyway + Spring Security 6 (JWT)  
-> **Last Updated:** 2026-10-02  
+> **Last Updated:** 2026-10-03  
 > **Repository Remote:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)  
-> **Current Status:** Phases 0–14 100% Complete & Verified (223/223 Java tests passing, 45/45 Next.js static pages prerendered). Phase 15 (Docker & Multi-Env Hardening) scheduled for next session.
+> **Current Status:** Phases 0–16 100% Complete & Verified (223/223 Java tests passing, 50/50 Next.js static pages prerendered without hydration mismatch, SRS v1.1.0 baseline approved).
 
 ---
 
@@ -16,9 +16,10 @@
                                   SCENTIVA ARCHITECTURE
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                                FRONTEND LAYER (Next.js 14)                             │
-│  - App Router (45 Static/Dynamic Pages)               - 3D Hero WebGL Flacon (R3F)     │
+│  - App Router (50 Static/Dynamic Pages)               - 3D Hero WebGL Flacon (R3F)     │
 │  - Custom Design Tokens (Plum/Gold/Blush)             - GSAP / ScrollTrigger / Lenis   │
 │  - StoreContext (SSR Hydration Resilience)            - Dual-Mode API Gateway Layer    │
+│  - Dual Sign In / Create Account Portal               - Guest Cart Merge & Guard       │
 └─────────────────────────────────────────▲──────────────────────────────────────────────┘
                                           │  REST HTTP (JSON Envelopes)
                                           │  X-Correlation-ID / Bearer JWT
@@ -69,6 +70,13 @@
   - Centering offset: `group position={[0, -0.42, 0]}` across `3.86` vertical units.
   - Camera Framing: `position: [0, 0, 5.2]`, `FOV 46°` (87.5% bottle occupancy, 12.5% visual breathing room, 0% cropping across all viewports).
   - Offscreen GPU throttle: `IntersectionObserver` switches `frameloop` to `never` when scrolled out of view.
+- **SSR Hydration Architecture & Resilience ([src/context/StoreContext.tsx](file:///e:/Scentiva/src/context/StoreContext.tsx)):**
+  - Deterministic initial SSR state (`isHydrated: false`, `currentUser: null`, `cart: []`, `wishlist: INITIAL_WISHLIST`).
+  - Post-mount client hydration in `useEffect` reading `localStorage` safely and background token sync via `AuthApiService.getMe()`.
+  - Zero React hydration mismatch errors across all 50 statically generated pages.
+- **Dual Authentication Experience ([src/views/SignInPage.tsx](file:///e:/Scentiva/src/views/SignInPage.tsx)):**
+  - Seamless tab toggle between Sign In and Create Account.
+  - Guest cart merging upon authentication and automatic redirect return to `/checkout`.
 - **Frontend Dual-Mode API Gateway Layer:**
   - [src/lib/api/apiClient.ts](file:///e:/Scentiva/src/lib/api/apiClient.ts): Standardized HTTP client with automatic JWT token attachment, unique `X-Correlation-ID` header propagation, timeout management, and retry handling.
   - Domain Services:
@@ -121,17 +129,17 @@
 ## 5. Automated Verification & Stress Testing Suite
 
 - **Total Backend Tests:** **223 / 223 tests passing (100% BUILD SUCCESS, 0 failures, 0 errors)**
-- **Stress & Concurrency Proofs (Phase 14):**
+- **Stress & Concurrency Proofs:**
   1. `InventoryConcurrencyStressTest.java`: 100 concurrent threads competing for 5 scarce units. Exactly 5 succeed, 95 rejected gracefully with `InsufficientStockException`, resulting in 0 available stock and 0 negative balance.
   2. `CheckoutIdempotencyStressTest.java`: 20 concurrent threads submitting the exact same `idempotencyKey`. Exactly 1 order created in DB, 0 duplicate charges, all threads receive identical order confirmation.
   3. `FinancialMathPrecisionTest.java`: Verified exact ₹0.01 precision across ₹28.55 Cr GMV orders, cap validations, and non-negative boundaries.
   4. `SecurityRbacMatrixStressTest.java`: Validated access matrix across `ANONYMOUS`, `CUSTOMER`, and `ADMIN` roles for all secured endpoints.
 - **Frontend Verification:**
-  - `npm run build` cleanly prerenders 45 / 45 static pages with 0 TypeScript compiler errors (Exit Code 0).
+  - `npm run build` cleanly prerenders 50 / 50 static pages with 0 TypeScript compiler errors (Exit Code 0).
 
 ---
 
-## 6. Project Roadmap & Next Phase (Phase 15)
+## 6. Project Roadmap & Completion Status
 
 | Phase | Description | Status |
 |---|---|---|
@@ -150,7 +158,8 @@
 | **Phase 12** | Editorial CMS, Banners, SEO & Observability | ✅ COMPLETED (`37f2570`) |
 | **Phase 13** | Frontend REST API Integration & Gateway Layer | ✅ COMPLETED (`e9e27cf`) |
 | **Phase 14** | Concurrency, Idempotency, Precision & Security Stress Testing | ✅ COMPLETED (`cea7211`) |
-| **Phase 15** | **Production Hardening, Docker Containerization & Multi-Env Config (Vercel + Render)** | ✅ **COMPLETED** |
+| **Phase 15** | Production Hardening, Docker Containerization & Multi-Env Config | ✅ COMPLETED (`58f62fa`) |
+| **Phase 16** | **Authentication UX, Hydration Resilience & SRS v1.1.0 Baseline** | ✅ **COMPLETED** |
 
 ---
 

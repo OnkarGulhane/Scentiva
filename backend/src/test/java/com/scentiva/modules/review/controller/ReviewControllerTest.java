@@ -86,7 +86,7 @@ class ReviewControllerTest {
 
         Brand brand = brandRepository.findBySlugAndIsDeletedFalse("byredo-rev")
                 .orElseGet(() -> brandRepository.save(Brand.builder()
-                        .name("Byredo")
+                        .name("Byredo Review Ctrl")
                         .slug("byredo-rev")
                         .originCountry("Sweden")
                         .tier(BrandTier.NICHE_ATELIER)
@@ -94,7 +94,7 @@ class ReviewControllerTest {
 
         Category category = categoryRepository.findBySlugAndIsDeletedFalse("fresh-rev")
                 .orElseGet(() -> categoryRepository.save(Category.builder()
-                        .name("Fresh")
+                        .name("Fresh Review Ctrl")
                         .slug("fresh-rev")
                         .build()));
 
@@ -102,7 +102,7 @@ class ReviewControllerTest {
                 .orElseGet(() -> productRepository.save(Product.builder()
                         .brand(brand)
                         .category(category)
-                        .name("Gypsy Water")
+                        .name("Gypsy Water Review Ctrl")
                         .slug("gypsy-water-rev")
                         .gender(GenderTarget.UNISEX)
                         .isActive(true)
@@ -126,7 +126,7 @@ class ReviewControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data.rating", is(5)))
-                .andExpect(jsonPath("$.data.productName", is("Gypsy Water")));
+                .andExpect(jsonPath("$.data.productName", is(product.getName())));
     }
 
     @Test

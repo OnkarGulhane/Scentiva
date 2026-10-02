@@ -47,7 +47,7 @@ class SeoControllerTest {
     void setUp() {
         brand = brandRepository.findBySlugAndIsDeletedFalse("creed-seo")
                 .orElseGet(() -> brandRepository.save(Brand.builder()
-                        .name("Creed")
+                        .name("Creed Seo Ctrl")
                         .slug("creed-seo")
                         .originCountry("France")
                         .tier(BrandTier.HERITAGE_MAISON)
@@ -56,7 +56,7 @@ class SeoControllerTest {
 
         Category category = categoryRepository.findBySlugAndIsDeletedFalse("woody-seo")
                 .orElseGet(() -> categoryRepository.save(Category.builder()
-                        .name("Woody")
+                        .name("Woody Seo Ctrl")
                         .slug("woody-seo")
                         .build()));
 
@@ -64,7 +64,7 @@ class SeoControllerTest {
                 .orElseGet(() -> productRepository.save(Product.builder()
                         .brand(brand)
                         .category(category)
-                        .name("Aventus")
+                        .name("Aventus Seo Ctrl")
                         .slug("aventus-seo")
                         .description("Sensual, audacious and contemporary scent.")
                         .gender(GenderTarget.FOR_HIM)

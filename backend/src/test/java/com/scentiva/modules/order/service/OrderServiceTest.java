@@ -125,7 +125,7 @@ class OrderServiceTest {
 
         Brand brand = brandRepository.findBySlugAndIsDeletedFalse("xerjoff-ord")
                 .orElseGet(() -> brandRepository.save(Brand.builder()
-                        .name("Xerjoff")
+                        .name("Xerjoff Order Svc")
                         .slug("xerjoff-ord")
                         .originCountry("Italy")
                         .tier(BrandTier.HERITAGE_MAISON)
@@ -133,7 +133,7 @@ class OrderServiceTest {
 
         Category category = categoryRepository.findBySlugAndIsDeletedFalse("woody-ord")
                 .orElseGet(() -> categoryRepository.save(Category.builder()
-                        .name("Woody Luxury")
+                        .name("Woody Luxury Order Svc")
                         .slug("woody-ord")
                         .build()));
 
@@ -141,16 +141,16 @@ class OrderServiceTest {
                 .orElseGet(() -> productRepository.save(Product.builder()
                         .brand(brand)
                         .category(category)
-                        .name("Xerjoff Naxos")
+                        .name("Xerjoff Naxos Order Svc")
                         .slug("naxos-ord")
                         .gender(GenderTarget.UNISEX)
                         .isActive(true)
                         .build()));
 
-        variant = productVariantRepository.findBySkuAndIsDeletedFalse("XER-NAX-100")
+        variant = productVariantRepository.findBySkuAndIsDeletedFalse("XER-NAX-ORD-100")
                 .orElseGet(() -> productVariantRepository.save(ProductVariant.builder()
                         .product(product)
-                        .sku("XER-NAX-100")
+                        .sku("XER-NAX-ORD-100")
                         .volumeMl(100)
                         .concentration(Concentration.EDP)
                         .basePrice(new BigDecimal("2900.00"))

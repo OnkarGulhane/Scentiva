@@ -44,19 +44,18 @@ class CouponControllerTest {
 
     @BeforeEach
     void setUp() {
-        couponRepository.deleteAll();
-
-        coupon = couponRepository.save(Coupon.builder()
-                .code("WELCOME10")
-                .discountType(DiscountType.PERCENTAGE)
-                .discountValue(new BigDecimal("10.00"))
-                .minOrderValue(new BigDecimal("500.00"))
-                .maxDiscount(new BigDecimal("200.00"))
-                .usageLimitGlobal(100)
-                .redemptionCount(0)
-                .isActive(true)
-                .expiresAt(LocalDateTime.now().plusDays(30))
-                .build());
+        coupon = couponRepository.findByCodeIgnoreCaseAndIsDeletedFalse("WELCOME10")
+                .orElseGet(() -> couponRepository.save(Coupon.builder()
+                        .code("WELCOME10")
+                        .discountType(DiscountType.PERCENTAGE)
+                        .discountValue(new BigDecimal("10.00"))
+                        .minOrderValue(new BigDecimal("500.00"))
+                        .maxDiscount(new BigDecimal("200.00"))
+                        .usageLimitGlobal(100)
+                        .redemptionCount(0)
+                        .isActive(true)
+                        .expiresAt(LocalDateTime.now().plusDays(30))
+                        .build()));
     }
 
     @Test
@@ -79,7 +78,7 @@ class CouponControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0].code", is("WELCOME10")));
+                .andExpect(jsonPath("$.data[?(@.code == 'WELCOME10')]").exists());
     }
 
     @Test

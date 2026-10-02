@@ -12,6 +12,7 @@
 | Revision | Date | Author / Role | Description of Change | Status |
 |---|---|---|---|---|
 | `1.0.0` | 2026-10-01 | Lead Product & Software Architect | Initial Master Specification based on Master E-Commerce 2026 Blueprint & Scentiva Decisions | Approved |
+| `1.1.0` | 2026-10-03 | Principal Software Engineer | Added Section 14.2 & 14.3: Customer Authentication, Dual Sign In / Create Account Lifecycle, Guest Cart Preservation & Checkout Guard Specifications | Approved |
 
 ---
 
@@ -187,7 +188,126 @@ Unlike peer-to-peer marketplaces, **Scentiva assumes 100% merchant liability and
 7. `/find-your-scent` & `/find-your-scent/results` — 5-step interactive scent quiz and recommendation engine.
 8. `/cart` & `/checkout` — Bag drawer, multi-step checkout pipeline, payment options.
 9. `/account/*` — Customer profile, address book, active orders, interactive shipment tracking timeline.
-10. `/stories/*` — Editorial fragrance masterclasses, notes breakdowns, perfumer interviews.
+10. `/account/sign-in` & `/account/sign-up` — Dual-tab luxury authentication and registration portal with Privé rewards onboarding.
+11. `/stories/*` — Editorial fragrance masterclasses, notes breakdowns, perfumer interviews.
+
+---
+
+### 14.2 Customer Authentication & Registration Specifications (Sign In & Create Account)
+
+#### 14.2.1 Core Objectives & Architectural Rules
+1. **Frictionless Onboarding:** Modern luxury e-commerce standard allowing guest browsing, adding items to bag, and completing authentication seamlessly before checkout.
+2. **Unified Dual-Mode Portal:** A single consolidated interface supporting instant switching between **"Sign In"** (existing members) and **"Create Account"** (new connoisseurs) without losing context or cart contents.
+3. **Cart Continuity & Guest-to-User State Preservation:** Any items added to the bag while browsing as a guest MUST persist and merge cleanly upon sign-in or account creation.
+4. **Checkout Authentication Guard & Automatic Return:** When an unauthenticated visitor clicks "Proceed to Checkout" from the cart drawer or `/cart` page, they are smoothly directed to `/account/sign-in?redirect=/checkout`. Upon successful authentication, they are instantly returned to `/checkout` with their selected fragrance variants and quantities intact.
+
+#### 14.2.2 End-to-End User Authentication Flow
+```text
+[ Guest Browsing ] 
+       │
+       ▼
+[ Add Fragrance to Bag ] ──► (Stored in Client Session Cart)
+       │
+       ▼
+[ View Cart / Bag Drawer ]
+       │
+       ▼
+[ Click "Proceed to Checkout" ]
+       │
+       ▼
+[ Authentication Guard Check ]
+       ├── (Is Authenticated?) ──► [ Direct to /checkout ]
+       └── (Is Guest?) ──────────► [ Redirect to /account/sign-in?redirect=/checkout ]
+                                            │
+               ┌────────────────────────────┴────────────────────────────┐
+               ▼                                                         ▼
+       [ Sign In Tab ]                                          [ Create Account Tab ]
+       - Email & Password input                                 - Full Name (First + Last)
+       - "Remember Me" toggle                                   - Email & Password input
+       - Demo credentials quick-fill                            - Terms & Privé Agreement
+       - Auth verification                                      - 100 Welcome Points Awarded
+               │                                                         │
+               └────────────────────────────┬────────────────────────────┘
+                                            ▼
+                               [ Authentication Success ]
+                                            │
+                                            ▼
+                            [ Merge Guest Cart into User Account ]
+                                            │
+                                            ▼
+                        [ Safe Return to /checkout Pipeline ]
+```
+
+#### 14.2.3 Functional UI/UX Requirements
+| Feature | Requirement Specification |
+|---|---|
+| **Route Aliases** | `/account/sign-in`, `/account/sign-up`, `/signin`, `/signup`, `/login` all route cleanly to the unified auth experience. |
+| **Tabbed Interface** | Active tab pill indicator toggling between **Sign In** and **Create Account** without page reload. |
+| **Input Validation** | Real-time email syntax check, minimum 6-character password constraint, required field validations with descriptive error states. |
+| **Password Visibility** | Interactive eye icon to toggle masking / unmasking of the entered password. |
+| **Privé Loyalty Onboarding** | New accounts automatically initialize with **Privé Bronze** status and a **100 Points** welcome allocation. |
+| **Security Redirect Guard** | Validates internal relative paths to strictly prohibit open redirect vulnerabilities. |
+
+#### 14.2.4 Dual Backend REST API Contract
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "customer@example.com",
+  "password": "SecurePassword123"
+}
+```
+*Response (`200 OK`):*
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzUxMiIsIn...",
+  "user": {
+    "userId": 101,
+    "email": "customer@example.com",
+    "fullName": "Olivia Vance",
+    "role": "ROLE_CUSTOMER",
+    "loyaltyTier": "PRIVE_GOLD",
+    "points": 500
+  }
+}
+```
+
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Julian",
+  "lastName": "Drake",
+  "email": "julian.drake@luxury.com",
+  "password": "ArtisanPassword456"
+}
+```
+*Response (`201 Created`):*
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzUxMiIsIn...",
+  "user": {
+    "userId": 102,
+    "email": "julian.drake@luxury.com",
+    "fullName": "Julian Drake",
+    "role": "ROLE_CUSTOMER",
+    "loyaltyTier": "PRIVE_BRONZE",
+    "points": 100
+  }
+}
+```
+
+---
+
+### 14.3 Customer Account & Self-Service Management (`/account`)
+- **Active Orders Timeline:** Real-time visual fulfillment stepper (Placed -> Confirmed -> Shipped -> Out for Delivery -> Delivered).
+- **Multi-Address Book:** CRUD management of residential and corporate shipping destinations with default designation.
+- **Privé Loyalty & Points Vault:** Tier badge indicator, points balance, tier progress bar, and member-exclusive discount unlocking.
+- **Wishlist Synchronizer:** Persistent multi-device fragrance bookmarking with 1-click "Move to Bag".
 
 ---
 

@@ -36,7 +36,9 @@ export const CheckoutPage: React.FC = () => {
     cartDiscount,
     cartTotal,
     formatPrice,
-    showToast
+    showToast,
+    isLoggedIn,
+    isHydrated
   } = useStore();
 
   const navigate = useNavigate();
@@ -60,11 +62,27 @@ export const CheckoutPage: React.FC = () => {
   const [newPincode, setNewPincode] = useState('411001');
   const [newType, setNewType] = useState<'Home' | 'Office' | 'Other'>('Home');
 
+  // Authentication guard: Guests cannot access checkout directly
+  useEffect(() => {
+    if (isHydrated && !isLoggedIn) {
+      navigate('/account/sign-in?redirect=/checkout', { replace: true });
+    }
+  }, [isHydrated, isLoggedIn, navigate]);
+
   useEffect(() => {
     if (isPaymentRoute) {
       setCurrentStep(3);
     }
   }, [isPaymentRoute]);
+
+  if (!isHydrated || !isLoggedIn) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center space-y-3">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-plum-900" />
+        <p className="text-xs text-neutral-500 font-medium">Verifying checkout session...</p>
+      </div>
+    );
+  }
 
   if (cart.length === 0) {
     return (
@@ -141,10 +159,10 @@ export const CheckoutPage: React.FC = () => {
           <div>
             <div className="text-xs text-neutral-400 font-medium mb-1 flex items-center gap-1.5">
               <Lock className="w-3.5 h-3.5 text-brand-gold-500" />
-              <span>256-Bit Encrypted Secure Checkout (Demo Mode)</span>
+              <span>256-Bit Encrypted Secure Luxury Checkout</span>
             </div>
             <h1 className="font-serif text-3xl sm:text-4xl font-bold text-neutral-900">
-              Demo Checkout
+              Checkout
             </h1>
           </div>
 
@@ -308,7 +326,7 @@ export const CheckoutPage: React.FC = () => {
                 <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
                   <button
                     onClick={() => setCurrentStep(1)}
-                    className="px-5 py-2.5 rounded-full border border-neutral-300 text-neutral-700 text-xs font-semibold flex items-center gap-1.5"
+                    className="px-5 py-2.5 rounded-full border border-neutral-300 text-neutral-700 text-xs font-semibold flex items-center gap-1.5 hover:bg-neutral-100 transition-colors"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Back to Address</span>
@@ -334,20 +352,21 @@ export const CheckoutPage: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <CreditCard className="w-5 h-5 text-brand-rose-500" />
                     <h3 className="font-serif text-xl sm:text-2xl font-bold text-neutral-900">
-                      Select Demo Payment Option
+                      Select Payment Method
                     </h3>
                   </div>
-                  <span className="text-xs text-brand-plum-700 font-semibold px-2 py-0.5 rounded-full bg-brand-blush-100">
-                    Demo Simulation Only
+                  <span className="text-xs text-brand-plum-700 font-semibold px-2.5 py-1 rounded-full bg-brand-blush-100 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-brand-gold-500" />
+                    <span>256-Bit SSL Encrypted</span>
                   </span>
                 </div>
 
                 <div className="space-y-3">
                   {[
-                    { id: 'UPI / QR', title: 'Instant UPI / QR Code (Demo Simulation)', desc: 'Scan with Google Pay, PhonePe, Paytm, or BHIM', icon: QrCode },
-                    { id: 'Credit / Debit Card', title: 'Credit / Debit Card (Demo Simulation)', desc: 'Visa, MasterCard, American Express, RuPay (No actual card required)', icon: CreditCard },
-                    { id: 'Net Banking', title: 'Net Banking (Demo Simulation)', desc: 'HDFC, ICICI, SBI, Axis & all major Indian banks', icon: Building },
-                    { id: 'Cash on Delivery', title: 'Pay on Delivery (Cash / UPI at Doorstep)', desc: 'Inspect sealed flacon box before paying courier', icon: Banknote }
+                    { id: 'UPI / QR', title: 'Instant UPI / QR Code', desc: 'Pay securely using Google Pay, PhonePe, Paytm, or any UPI App', icon: QrCode },
+                    { id: 'Credit / Debit Card', title: 'Credit / Debit Card', desc: 'Visa, MasterCard, American Express, RuPay & Diners Club', icon: CreditCard },
+                    { id: 'Net Banking', title: 'Net Banking', desc: 'All major Indian banking portals supported', icon: Building },
+                    { id: 'Cash on Delivery', title: 'Cash on Delivery (White-Glove)', desc: 'Pay securely upon luxury delivery at your doorstep', icon: Banknote }
                   ].map(method => {
                     const Icon = method.icon;
                     return (
@@ -357,7 +376,7 @@ export const CheckoutPage: React.FC = () => {
                         className={`p-4 sm:p-5 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
                           paymentMethod === method.id
                             ? 'border-brand-plum-900 bg-brand-blush-100/30 shadow-sm'
-                            : 'border-neutral-200 bg-neutral-50/60'
+                            : 'border-neutral-200 bg-neutral-50/60 hover:border-neutral-300'
                         }`}
                       >
                         <div className="flex items-center gap-3.5">
@@ -378,11 +397,14 @@ export const CheckoutPage: React.FC = () => {
                   })}
                 </div>
 
-                <div className="p-4 rounded-2xl bg-brand-gold-100/40 border border-brand-gold-500/30 text-xs text-brand-plum-950 space-y-1">
-                  <strong>🔒 Prototype Simulation Note:</strong>
-                  <p className="text-[11px] text-neutral-700">
-                    This is a functional frontend demo. Clicking "Place Demo Order" will generate a mock order reference and initiate the interactive live 5-stage shipment tracker. No real money will be charged.
-                  </p>
+                <div className="p-4 rounded-2xl bg-brand-blush-100/40 border border-brand-blush-200/80 text-xs text-brand-plum-950 flex items-start gap-3">
+                  <ShieldCheck className="w-5 h-5 text-brand-gold-600 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="font-semibold block text-neutral-900">100% Authentic & Insured Delivery</strong>
+                    <p className="text-[11px] text-neutral-600 mt-0.5 leading-relaxed">
+                      Your fragrance is sealed with serialized authenticity holograms and dispatched via priority courier.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
@@ -391,7 +413,7 @@ export const CheckoutPage: React.FC = () => {
                       setCurrentStep(2);
                       navigate('/checkout');
                     }}
-                    className="px-5 py-2.5 rounded-full border border-neutral-300 text-neutral-700 text-xs font-semibold flex items-center gap-1.5"
+                    className="px-5 py-2.5 rounded-full border border-neutral-300 text-neutral-700 text-xs font-semibold flex items-center gap-1.5 hover:bg-neutral-100 transition-colors"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Back to Delivery</span>
@@ -406,11 +428,11 @@ export const CheckoutPage: React.FC = () => {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Processing Demo Order...</span>
+                        <span>Processing Order...</span>
                       </>
                     ) : (
                       <>
-                        <span>Place Demo Order • {formatPrice(grandTotal)}</span>
+                        <span>Place Order • {formatPrice(grandTotal)}</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}
@@ -499,7 +521,7 @@ export const CheckoutPage: React.FC = () => {
                   required
                   value={newFullName}
                   onChange={e => setNewFullName(e.target.value)}
-                  placeholder="e.g. Demo Connoisseur"
+                  placeholder="e.g. Olivia Vane"
                   className="w-full p-2.5 rounded-xl border border-neutral-300 focus:border-brand-plum-700 focus:outline-none"
                 />
               </div>

@@ -88,7 +88,7 @@ class ReviewServiceTest {
 
         Brand brand = brandRepository.findBySlugAndIsDeletedFalse("maison-francis-rev")
                 .orElseGet(() -> brandRepository.save(Brand.builder()
-                        .name("Maison Francis Kurkdjian")
+                        .name("Maison Francis Review Svc")
                         .slug("maison-francis-rev")
                         .originCountry("France")
                         .tier(BrandTier.HERITAGE_MAISON)
@@ -96,7 +96,7 @@ class ReviewServiceTest {
 
         Category category = categoryRepository.findBySlugAndIsDeletedFalse("amber-rev")
                 .orElseGet(() -> categoryRepository.save(Category.builder()
-                        .name("Amber")
+                        .name("Amber Review Svc")
                         .slug("amber-rev")
                         .build()));
 
@@ -104,16 +104,16 @@ class ReviewServiceTest {
                 .orElseGet(() -> productRepository.save(Product.builder()
                         .brand(brand)
                         .category(category)
-                        .name("Baccarat Rouge 540")
+                        .name("Baccarat Rouge Review Svc")
                         .slug("baccarat-rouge-rev")
                         .gender(GenderTarget.UNISEX)
                         .isActive(true)
                         .build()));
 
-        ProductVariant variant = productVariantRepository.findBySkuAndIsDeletedFalse("MFK-BR540-70")
+        ProductVariant variant = productVariantRepository.findBySkuAndIsDeletedFalse("MFK-BR540-REV-70")
                 .orElseGet(() -> productVariantRepository.save(ProductVariant.builder()
                         .product(product)
-                        .sku("MFK-BR540-70")
+                        .sku("MFK-BR540-REV-70")
                         .volumeMl(70)
                         .concentration(Concentration.EXTRAIT)
                         .basePrice(new BigDecimal("3800.00"))

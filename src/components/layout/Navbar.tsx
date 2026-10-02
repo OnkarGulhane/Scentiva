@@ -21,14 +21,16 @@ import {
   Flame,
   Gift,
   Compass,
-  Award
+  Award,
+  LogOut,
+  MapPin
 } from 'lucide-react';
 import { BRANDS } from '../../data/brands';
 import { CATEGORIES } from '../../data/categories';
 import { SearchService } from '../../services/searchService';
 
 export const Navbar: React.FC = () => {
-  const { cartCount, wishlist, setIsCartDrawerOpen, products, isLoggedIn, currentUser, isHydrated } = useStore();
+  const { cartCount, wishlist, setIsCartDrawerOpen, products, isLoggedIn, currentUser, isHydrated, signOut } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,7 +41,7 @@ export const Navbar: React.FC = () => {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<'brands' | 'collections' | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<'brands' | 'collections' | 'account' | null>(null);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -163,74 +165,78 @@ export const Navbar: React.FC = () => {
               All Perfumes
             </Link>
 
-            {/* Brands Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setActiveDropdown('brands')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <button
-                type="button"
-                onClick={() => setActiveDropdown(prev => prev === 'brands' ? null : 'brands')}
-                className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  isBrandsActive || activeDropdown === 'brands'
-                    ? 'text-brand-plum-900 bg-brand-blush-100/70 font-semibold'
-                    : 'text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70'
-                }`}
-                aria-expanded={activeDropdown === 'brands'}
-                aria-haspopup="true"
+              {/* Brands Dropdown */}
+              <div
+                className="relative"
+                onMouseEnter={() => setActiveDropdown('brands')}
+                onMouseLeave={() => setActiveDropdown(null)}
               >
-                <span>Brands</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'brands' ? 'rotate-180 text-brand-plum-900' : 'text-neutral-400'}`} />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveDropdown(prev => prev === 'brands' ? null : 'brands')}
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    isBrandsActive || activeDropdown === 'brands'
+                      ? 'text-brand-plum-900 bg-brand-blush-100/70 font-semibold'
+                      : 'text-neutral-800 hover:text-brand-plum-900 hover:bg-neutral-100/70'
+                  }`}
+                  aria-expanded={activeDropdown === 'brands'}
+                  aria-haspopup="true"
+                >
+                  <span>Brands</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'brands' ? 'rotate-180 text-brand-plum-900' : 'text-neutral-400'}`} />
+                </button>
 
-              {/* Hover bridge & Dropdown Body */}
-              {activeDropdown === 'brands' && (
-                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="w-88 bg-white rounded-2xl shadow-modal border border-neutral-200/90 p-4 backdrop-blur-md">
-                    <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
-                      <div className="flex items-center gap-1.5">
-                        <Award className="w-3.5 h-3.5 text-brand-gold-500" />
-                        <span className="text-[11px] font-bold text-brand-plum-950 uppercase tracking-wider">Luxury Maisons</span>
-                      </div>
-                      <Link 
-                        to="/brands" 
-                        onClick={() => setActiveDropdown(null)}
-                        className="text-xs text-brand-rose-600 hover:text-brand-plum-900 hover:underline font-semibold flex items-center gap-1"
-                      >
-                        <span>View All ({BRANDS.length})</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </Link>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-1.5 pt-3">
-                      {BRANDS.slice(0, 10).map(brand => (
-                        <Link
-                          key={brand.id}
-                          to={`/brands/${brand.slug}`}
+                {/* Hover bridge & Dropdown Body */}
+                {activeDropdown === 'brands' && (
+                  <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="w-[520px] bg-white rounded-2xl shadow-modal border border-neutral-200/90 p-5 backdrop-blur-md">
+                      <div className="flex items-center justify-between pb-3.5 border-b border-neutral-100">
+                        <div className="flex items-center gap-2">
+                          <Award className="w-4 h-4 text-brand-gold-500" />
+                          <span className="text-xs font-bold text-brand-plum-950 uppercase tracking-wider">Luxury Maisons</span>
+                        </div>
+                        <Link 
+                          to="/brands" 
                           onClick={() => setActiveDropdown(null)}
-                          className="p-2 rounded-xl text-xs font-medium text-neutral-800 hover:bg-brand-blush-100/60 hover:text-brand-plum-900 transition-colors flex items-center justify-between group/brand"
+                          className="text-xs text-brand-rose-600 hover:text-brand-plum-900 hover:underline font-semibold flex items-center gap-1.5 transition-colors"
                         >
-                          <span className="font-semibold group-hover/brand:translate-x-0.5 transition-transform">{brand.name}</span>
-                          <span className="text-[10px] text-neutral-400 font-mono">{brand.tier}</span>
+                          <span>View All ({BRANDS.length})</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
-                      ))}
-                    </div>
+                      </div>
 
-                    <div className="pt-3 mt-3 border-t border-neutral-100">
-                      <Link
-                        to="/brands"
-                        onClick={() => setActiveDropdown(null)}
-                        className="w-full py-2 px-3 rounded-xl bg-brand-blush-100/50 hover:bg-brand-blush-200/60 text-brand-plum-950 font-semibold text-xs flex items-center justify-between transition-colors"
-                      >
-                        <span>Explore Full Brand Directory</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-brand-rose-500" />
-                      </Link>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-3.5">
+                        {BRANDS.slice(0, 10).map(brand => (
+                          <Link
+                            key={brand.id}
+                            to={`/brands/${brand.slug}`}
+                            onClick={() => setActiveDropdown(null)}
+                            className="p-2.5 rounded-xl hover:bg-brand-blush-100/60 transition-all flex flex-col group/brand"
+                          >
+                            <span className="text-xs font-bold text-neutral-900 group-hover/brand:text-brand-plum-900 transition-colors leading-snug">
+                              {brand.name}
+                            </span>
+                            <span className="text-[10px] text-neutral-400 font-medium tracking-wide uppercase mt-0.5">
+                              {brand.tier}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+
+                      <div className="pt-3.5 mt-3 border-t border-neutral-100">
+                        <Link
+                          to="/brands"
+                          onClick={() => setActiveDropdown(null)}
+                          className="w-full py-2.5 px-4 rounded-xl bg-brand-blush-100/60 hover:bg-brand-blush-200/80 text-brand-plum-950 font-semibold text-xs flex items-center justify-between transition-all group/cta"
+                        >
+                          <span className="group-hover/cta:translate-x-0.5 transition-transform">Explore Full Brand Directory</span>
+                          <ArrowRight className="w-4 h-4 text-brand-rose-600 group-hover/cta:translate-x-0.5 transition-transform" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
             {/* Collections Dropdown */}
             <div
@@ -256,19 +262,19 @@ export const Navbar: React.FC = () => {
               {/* Hover bridge & Dropdown Body */}
               {activeDropdown === 'collections' && (
                 <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="w-96 bg-white rounded-2xl shadow-modal border border-neutral-200/90 p-4 backdrop-blur-md">
-                    <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
-                      <div className="flex items-center gap-1.5">
-                        <Layers className="w-3.5 h-3.5 text-brand-rose-500" />
-                        <span className="text-[11px] font-bold text-brand-plum-950 uppercase tracking-wider">Olfactory Universes</span>
+                  <div className="w-[460px] bg-white rounded-2xl shadow-modal border border-neutral-200/90 p-5 backdrop-blur-md">
+                    <div className="flex items-center justify-between pb-3.5 border-b border-neutral-100">
+                      <div className="flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-brand-rose-500" />
+                        <span className="text-xs font-bold text-brand-plum-950 uppercase tracking-wider">Olfactory Universes</span>
                       </div>
                       <Link 
                         to="/collections" 
                         onClick={() => setActiveDropdown(null)}
-                        className="text-xs text-brand-rose-600 hover:text-brand-plum-900 hover:underline font-semibold flex items-center gap-1"
+                        className="text-xs text-brand-rose-600 hover:text-brand-plum-900 hover:underline font-semibold flex items-center gap-1.5 transition-colors"
                       >
                         <span>View All ({CATEGORIES.length})</span>
-                        <ArrowRight className="w-3 h-3" />
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
 
@@ -500,15 +506,120 @@ export const Navbar: React.FC = () => {
               <span className="text-[11px] sm:text-xs font-medium tracking-wide">Admin</span>
             </Link>
 
-            {/* Account / Profile Link */}
-            <Link
-              to={isHydrated && isLoggedIn ? '/account' : '/account/sign-in'}
-              className="hidden md:flex items-center gap-1.5 p-2 text-neutral-700 hover:text-brand-plum-900 rounded-full hover:bg-neutral-100 transition-colors"
-              aria-label={isHydrated && isLoggedIn ? `Account (${currentUser?.name})` : 'Sign In'}
-              title={isHydrated && isLoggedIn ? `Signed in as ${currentUser?.name}` : 'Sign In / Account'}
+            {/* Account Dropdown Area (Guest & Authenticated States) */}
+            <div
+              className="relative hidden md:block"
+              onMouseEnter={() => setActiveDropdown('account')}
+              onMouseLeave={() => setActiveDropdown(null)}
             >
-              <User className="w-5 h-5" />
-            </Link>
+              <Link
+                to={isHydrated && isLoggedIn ? '/account' : '/account/sign-in'}
+                className="flex items-center gap-1.5 p-2 text-neutral-700 hover:text-brand-plum-900 rounded-full hover:bg-neutral-100 transition-colors"
+                aria-label={isHydrated && isLoggedIn ? `Account (${currentUser?.name})` : 'Sign In / Create Account'}
+                title={isHydrated && isLoggedIn ? `Signed in as ${currentUser?.name}` : 'Sign In / Create Account'}
+              >
+                <div className="flex items-center gap-1.5">
+                  <User className="w-5 h-5 text-neutral-700" />
+                  {isHydrated && isLoggedIn && currentUser && (
+                    <span className="hidden xl:inline text-xs font-semibold text-brand-plum-950 max-w-[110px] truncate">
+                      {currentUser.name.split(' ')[0]}
+                    </span>
+                  )}
+                </div>
+              </Link>
+
+              {/* Luxury Dropdown Menu */}
+              {activeDropdown === 'account' && (
+                <div className="absolute top-full right-0 pt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="w-64 bg-white rounded-2xl shadow-modal border border-neutral-200/90 p-4 backdrop-blur-md">
+                    {isHydrated && isLoggedIn && currentUser ? (
+                      <div className="space-y-3">
+                        <div className="pb-3 border-b border-neutral-100">
+                          <div className="text-xs font-bold text-brand-plum-950 truncate">{currentUser.name}</div>
+                          <div className="text-[11px] text-neutral-500 truncate">{currentUser.email}</div>
+                          <div className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-blush-100/70 border border-brand-blush-300/40 text-[10px] font-bold text-brand-plum-900">
+                            <Sparkles className="w-3 h-3 text-brand-gold-500" />
+                            <span>{currentUser.tier || 'Privé Connoisseur'}</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1 text-xs">
+                          <Link
+                            to="/account"
+                            onClick={() => setActiveDropdown(null)}
+                            className="flex items-center gap-2.5 p-2 rounded-xl text-neutral-700 hover:text-brand-plum-900 hover:bg-neutral-50 font-medium transition-colors"
+                          >
+                            <User className="w-4 h-4 text-neutral-400" />
+                            <span>My Account</span>
+                          </Link>
+                          <Link
+                            to="/account/orders"
+                            onClick={() => setActiveDropdown(null)}
+                            className="flex items-center gap-2.5 p-2 rounded-xl text-neutral-700 hover:text-brand-plum-900 hover:bg-neutral-50 font-medium transition-colors"
+                          >
+                            <Package className="w-4 h-4 text-neutral-400" />
+                            <span>Orders & Shipments</span>
+                          </Link>
+                          <Link
+                            to="/wishlist"
+                            onClick={() => setActiveDropdown(null)}
+                            className="flex items-center gap-2.5 p-2 rounded-xl text-neutral-700 hover:text-brand-plum-900 hover:bg-neutral-50 font-medium transition-colors"
+                          >
+                            <Heart className="w-4 h-4 text-neutral-400" />
+                            <span>Saved Vault ({wishlist.length})</span>
+                          </Link>
+                          <Link
+                            to="/account/addresses"
+                            onClick={() => setActiveDropdown(null)}
+                            className="flex items-center gap-2.5 p-2 rounded-xl text-neutral-700 hover:text-brand-plum-900 hover:bg-neutral-50 font-medium transition-colors"
+                          >
+                            <MapPin className="w-4 h-4 text-neutral-400" />
+                            <span>Addresses</span>
+                          </Link>
+                        </div>
+
+                        <div className="pt-2 border-t border-neutral-100">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveDropdown(null);
+                              signOut();
+                            }}
+                            className="w-full flex items-center gap-2 p-2 rounded-xl text-xs font-semibold text-semantic-error hover:bg-neutral-50 transition-colors"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Sign Out</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 text-xs">
+                        <div className="pb-2.5 border-b border-neutral-100">
+                          <span className="font-serif text-sm font-bold text-brand-plum-950 block">SCENTIVA Privé</span>
+                          <span className="text-[11px] text-neutral-500">Sign in to track orders, save favorites, and enjoy connoisseur rewards.</span>
+                        </div>
+                        <div className="space-y-2">
+                          <Link
+                            to="/account/sign-in"
+                            onClick={() => setActiveDropdown(null)}
+                            className="w-full py-2.5 px-4 rounded-xl bg-brand-plum-900 hover:bg-brand-plum-800 text-white font-semibold text-center block transition-colors shadow-xs"
+                          >
+                            Sign In
+                          </Link>
+                          <Link
+                            to="/account/sign-up"
+                            onClick={() => setActiveDropdown(null)}
+                            className="w-full py-2 px-4 rounded-xl border border-neutral-200 hover:bg-neutral-50 text-neutral-800 font-semibold text-center block transition-colors"
+                          >
+                            Create Account
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -568,15 +679,16 @@ export const Navbar: React.FC = () => {
 
                 {mobileBrandsExpanded && (
                   <div className="p-3 bg-white space-y-1 border-t border-neutral-100 animate-in fade-in duration-150">
-                    <div className="grid grid-cols-2 gap-1.5">
+                    <div className="grid grid-cols-2 gap-2">
                       {BRANDS.map(brand => (
                         <Link
                           key={brand.id}
                           to={`/brands/${brand.slug}`}
                           onClick={() => setMobileMenuOpen(false)}
-                          className="p-2 rounded-lg text-xs font-medium text-neutral-800 hover:bg-brand-blush-100/60 hover:text-brand-plum-900 transition-colors"
+                          className="p-2.5 rounded-xl hover:bg-brand-blush-100/60 transition-colors flex flex-col"
                         >
-                          {brand.name}
+                          <span className="text-xs font-semibold text-neutral-900 leading-snug">{brand.name}</span>
+                          <span className="text-[10px] text-neutral-400 font-medium tracking-wide uppercase mt-0.5">{brand.tier}</span>
                         </Link>
                       ))}
                     </div>
@@ -702,10 +814,26 @@ export const Navbar: React.FC = () => {
                 >
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4 text-neutral-600" />
-                    <span>{isLoggedIn ? `Account (${currentUser?.name})` : 'Sign In / Register'}</span>
+                    <span>{isLoggedIn ? `Account (${currentUser?.name})` : 'Sign In / Create Account'}</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-neutral-400" />
                 </Link>
+
+                {isLoggedIn && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      signOut();
+                    }}
+                    className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl font-semibold text-semantic-error hover:bg-neutral-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <LogOut className="w-4 h-4" />
+                      <span>Sign Out</span>
+                    </div>
+                  </button>
+                )}
 
                 <Link
                   to="/admin"

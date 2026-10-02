@@ -156,7 +156,7 @@ export const OrderService = {
           status: 'Order Placed',
           timestamp: 'Just now',
           completed: true,
-          description: 'Order confirmed and registered in SCENTIVA vault (Demo Simulation)'
+          description: 'Order confirmed and registered in SCENTIVA vault'
         },
         {
           status: 'Processing',

@@ -111,7 +111,7 @@ class ReturnServiceTest {
 
         Brand brand = brandRepository.findBySlugAndIsDeletedFalse("amouage-ret")
                 .orElseGet(() -> brandRepository.save(Brand.builder()
-                        .name("Amouage")
+                        .name("Amouage Return Svc")
                         .slug("amouage-ret")
                         .originCountry("Oman")
                         .tier(BrandTier.NICHE_ATELIER)
@@ -119,7 +119,7 @@ class ReturnServiceTest {
 
         Category category = categoryRepository.findBySlugAndIsDeletedFalse("oriental-ret")
                 .orElseGet(() -> categoryRepository.save(Category.builder()
-                        .name("Oriental")
+                        .name("Oriental Return Svc")
                         .slug("oriental-ret")
                         .build()));
 
@@ -127,7 +127,7 @@ class ReturnServiceTest {
                 .orElseGet(() -> productRepository.save(Product.builder()
                         .brand(brand)
                         .category(category)
-                        .name("Interlude Man")
+                        .name("Interlude Man Return Svc")
                         .slug("interlude-man-ret")
                         .gender(GenderTarget.FOR_HIM)
                         .isActive(true)

@@ -7,7 +7,7 @@ import { Link } from '../common/Link';
 import { useLocation } from '../../hooks/useNavigation';
 
 export const MobileBottomNav: React.FC = () => {
-  const { cartCount, setIsCartDrawerOpen, isHydrated } = useStore();
+  const { cartCount, setIsCartDrawerOpen, isHydrated, isLoggedIn } = useStore();
   const location = useLocation();
 
   // Hide on admin routes or full screen checkout to prevent clutter
@@ -69,13 +69,13 @@ export const MobileBottomNav: React.FC = () => {
         </Link>
 
         <Link
-          to="/admin"
+          to={isHydrated && isLoggedIn ? '/account' : '/account/sign-in'}
           className={`flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors ${
-            isRouteActive('/admin') ? 'text-brand-plum-900 font-bold' : 'text-neutral-500 hover:text-brand-plum-900'
+            isRouteActive('/account') ? 'text-brand-plum-900 font-bold' : 'text-neutral-500 hover:text-brand-plum-900'
           }`}
         >
-          <ShieldCheck className="w-5 h-5 text-brand-rose-500" />
-          <span>Admin</span>
+          <User className="w-5 h-5 text-neutral-600" />
+          <span>{isHydrated && isLoggedIn ? 'Account' : 'Sign In'}</span>
         </Link>
       </div>
     </div>

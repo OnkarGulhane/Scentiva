@@ -196,7 +196,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link to="/admin" className="text-brand-gold-500 hover:underline font-semibold">
-                  Admin Dashboard Demo
+                  Admin Console Portal
                 </Link>
               </li>
             </ul>
@@ -237,7 +237,7 @@ export const Footer: React.FC = () => {
 
         {/* Copyright */}
         <div className="border-t border-brand-plum-900 pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-neutral-400 gap-3">
-          <p>© 2026 SCENTIVA Marketplace Prototype. All rights reserved.</p>
+          <p>© 2026 SCENTIVA Haute Parfumerie. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <Link to="/policies/privacy" className="hover:text-white">Privacy Policy</Link>
             <Link to="/policies/terms" className="hover:text-white">Terms of Service</Link>

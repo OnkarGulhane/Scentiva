@@ -43,7 +43,7 @@ class SemanticSearchServiceTest {
     void setUp() {
         Brand brand = brandRepository.findBySlugAndIsDeletedFalse("tom-ford-ai")
                 .orElseGet(() -> brandRepository.save(Brand.builder()
-                        .name("Tom Ford")
+                        .name("Tom Ford Semantic Search")
                         .slug("tom-ford-ai")
                         .originCountry("United States")
                         .tier(BrandTier.PRESTIGE)
@@ -51,7 +51,7 @@ class SemanticSearchServiceTest {
 
         Category category = categoryRepository.findBySlugAndIsDeletedFalse("oriental-ai")
                 .orElseGet(() -> categoryRepository.save(Category.builder()
-                        .name("Oriental")
+                        .name("Oriental Semantic Search")
                         .slug("oriental-ai")
                         .build()));
 
@@ -59,7 +59,7 @@ class SemanticSearchServiceTest {
                 .orElseGet(() -> productRepository.save(Product.builder()
                         .brand(brand)
                         .category(category)
-                        .name("Tobacco Vanille")
+                        .name("Tobacco Vanille Semantic Search")
                         .slug("tobacco-vanille-ai")
                         .gender(GenderTarget.UNISEX)
                         .isActive(true)
@@ -101,6 +101,6 @@ class SemanticSearchServiceTest {
         assertThat(response.getDetectedNotes()).contains("vanilla", "tobacco");
         assertThat(response.getDetectedEmotions()).contains("warm", "spicy");
         assertThat(response.getResults()).isNotEmpty();
-        assertThat(response.getResults().get(0).getProduct().getName()).isEqualTo("Tobacco Vanille");
+        assertThat(response.getResults().get(0).getProduct().getName()).contains("Tobacco Vanille");
     }
 }

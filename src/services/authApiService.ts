@@ -1,4 +1,4 @@
-import { apiClient } from '../lib/api/apiClient';
+import { apiClient, ApiError } from '../lib/api/apiClient';
 import { ApiResponse } from '../types';
 
 export interface LoginPayload {
@@ -14,45 +14,70 @@ export interface RegisterPayload {
   phone?: string;
 }
 
+export interface UserBackendProfile {
+  userId?: number;
+  customerId?: number;
+  id?: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  fullName?: string;
+  phone?: string;
+  role: string;
+  status?: string;
+  loyaltyTier?: string;
+  memberSince?: string;
+  createdAt?: string;
+}
+
 export interface AuthBackendResponse {
   accessToken: string;
   tokenType: string;
-  expiresIn: number;
-  userId: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-}
-
-export interface UserBackendProfile {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  role: string;
-  status: string;
-  loyaltyTier?: string;
-  loyaltyPoints?: number;
-  createdAt: string;
+  expiresInMs?: number;
+  user?: UserBackendProfile;
+  // Fallbacks if flattened
+  userId?: number;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  role?: string;
 }
 
 export const AuthApiService = {
   async login(payload: LoginPayload): Promise<AuthBackendResponse> {
-    const res = await apiClient.post<AuthBackendResponse>('/auth/login', payload);
-    if (res.data?.accessToken) {
-      apiClient.setToken(res.data.accessToken);
+    try {
+      const res = await apiClient.post<AuthBackendResponse>('/auth/login', payload);
+      if (res.data?.accessToken) {
+        apiClient.setToken(res.data.accessToken);
+      }
+      return res.data;
+    } catch (err: any) {
+      if (err instanceof ApiError) {
+        if (err.status === 401 || err.status === 400) {
+          throw new Error('The email or password is incorrect.');
+        }
+        throw new Error(err.message || 'Authentication failed. Please check your credentials.');
+      }
+      throw err;
     }
-    return res.data;
   },
 
   async register(payload: RegisterPayload): Promise<AuthBackendResponse> {
-    const res = await apiClient.post<AuthBackendResponse>('/auth/register', payload);
-    if (res.data?.accessToken) {
-      apiClient.setToken(res.data.accessToken);
+    try {
+      const res = await apiClient.post<AuthBackendResponse>('/auth/register', payload);
+      if (res.data?.accessToken) {
+        apiClient.setToken(res.data.accessToken);
+      }
+      return res.data;
+    } catch (err: any) {
+      if (err instanceof ApiError) {
+        if (err.status === 409) {
+          throw new Error('An account already exists with this email. Please sign in instead.');
+        }
+        throw new Error(err.message || 'Unable to register account. Please check your details.');
+      }
+      throw err;
     }
-    return res.data;
   },
 
   async getMe(): Promise<UserBackendProfile> {
@@ -72,8 +97,11 @@ export const AuthApiService = {
       if (apiClient.isAuthenticated()) {
         await apiClient.post<void>('/auth/logout');
       }
+    } catch {
+      // Ignore network errors during logout
     } finally {
       apiClient.setToken(null);
     }
   },
 };
+

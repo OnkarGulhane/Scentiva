@@ -4,10 +4,10 @@ import { SignInPage } from '@/views/SignInPage';
 
 export const metadata: Metadata = {
   title: 'Sign In | SCENTIVA Haute Parfumerie',
-  description: 'Sign in to access your personal vault, order tracking, and exclusive connoisseur benefits.',
+  description: 'Sign in to access your luxury fragrance cart, order history, and concierge tier.',
 };
 
-export default function SignInRoute() {
+export default function SigninRoute() {
   return (
     <Suspense fallback={null}>
       <SignInPage />

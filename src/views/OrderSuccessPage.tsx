@@ -27,7 +27,7 @@ export const OrderSuccessPage: React.FC = () => {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
         <h2 className="font-serif text-2xl font-bold text-neutral-900 mb-2">Order Confirmed</h2>
-        <p className="text-xs text-neutral-500 mb-4">Your demo order has been logged in SCENTIVA Vault.</p>
+        <p className="text-xs text-neutral-500 mb-4">Your order has been logged in the SCENTIVA Vault.</p>
         <Link to="/account/orders" className="px-6 py-2.5 rounded-full bg-brand-plum-900 text-white text-xs font-semibold">
           View Order History
         </Link>
@@ -46,7 +46,7 @@ export const OrderSuccessPage: React.FC = () => {
 
           <div className="space-y-2">
             <span className="text-xs font-bold uppercase tracking-widest text-brand-rose-500">
-              Demo Order Placed Successfully
+              Order Placed Successfully
             </span>
             <h1 className="font-serif text-3xl sm:text-4xl font-bold text-brand-plum-950">
               Thank You For Your Connoisseur Order

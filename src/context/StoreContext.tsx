@@ -5,6 +5,7 @@ import { Product, ProductVariant, CartItem, Address, Order, Coupon, OrderStatus 
 import { ProductService } from '../services/productService';
 import { OrderService, INITIAL_DEMO_ORDERS } from '../services/orderService';
 import { PromotionService } from '../services/promotionService';
+import { AuthApiService } from '../services/authApiService';
 import { PRODUCTS } from '../data/products';
 
 export interface ToastState {
@@ -19,17 +20,20 @@ export interface DemoUser {
   email: string;
   tier: 'Privé Bronze' | 'Privé Silver' | 'Privé Gold' | 'Privé Diamond';
   points: number;
+  role?: string;
+  userId?: number;
+  customerId?: number;
 }
 
 interface StoreContextType {
   // Hydration state
   isHydrated: boolean;
 
-  // Demo Auth
+  // Auth
   currentUser: DemoUser | null;
   isLoggedIn: boolean;
-  signIn: (email: string, password?: string) => { success: boolean; message: string };
-  signUp: (name: string, email: string, password?: string) => { success: boolean; message: string };
+  signIn: (email: string, password?: string) => Promise<{ success: boolean; message: string }>;
+  signUp: (name: string, email: string, password?: string) => Promise<{ success: boolean; message: string }>;
   signOut: () => void;
 
   // Products & Admin state
@@ -44,6 +48,7 @@ interface StoreContextType {
   removeFromCart: (productId: string, variantSku: string) => void;
   updateCartQuantity: (productId: string, variantSku: string, quantity: number) => void;
   clearCart: () => void;
+  mergeGuestCartItems: (guestItems: CartItem[]) => void;
   cartCount: number;
   cartSubtotal: number;
   cartDiscount: number;
@@ -108,14 +113,6 @@ function safeGetStorage<T>(key: string, fallback: T): T {
   }
 }
 
-const INITIAL_DEMO_USER: DemoUser = {
-  id: 'usr-demo-1',
-  name: 'Demo Connoisseur',
-  email: 'connoisseur@scentiva.com',
-  tier: 'Privé Gold',
-  points: 450
-};
-
 const INITIAL_ADDRESSES: Address[] = [
   {
     id: 'addr-demo-1',
@@ -143,103 +140,143 @@ const INITIAL_ADDRESSES: Address[] = [
   }
 ];
 
-const INITIAL_CART: CartItem[] = [
-  {
-    productId: PRODUCTS[0].id,
-    product: PRODUCTS[0],
-    selectedVariant: PRODUCTS[0].variants[1],
-    quantity: 1
-  },
-  {
-    productId: PRODUCTS[1].id,
-    product: PRODUCTS[1],
-    selectedVariant: PRODUCTS[1].variants[1],
-    quantity: 1
-  }
-];
-
 const INITIAL_WISHLIST: Product[] = [PRODUCTS[2], PRODUCTS[4]];
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isHydrated, setIsHydrated] = useState<boolean>(false);
 
-  // Auth state (Demo Session)
-  const [currentUser, setCurrentUser] = useState<DemoUser | null>(INITIAL_DEMO_USER);
+  // Auth state: deterministic default for SSR
+  const [currentUser, setCurrentUser] = useState<DemoUser | null>(null);
 
   // Products state (Canonical Storefront Data)
   const [products, setProducts] = useState<Product[]>(PRODUCTS);
 
-  // Cart state - initialized with rich demo items
-  const [cart, setCart] = useState<CartItem[]>(INITIAL_CART);
+  // Cart state: deterministic default for SSR
+  const [cart, setCart] = useState<CartItem[]>([]);
 
-  // Wishlist state - initialized with rich demo items
+  // Wishlist state: deterministic default for SSR
   const [wishlist, setWishlist] = useState<Product[]>(INITIAL_WISHLIST);
 
-  // Addresses state
+  // Addresses state: deterministic default for SSR
   const [addresses, setAddresses] = useState<Address[]>(INITIAL_ADDRESSES);
-
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(INITIAL_ADDRESSES[0] || null);
 
-  // Orders state
+  // Orders state: deterministic default for SSR
   const [orders, setOrders] = useState<Order[]>(INITIAL_DEMO_ORDERS);
 
-  // Coupon state
+  // Coupon state: deterministic default for SSR
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
 
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState<boolean>(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [toasts, setToasts] = useState<ToastState[]>([]);
 
-  // Safe client-side initial hydration from LocalStorage
+  // Client-side hydration & background auth verification
   useEffect(() => {
     try {
-      const storedUser = safeGetStorage<DemoUser | null>('scentiva_user', INITIAL_DEMO_USER);
-      if (storedUser !== undefined) setCurrentUser(storedUser);
+      // 1. Hydrate user
+      const storedUser = safeGetStorage<DemoUser | null>('scentiva_user', null);
+      if (storedUser) {
+        setCurrentUser(storedUser);
+      }
 
-      const storedCart = safeGetStorage<CartItem[]>('scentiva_cart', INITIAL_CART);
+      // 2. Hydrate products if stored
+      const storedProducts = safeGetStorage<Product[] | null>('scentiva_products', null);
+      if (storedProducts && storedProducts.length > 0) {
+        setProducts(storedProducts);
+      }
+
+      // 3. Hydrate cart
+      const storedCart = safeGetStorage<CartItem[]>('scentiva_cart', []);
       if (storedCart && storedCart.length > 0) {
         setCart(storedCart);
-      } else {
-        setCart(INITIAL_CART);
       }
 
+      // 4. Hydrate wishlist
       const storedWishlist = safeGetStorage<Product[]>('scentiva_wishlist', INITIAL_WISHLIST);
-      if (storedWishlist && storedWishlist.length > 0) {
+      if (storedWishlist) {
         setWishlist(storedWishlist);
-      } else {
-        setWishlist(INITIAL_WISHLIST);
       }
 
-      const storedAddresses = safeGetStorage<Address[] | null>('scentiva_addresses', null);
-      if (storedAddresses && storedAddresses.length > 0) {
+      // 5. Hydrate addresses
+      const storedAddresses = safeGetStorage<Address[]>('scentiva_addresses', INITIAL_ADDRESSES);
+      if (storedAddresses) {
         setAddresses(storedAddresses);
-        setSelectedAddress(storedAddresses.find(a => a.isDefault) || storedAddresses[0] || null);
+        const def = storedAddresses.find(a => a.isDefault) || storedAddresses[0] || null;
+        setSelectedAddress(def);
       }
 
-      const storedOrders = safeGetStorage<Order[] | null>('scentiva_orders', null);
-      if (storedOrders && storedOrders.length > 0) setOrders(storedOrders);
+      // 6. Hydrate orders
+      const storedOrders = safeGetStorage<Order[]>('scentiva_orders', INITIAL_DEMO_ORDERS);
+      if (storedOrders) {
+        setOrders(storedOrders);
+      }
 
+      // 7. Hydrate coupon
       const storedCoupon = safeGetStorage<Coupon | null>('scentiva_coupon', null);
-      if (storedCoupon) setAppliedCoupon(storedCoupon);
+      if (storedCoupon) {
+        setAppliedCoupon(storedCoupon);
+      }
 
-      const storedProducts = safeGetStorage<Product[] | null>('scentiva_products', null);
-      if (storedProducts && storedProducts.length > 0) setProducts(storedProducts);
+      // 8. Background token verification & sync
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('scentiva_auth_token') || localStorage.getItem('scentiva_token')) : null;
+      if (token && storedUser) {
+        AuthApiService.getMe()
+          .then(profile => {
+            if (profile) {
+              const fullName = profile.fullName || `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || storedUser.name;
+              setCurrentUser(prev => prev ? {
+                ...prev,
+                name: fullName,
+                email: profile.email || prev.email,
+                role: profile.role || prev.role,
+                userId: profile.userId || profile.id,
+                customerId: profile.customerId
+              } : null);
+            }
+          })
+          .catch((err: any) => {
+            if (err?.status === 401) {
+              setCurrentUser(null);
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('scentiva_user');
+                localStorage.removeItem('scentiva_auth_token');
+                localStorage.removeItem('scentiva_token');
+              }
+            }
+          });
+      }
     } catch (err) {
-      console.warn('Failed to hydrate from localStorage:', err);
+      console.warn('Error during client hydration:', err);
     } finally {
       setIsHydrated(true);
     }
   }, []);
 
-  // Persistent LocalStorage synchronization
+  // Persistent LocalStorage synchronization (only after hydration)
   useEffect(() => {
     if (!isHydrated) return;
     try {
-      localStorage.setItem('scentiva_user', JSON.stringify(currentUser));
+      if (currentUser) {
+        localStorage.setItem('scentiva_user', JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem('scentiva_user');
+      }
     } catch (e) {
       console.error(e);
     }
   }, [currentUser, isHydrated]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    try {
+      if (products && products.length > 0) {
+        localStorage.setItem('scentiva_products', JSON.stringify(products));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, [products, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -308,36 +345,154 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return `₹${Math.round(amount).toLocaleString('en-IN')}`;
   };
 
-  // Demo Auth Operations
-  const signIn = (email: string) => {
-    const demoUser: DemoUser = {
-      id: `usr-${Date.now()}`,
-      name: email.split('@')[0].replace(/[^a-zA-Z]/g, ' ') || 'Demo Connoisseur',
-      email: email.trim(),
-      tier: 'Privé Gold',
-      points: 500
-    };
-    setCurrentUser(demoUser);
-    showToast(`Welcome back, ${demoUser.name}! (Demo Session Active)`, 'success');
-    return { success: true, message: 'Signed in successfully (Demo Session)' };
+  // Safe Cart Merge Helper (Preserves guest items and combines duplicates safely)
+  const mergeGuestCartItems = (guestItems: CartItem[]) => {
+    if (!guestItems || guestItems.length === 0) return;
+
+    setCart(prev => {
+      const merged = [...prev];
+      for (const item of guestItems) {
+        const existingIdx = merged.findIndex(
+          m => m.productId === item.productId && m.selectedVariant.sku === item.selectedVariant.sku
+        );
+        const availableStock = typeof item.product.stock === 'number' ? item.product.stock : 10;
+
+        if (existingIdx > -1) {
+          const combinedQty = Math.min(availableStock, merged[existingIdx].quantity + item.quantity);
+          merged[existingIdx] = {
+            ...merged[existingIdx],
+            quantity: combinedQty
+          };
+        } else {
+          merged.push({
+            ...item,
+            quantity: Math.min(availableStock, item.quantity)
+          });
+        }
+      }
+      return merged;
+    });
   };
 
-  const signUp = (name: string, email: string) => {
-    const newUser: DemoUser = {
-      id: `usr-${Date.now()}`,
-      name: name.trim() || 'Demo Member',
-      email: email.trim(),
-      tier: 'Privé Bronze',
-      points: 100
+  // Auth Operations with Cart Preservation & Real Backend Integration
+  const signIn = async (email: string, password?: string): Promise<{ success: boolean; message: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
+      throw new Error('Please enter a valid email address.');
+    }
+
+    let userName = cleanEmail.split('@')[0].replace(/[^a-zA-Z]/g, ' ') || 'Connoisseur Member';
+    let tier: 'Privé Bronze' | 'Privé Silver' | 'Privé Gold' | 'Privé Diamond' = 'Privé Gold';
+    let role = 'ROLE_CUSTOMER';
+    let userId: number | undefined = undefined;
+    let customerId: number | undefined = undefined;
+
+    if (password) {
+      const backendRes = await AuthApiService.login({ email: cleanEmail, password });
+      if (backendRes) {
+        const profile = backendRes.user;
+        if (profile) {
+          const fullName = profile.fullName || `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+          if (fullName) userName = fullName;
+          if (profile.role) role = profile.role;
+          userId = profile.userId || profile.id;
+          customerId = profile.customerId;
+          if (profile.loyaltyTier) {
+            if (profile.loyaltyTier.includes('DIAMOND')) tier = 'Privé Diamond';
+            else if (profile.loyaltyTier.includes('GOLD')) tier = 'Privé Gold';
+            else if (profile.loyaltyTier.includes('SILVER')) tier = 'Privé Silver';
+            else tier = 'Privé Bronze';
+          }
+        } else {
+          const combinedName = `${backendRes.firstName || ''} ${backendRes.lastName || ''}`.trim();
+          if (combinedName) userName = combinedName;
+          if (backendRes.role) role = backendRes.role;
+          userId = backendRes.userId;
+        }
+      }
+    }
+
+    const authenticatedUser: DemoUser = {
+      id: userId ? String(userId) : `usr-${Date.now()}`,
+      name: userName,
+      email: cleanEmail,
+      tier,
+      points: 500,
+      role,
+      userId,
+      customerId
     };
+
+    setCurrentUser(authenticatedUser);
+    showToast(`Welcome back, ${authenticatedUser.name}!`, 'success');
+    return { success: true, message: 'Signed in successfully' };
+  };
+
+  const signUp = async (name: string, email: string, password?: string): Promise<{ success: boolean; message: string }> => {
+    const cleanName = name.trim();
+    if (!cleanName) {
+      throw new Error('Please enter your full name.');
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
+      throw new Error('Please enter a valid email address.');
+    }
+
+    const nameParts = cleanName.split(' ');
+    const firstName = nameParts[0] || 'Connoisseur';
+    const lastName = nameParts.slice(1).join(' ').trim() || nameParts[0];
+
+    let role = 'ROLE_CUSTOMER';
+    let userId: number | undefined = undefined;
+    let customerId: number | undefined = undefined;
+
+    if (password) {
+      const backendRes = await AuthApiService.register({
+        email: cleanEmail,
+        password,
+        firstName,
+        lastName
+      });
+      if (backendRes) {
+        const profile = backendRes.user;
+        if (profile) {
+          userId = profile.userId || profile.id;
+          customerId = profile.customerId;
+          if (profile.role) role = profile.role;
+        } else {
+          userId = backendRes.userId;
+          if (backendRes.role) role = backendRes.role;
+        }
+      }
+    }
+
+    const newUser: DemoUser = {
+      id: userId ? String(userId) : `usr-${Date.now()}`,
+      name: cleanName,
+      email: cleanEmail,
+      tier: 'Privé Bronze',
+      points: 100,
+      role,
+      userId,
+      customerId
+    };
+
     setCurrentUser(newUser);
-    showToast(`Welcome to SCENTIVA Privé, ${newUser.name}! (Demo Sign-up)`, 'success');
-    return { success: true, message: 'Account created successfully (Demo)' };
+    showToast(`Welcome to SCENTIVA Privé, ${newUser.name}!`, 'success');
+    return { success: true, message: 'Account created successfully' };
   };
 
   const signOut = () => {
+    try {
+      AuthApiService.logout();
+    } catch {}
     setCurrentUser(null);
-    showToast('Signed out of demo session', 'info');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('scentiva_user');
+      localStorage.removeItem('scentiva_auth_token');
+      localStorage.removeItem('scentiva_token');
+    }
+    showToast('Signed out successfully', 'info');
   };
 
   // Cart Actions with Stock & Variant Hardening
@@ -613,6 +768,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         removeFromCart,
         updateCartQuantity,
         clearCart,
+        mergeGuestCartItems,
         cartCount,
         cartSubtotal,
         cartDiscount,

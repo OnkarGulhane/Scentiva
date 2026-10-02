@@ -32,7 +32,8 @@ export const CartDrawer: React.FC = () => {
     appliedCoupon,
     applyCoupon,
     removeCoupon,
-    formatPrice
+    formatPrice,
+    isLoggedIn
   } = useStore();
 
   const navigate = useNavigate();
@@ -55,7 +56,11 @@ export const CartDrawer: React.FC = () => {
   const handleProceedToCheckout = () => {
     analytics.trackCheckoutStarted(cartTotal, cart.length);
     setIsCartDrawerOpen(false);
-    navigate('/checkout');
+    if (isLoggedIn) {
+      navigate('/checkout');
+    } else {
+      navigate('/account/sign-in?redirect=/checkout');
+    }
   };
 
   return (

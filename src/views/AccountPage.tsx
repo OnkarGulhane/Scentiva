@@ -22,10 +22,25 @@ import {
 } from 'lucide-react';
 
 export const AccountPage: React.FC = () => {
-  const { currentUser, isLoggedIn, signOut, orders, addresses, wishlist, deleteAddress, formatPrice, showToast } = useStore();
+  const { currentUser, isLoggedIn, isHydrated, signOut, orders, addresses, wishlist, deleteAddress, formatPrice, showToast } = useStore();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<'orders' | 'addresses' | 'rewards' | 'settings'>('orders');
+
+  React.useEffect(() => {
+    if (isHydrated && !isLoggedIn) {
+      navigate('/account/sign-in', { replace: true });
+    }
+  }, [isHydrated, isLoggedIn, navigate]);
+
+  if (!isHydrated || !isLoggedIn) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-3">
+        <div className="w-8 h-8 border-2 border-brand-plum-900 border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs text-neutral-500">Loading your Privé profile...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 py-10 lg:py-16">
@@ -39,14 +54,14 @@ export const AccountPage: React.FC = () => {
             <div>
               <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
                 <h1 className="font-serif text-2xl sm:text-3xl font-bold">
-                  {currentUser?.name || 'Demo Connoisseur'}
+                  {currentUser?.name || 'Connoisseur Client'}
                 </h1>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-brand-gold-100 text-brand-plum-950">
                   {currentUser?.tier || 'Privé Gold'}
                 </span>
               </div>
               <p className="text-xs text-brand-blush-200 mt-1">
-                {currentUser?.email || 'connoisseur@scentiva.com'} • Member since 2026 (Demo)
+                {currentUser?.email || 'connoisseur@scentiva.luxury'} • Member since 2026
               </p>
             </div>
           </div>
@@ -147,7 +162,7 @@ export const AccountPage: React.FC = () => {
                 className="w-full flex items-center gap-2 px-4 py-3 rounded-2xl text-xs font-semibold text-semantic-error hover:bg-semantic-error/10 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Sign Out Demo Session</span>
+                <span>Sign Out</span>
               </button>
             </div>
           </div>

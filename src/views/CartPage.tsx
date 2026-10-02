@@ -30,7 +30,8 @@ export const CartPage: React.FC = () => {
     appliedCoupon,
     applyCoupon,
     removeCoupon,
-    formatPrice
+    formatPrice,
+    isLoggedIn
   } = useStore();
 
   const navigate = useNavigate();
@@ -41,6 +42,15 @@ export const CartPage: React.FC = () => {
     if (couponCode.trim()) {
       applyCoupon(couponCode.trim());
       setCouponCode('');
+    }
+  };
+
+  const handleProceedToCheckout = () => {
+    analytics.trackCheckoutStarted(cartTotal, cart.length);
+    if (isLoggedIn) {
+      navigate('/checkout');
+    } else {
+      navigate('/account/sign-in?redirect=/checkout');
     }
   };
 
@@ -243,10 +253,7 @@ export const CartPage: React.FC = () => {
 
             {/* Checkout Button */}
             <button
-              onClick={() => {
-                analytics.trackCheckoutStarted(cartTotal, cart.length);
-                navigate('/checkout');
-              }}
+              onClick={handleProceedToCheckout}
               className="w-full py-4 rounded-2xl bg-brand-plum-900 hover:bg-brand-plum-800 text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 shadow-card hover:shadow-card-hover transition-all active:scale-98"
             >
               <span>Proceed to Checkout</span>

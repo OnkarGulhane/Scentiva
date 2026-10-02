@@ -45,7 +45,7 @@ class AiConciergeServiceTest {
     void setUp() {
         Brand brand = brandRepository.findBySlugAndIsDeletedFalse("creed-ai")
                 .orElseGet(() -> brandRepository.save(Brand.builder()
-                        .name("Creed")
+                        .name("Creed Ai Test")
                         .slug("creed-ai")
                         .originCountry("France")
                         .tier(BrandTier.HERITAGE_MAISON)
@@ -53,7 +53,7 @@ class AiConciergeServiceTest {
 
         Category category = categoryRepository.findBySlugAndIsDeletedFalse("woody-ai")
                 .orElseGet(() -> categoryRepository.save(Category.builder()
-                        .name("Woody")
+                        .name("Woody Ai Test")
                         .slug("woody-ai")
                         .build()));
 
@@ -61,7 +61,7 @@ class AiConciergeServiceTest {
                 .orElseGet(() -> productRepository.save(Product.builder()
                         .brand(brand)
                         .category(category)
-                        .name("Aventus")
+                        .name("Aventus Ai Test")
                         .slug("aventus-ai")
                         .gender(GenderTarget.FOR_HIM)
                         .isActive(true)
@@ -128,9 +128,9 @@ class AiConciergeServiceTest {
         ProductEditorialDescriptionResponse story = aiConciergeService.getProductEditorialDescription(product.getId());
 
         assertThat(story).isNotNull();
-        assertThat(story.getProductName()).isEqualTo("Aventus");
-        assertThat(story.getBrandName()).isEqualTo("Creed");
-        assertThat(story.getOlfactoryNarrative()).contains("Creed");
+        assertThat(story.getProductName()).isEqualTo(product.getName());
+        assertThat(story.getBrandName()).isEqualTo(product.getBrand().getName());
+        assertThat(story.getOlfactoryNarrative()).contains(product.getBrand().getName());
     }
 
     @Test

@@ -105,7 +105,7 @@ class ReturnControllerTest {
 
         Brand brand = brandRepository.findBySlugAndIsDeletedFalse("maison-ret-ctrl")
                 .orElseGet(() -> brandRepository.save(Brand.builder()
-                        .name("Maison Francis")
+                        .name("Maison Francis Return Ctrl")
                         .slug("maison-ret-ctrl")
                         .originCountry("France")
                         .tier(BrandTier.NICHE_ATELIER)
@@ -113,7 +113,7 @@ class ReturnControllerTest {
 
         Category category = categoryRepository.findBySlugAndIsDeletedFalse("woody-ret-ctrl")
                 .orElseGet(() -> categoryRepository.save(Category.builder()
-                        .name("Woody")
+                        .name("Woody Return Ctrl")
                         .slug("woody-ret-ctrl")
                         .build()));
 
@@ -121,7 +121,7 @@ class ReturnControllerTest {
                 .orElseGet(() -> productRepository.save(Product.builder()
                         .brand(brand)
                         .category(category)
-                        .name("Baccarat Rouge 540")
+                        .name("Baccarat Rouge Return Ctrl")
                         .slug("baccarat-ret-ctrl")
                         .gender(GenderTarget.UNISEX)
                         .isActive(true)

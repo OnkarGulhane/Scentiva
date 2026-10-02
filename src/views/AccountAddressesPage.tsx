@@ -202,7 +202,7 @@ export const AccountAddressesPage: React.FC = () => {
                   required
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
-                  placeholder="e.g. Demo Connoisseur"
+                  placeholder="e.g. Olivia Vane"
                   className="w-full p-2.5 rounded-xl border border-neutral-300 focus:border-brand-plum-700 focus:outline-none"
                 />
               </div>

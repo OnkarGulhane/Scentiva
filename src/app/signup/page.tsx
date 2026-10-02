@@ -3,11 +3,11 @@ import { Metadata } from 'next';
 import { SignUpPage } from '@/views/SignUpPage';
 
 export const metadata: Metadata = {
-  title: 'Join SCENTIVA Society | SCENTIVA Haute Parfumerie',
-  description: 'Create an account to join the SCENTIVA Connoisseur Club and receive 500 complimentary welcome points and sample privileges.',
+  title: 'Join Privé | SCENTIVA Haute Parfumerie',
+  description: 'Create a SCENTIVA Privé membership for early access, fragrance concierge, and curated orders.',
 };
 
-export default function SignUpRoute() {
+export default function SignupRoute() {
   return (
     <Suspense fallback={null}>
       <SignUpPage />

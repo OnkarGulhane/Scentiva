@@ -82,7 +82,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <div>
                 <span className="font-serif text-lg font-bold tracking-wider text-white">SCENTIVA</span>
                 <span className="block text-[9px] font-mono tracking-widest text-brand-gold-500 uppercase">
-                  OPERATIONS DEMO
+                  OPERATIONS CONSOLE
                 </span>
               </div>
             </Link>
@@ -133,7 +133,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <span className="text-[10px] text-brand-gold-500 font-mono">LIVE</span>
           </Link>
           <div className="text-[10px] text-neutral-400 text-center pt-1">
-            SCENTIVA v1.0 • Prototype Mode
+            SCENTIVA v1.0 • Enterprise Edition
           </div>
         </div>
       </aside>

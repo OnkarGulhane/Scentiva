@@ -124,7 +124,7 @@ class OrderControllerTest {
 
         Brand brand = brandRepository.findBySlugAndIsDeletedFalse("amouage-ctrl")
                 .orElseGet(() -> brandRepository.save(Brand.builder()
-                        .name("Amouage")
+                        .name("Amouage Order Ctrl")
                         .slug("amouage-ctrl")
                         .originCountry("Oman")
                         .tier(BrandTier.HERITAGE_MAISON)
@@ -132,7 +132,7 @@ class OrderControllerTest {
 
         Category category = categoryRepository.findBySlugAndIsDeletedFalse("incense-ctrl")
                 .orElseGet(() -> categoryRepository.save(Category.builder()
-                        .name("Incense")
+                        .name("Incense Order Ctrl")
                         .slug("incense-ctrl")
                         .build()));
 
@@ -140,16 +140,16 @@ class OrderControllerTest {
                 .orElseGet(() -> productRepository.save(Product.builder()
                         .brand(brand)
                         .category(category)
-                        .name("Interlude Man")
+                        .name("Interlude Man Order Ctrl")
                         .slug("interlude-ctrl")
                         .gender(GenderTarget.FOR_HIM)
                         .isActive(true)
                         .build()));
 
-        ProductVariant variant = productVariantRepository.findBySkuAndIsDeletedFalse("AMO-INT-100")
+        ProductVariant variant = productVariantRepository.findBySkuAndIsDeletedFalse("AMO-INT-CTRL-100")
                 .orElseGet(() -> productVariantRepository.save(ProductVariant.builder()
                         .product(product)
-                        .sku("AMO-INT-100")
+                        .sku("AMO-INT-CTRL-100")
                         .volumeMl(100)
                         .concentration(Concentration.EDP)
                         .basePrice(new BigDecimal("3200.00"))

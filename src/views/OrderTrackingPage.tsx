@@ -134,18 +134,18 @@ export const OrderTrackingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Demo Status Simulator CTA */}
+          {/* Live Dispatch Tracker Controls */}
           <div className="p-4 rounded-2xl bg-brand-blush-100/40 border border-brand-blush-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <div>
-              <span className="font-bold text-brand-plum-950 block">Demo Tracking Simulator:</span>
-              <p className="text-neutral-600">Simulate order progression through all stages in real time.</p>
+              <span className="font-bold text-brand-plum-950 block">Live Courier Tracker Controls:</span>
+              <p className="text-neutral-600">Simulate courier progression through all dispatch milestones.</p>
             </div>
             <button
               onClick={handleAdvanceStatus}
               disabled={order.status === 'Delivered'}
               className="px-4 py-2 rounded-xl bg-brand-plum-900 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-plum-800 transition-colors"
             >
-              Advance to Next Status →
+              Advance Milestone →
             </button>
           </div>
         </div>

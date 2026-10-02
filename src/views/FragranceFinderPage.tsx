@@ -628,20 +628,7 @@ export const FragranceFinderPage: React.FC = () => {
               </div>
 
               {/* Matched Product Cards Grid */}
-              {isLoadingRecommendations ? (
-                /* Loading State Skeletons */
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {[1, 2, 3, 4].map(n => (
-                    <div key={n} className="bg-white rounded-2xl border border-neutral-200/80 p-4 space-y-4 animate-pulse">
-                      <div className="aspect-square bg-neutral-100 rounded-xl" />
-                      <div className="h-4 bg-neutral-100 rounded w-1/3" />
-                      <div className="h-6 bg-neutral-100 rounded w-3/4" />
-                      <div className="h-4 bg-neutral-100 rounded w-1/2" />
-                      <div className="h-10 bg-neutral-100 rounded-xl" />
-                    </div>
-                  ))}
-                </div>
-              ) : matchedResults.length > 0 ? (
+              {matchedResults.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch">
                   {matchedResults.map(({ product, score, reason }) => (
                     <div key={product.id} className="h-full flex flex-col">

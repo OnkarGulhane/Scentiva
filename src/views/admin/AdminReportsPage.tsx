@@ -19,7 +19,7 @@ export const AdminReportsPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'30d' | '90d' | 'ytd'>('30d');
 
   const handleExportCSV = () => {
-    showToast('Exporting SCENTIVA_Sales_Report_2026.csv (Demo Simulation)', 'info');
+    showToast('Exporting SCENTIVA_Sales_Report_2026.csv', 'info');
   };
 
   const familySales = [
