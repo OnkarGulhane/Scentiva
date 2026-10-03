@@ -2,89 +2,17 @@ import { Order, OrderStatus, Address, CartItem } from '../types';
 
 const ORDERS_STORAGE_KEY = 'scentiva_orders';
 
-export const INITIAL_DEMO_ORDERS: Order[] = [
-  {
-    id: 'ord-sct12345',
-    orderNumber: 'SCT-12345',
-    createdAt: '2026-09-24T10:30:00Z',
-    items: [],
-    shippingAddress: {
-      id: 'addr-demo-1',
-      fullName: 'Demo Connoisseur',
-      phoneNumber: '+91 98765 43210',
-      addressLine1: 'Villa 14, Royal Palm Residences',
-      addressLine2: 'Koregaon Park',
-      city: 'Pune',
-      state: 'Maharashtra',
-      pincode: '411001',
-      type: 'Home',
-      isDefault: true
-    },
-    deliveryMethod: 'Express Luxury Delivery',
-    deliveryFee: 0,
-    subtotal: 19498,
-    discount: 2500,
-    couponCode: 'WELCOME10',
-    total: 16998,
-    status: 'Delivered',
-    trackingNumber: 'SCT-EXP-992144',
-    estimatedDelivery: 'Sep 27, 2026',
-    paymentMethod: 'UPI / QR',
-    paymentStatus: 'Paid',
-    timeline: [
-      { status: 'Order Placed', timestamp: 'Sep 24, 2026 - 10:30 AM', completed: true, description: 'Order verified & registered in SCENTIVA vault' },
-      { status: 'Processing', timestamp: 'Sep 24, 2026 - 02:15 PM', completed: true, description: 'Bottles inspected and sealed in velvet-lined gift box' },
-      { status: 'Shipped', timestamp: 'Sep 25, 2026 - 09:20 AM', completed: true, description: 'Dispatched via Priority Air Express' },
-      { status: 'Out for Delivery', timestamp: 'Sep 27, 2026 - 08:00 AM', completed: true, description: 'Courier associate out for white-glove delivery' },
-      { status: 'Delivered', timestamp: 'Sep 27, 2026 - 03:45 PM', completed: true, description: 'Signature handoff completed' }
-    ]
-  },
-  {
-    id: 'ord-sct12344',
-    orderNumber: 'SCT-12344',
-    createdAt: '2026-09-28T14:15:00Z',
-    items: [],
-    shippingAddress: {
-      id: 'addr-demo-1',
-      fullName: 'Demo Connoisseur',
-      phoneNumber: '+91 98765 43210',
-      addressLine1: 'Villa 14, Royal Palm Residences',
-      city: 'Pune',
-      state: 'Maharashtra',
-      pincode: '411001',
-      type: 'Home',
-      isDefault: true
-    },
-    deliveryMethod: 'Standard Delivery',
-    deliveryFee: 0,
-    subtotal: 10999,
-    discount: 1000,
-    couponCode: 'FIRSTSCENT',
-    total: 9999,
-    status: 'Out for Delivery',
-    trackingNumber: 'SCT-STD-884102',
-    estimatedDelivery: 'Sep 30, 2026',
-    paymentMethod: 'Credit / Debit Card',
-    paymentStatus: 'Paid',
-    timeline: [
-      { status: 'Order Placed', timestamp: 'Sep 28, 2026 - 02:15 PM', completed: true, description: 'Order placed & payment verified' },
-      { status: 'Processing', timestamp: 'Sep 28, 2026 - 06:30 PM', completed: true, description: 'Artisanal gift wrapping sealed' },
-      { status: 'Shipped', timestamp: 'Sep 29, 2026 - 08:00 AM', completed: true, description: 'In transit to local hub' },
-      { status: 'Out for Delivery', timestamp: 'Sep 29, 2026 - 04:30 PM', completed: true, description: 'Out with delivery associate' },
-      { status: 'Delivered', timestamp: 'Estimated Sep 30, 2026', completed: false, description: 'Pending recipient handoff' }
-    ]
-  }
-];
+export const INITIAL_DEMO_ORDERS: Order[] = [];
 
 export const getStoredOrders = (): Order[] => {
-  if (typeof window === 'undefined') return INITIAL_DEMO_ORDERS;
+  if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
-    if (!raw) return INITIAL_DEMO_ORDERS;
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_DEMO_ORDERS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return INITIAL_DEMO_ORDERS;
+    return [];
   }
 };
 

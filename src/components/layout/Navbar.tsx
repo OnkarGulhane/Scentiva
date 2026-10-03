@@ -498,7 +498,7 @@ export const Navbar: React.FC = () => {
             {/* Admin Console Direct Link */}
             <Link
               to="/admin"
-              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-brand-plum-950 hover:bg-brand-plum-900 text-brand-gold-300 hover:text-white text-xs font-semibold shadow-sm transition-all border border-brand-gold-500/30 group"
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-brand-plum-950 hover:bg-brand-plum-900 text-brand-gold-300 hover:text-white text-xs font-semibold shadow-sm transition-all border border-brand-gold-500/30 group cursor-pointer"
               aria-label="Open Admin Operations Console"
               title="Open Admin Operations Console"
             >
@@ -576,6 +576,14 @@ export const Navbar: React.FC = () => {
                             <MapPin className="w-4 h-4 text-neutral-400" />
                             <span>Addresses</span>
                           </Link>
+                          <Link
+                            to="/admin"
+                            onClick={() => setActiveDropdown(null)}
+                            className="flex items-center gap-2.5 p-2 rounded-xl text-brand-plum-900 bg-brand-blush-100/60 hover:bg-brand-blush-100 font-semibold transition-colors"
+                          >
+                            <ShieldCheck className="w-4 h-4 text-brand-gold-600" />
+                            <span>Admin Console</span>
+                          </Link>
                         </div>
 
                         <div className="pt-2 border-t border-neutral-100">
@@ -612,6 +620,17 @@ export const Navbar: React.FC = () => {
                             className="w-full py-2 px-4 rounded-xl border border-neutral-200 hover:bg-neutral-50 text-neutral-800 font-semibold text-center block transition-colors"
                           >
                             Create Account
+                          </Link>
+                        </div>
+
+                        <div className="pt-2 border-t border-neutral-100">
+                          <Link
+                            to="/admin"
+                            onClick={() => setActiveDropdown(null)}
+                            className="flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-[11px] font-semibold text-brand-plum-900 bg-brand-blush-100/60 hover:bg-brand-blush-100 transition-colors"
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5 text-brand-gold-600" />
+                            <span>Admin Operations Portal</span>
                           </Link>
                         </div>
                       </div>

@@ -213,49 +213,77 @@ export const CheckoutPage: React.FC = () => {
                       Select Shipping Address
                     </h3>
                   </div>
-                  <button
-                    onClick={() => setShowAddressModal(true)}
-                    className="px-4 py-2 rounded-xl bg-brand-blush-100 text-brand-plum-900 hover:bg-brand-blush-200 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add New</span>
-                  </button>
+                  {addresses.length > 0 && (
+                    <button
+                      onClick={() => setShowAddressModal(true)}
+                      className="px-4 py-2 rounded-xl bg-brand-blush-100 text-brand-plum-900 hover:bg-brand-blush-200 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add New</span>
+                    </button>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {addresses.map(addr => (
-                    <div
-                      key={addr.id}
-                      onClick={() => setSelectedAddress(addr)}
-                      className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${
-                        selectedAddress?.id === addr.id
-                          ? 'border-brand-plum-900 bg-brand-blush-100/30 shadow-sm'
-                          : 'border-neutral-200 bg-neutral-50/60 hover:border-neutral-300'
-                      }`}
+                {addresses.length === 0 ? (
+                  <div className="text-center py-10 px-4 border-2 border-dashed border-neutral-200 rounded-3xl space-y-3 bg-neutral-50/50">
+                    <MapPin className="w-8 h-8 text-neutral-400 mx-auto" />
+                    <h4 className="font-serif text-lg font-bold text-neutral-800">No saved addresses yet.</h4>
+                    <p className="text-xs text-neutral-500 max-w-sm mx-auto">
+                      Add your delivery destination to proceed with your luxury fragrance order.
+                    </p>
+                    <button
+                      onClick={() => setShowAddressModal(true)}
+                      className="px-6 py-2.5 rounded-full bg-brand-plum-900 text-white text-xs font-semibold hover:bg-brand-plum-800 transition-colors shadow-sm inline-flex items-center gap-1.5"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-bold text-brand-plum-950 uppercase tracking-wider bg-white px-2.5 py-0.5 rounded-full border border-neutral-200">
-                          {addr.type}
-                        </span>
-                        {selectedAddress?.id === addr.id && (
-                          <CheckCircle2 className="w-5 h-5 text-brand-plum-900" />
-                        )}
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>+ Add New Address</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {addresses.map(addr => (
+                      <div
+                        key={addr.id}
+                        onClick={() => setSelectedAddress(addr)}
+                        className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                          selectedAddress?.id === addr.id
+                            ? 'border-brand-plum-900 bg-brand-blush-100/30 shadow-sm'
+                            : 'border-neutral-200 bg-neutral-50/60 hover:border-neutral-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold text-brand-plum-950 uppercase tracking-wider bg-white px-2.5 py-0.5 rounded-full border border-neutral-200">
+                            {addr.type}
+                          </span>
+                          {selectedAddress?.id === addr.id && (
+                            <CheckCircle2 className="w-5 h-5 text-brand-plum-900" />
+                          )}
+                        </div>
+                        <div className="text-sm font-bold text-neutral-900">{addr.fullName}</div>
+                        <div className="text-xs text-neutral-600 mt-1 leading-relaxed">
+                          {addr.addressLine1}, {addr.city}, {addr.state} - {addr.pincode}
+                        </div>
+                        <div className="text-xs text-neutral-500 mt-2 font-medium">
+                          Phone: {addr.phoneNumber}
+                        </div>
                       </div>
-                      <div className="text-sm font-bold text-neutral-900">{addr.fullName}</div>
-                      <div className="text-xs text-neutral-600 mt-1 leading-relaxed">
-                        {addr.addressLine1}, {addr.city}, {addr.state} - {addr.pincode}
-                      </div>
-                      <div className="text-xs text-neutral-500 mt-2 font-medium">
-                        Phone: {addr.phoneNumber}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
 
                 <div className="pt-4 border-t border-neutral-100 flex justify-end">
                   <button
-                    onClick={() => setCurrentStep(2)}
-                    className="px-8 py-3.5 rounded-2xl bg-brand-plum-900 text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-2 hover:bg-brand-plum-800 transition-all shadow-md"
+                    disabled={!selectedAddress}
+                    onClick={() => {
+                      if (!selectedAddress) {
+                        showToast('Please add or select a shipping address', 'warning');
+                        return;
+                      }
+                      setCurrentStep(2);
+                    }}
+                    className={`px-8 py-3.5 rounded-2xl bg-brand-plum-900 text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-2 hover:bg-brand-plum-800 transition-all shadow-md ${
+                      !selectedAddress ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   >
                     <span>Proceed to Delivery Options</span>
                     <ArrowRight className="w-4 h-4" />
@@ -539,13 +567,13 @@ export const CheckoutPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="font-semibold text-neutral-700 block mb-1">Street Address / Villa</label>
+                <label className="font-semibold text-neutral-700 block mb-1">Street Address / Residence</label>
                 <input
                   type="text"
                   required
                   value={newLine1}
                   onChange={e => setNewLine1(e.target.value)}
-                  placeholder="Villa 14, Royal Palm Residences"
+                  placeholder="Flat 402, Signature Heights, MG Road"
                   className="w-full p-2.5 rounded-xl border border-neutral-300 focus:border-brand-plum-700 focus:outline-none"
                 />
               </div>

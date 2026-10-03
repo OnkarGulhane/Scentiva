@@ -54,9 +54,9 @@ export const AuthApiService = {
     } catch (err: any) {
       if (err instanceof ApiError) {
         if (err.status === 401 || err.status === 400) {
-          throw new Error('The email or password is incorrect.');
+          throw new Error('Email or password is incorrect.');
         }
-        throw new Error(err.message || 'Authentication failed. Please check your credentials.');
+        throw new Error(err.message || 'Something went wrong. Please try again.');
       }
       throw err;
     }

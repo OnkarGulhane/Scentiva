@@ -57,7 +57,7 @@ export const SignInPage: React.FC = () => {
         navigate(destination);
       }
     } catch (err: any) {
-      showToast(err.message || 'The email or password is incorrect.', 'error');
+      showToast(err.message || 'Email or password is incorrect.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -89,7 +89,7 @@ export const SignInPage: React.FC = () => {
       return;
     }
     if (signUpPassword !== signUpConfirmPassword) {
-      showToast('Passwords do not match', 'warning');
+      showToast('Passwords do not match.', 'warning');
       return;
     }
 
@@ -101,7 +101,7 @@ export const SignInPage: React.FC = () => {
         navigate(destination);
       }
     } catch (err: any) {
-      showToast(err.message || 'Failed to create account. Please try again.', 'error');
+      showToast(err.message || 'Something went wrong. Please try again.', 'error');
     } finally {
       setIsSubmitting(false);
     }

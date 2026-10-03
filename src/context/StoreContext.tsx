@@ -6,6 +6,7 @@ import { ProductService } from '../services/productService';
 import { OrderService, INITIAL_DEMO_ORDERS } from '../services/orderService';
 import { PromotionService } from '../services/promotionService';
 import { AuthApiService } from '../services/authApiService';
+import { AddressApiService } from '../services/addressApiService';
 import { PRODUCTS } from '../data/products';
 
 export interface ToastState {
@@ -113,32 +114,7 @@ function safeGetStorage<T>(key: string, fallback: T): T {
   }
 }
 
-const INITIAL_ADDRESSES: Address[] = [
-  {
-    id: 'addr-demo-1',
-    fullName: 'Demo Connoisseur',
-    phoneNumber: '+91 98765 43210',
-    addressLine1: 'Villa 14, Royal Palm Residences',
-    addressLine2: 'Koregaon Park Road',
-    city: 'Pune',
-    state: 'Maharashtra',
-    pincode: '411001',
-    type: 'Home',
-    isDefault: true
-  },
-  {
-    id: 'addr-demo-2',
-    fullName: 'Demo Connoisseur',
-    phoneNumber: '+91 98765 43210',
-    addressLine1: 'Level 7, Cyber Tower Alpha',
-    addressLine2: 'Hinjawadi Phase 1',
-    city: 'Pune',
-    state: 'Maharashtra',
-    pincode: '411057',
-    type: 'Office',
-    isDefault: false
-  }
-];
+const INITIAL_ADDRESSES: Address[] = [];
 
 const INITIAL_WISHLIST: Product[] = [PRODUCTS[2], PRODUCTS[4]];
 
@@ -157,9 +133,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Wishlist state: deterministic default for SSR
   const [wishlist, setWishlist] = useState<Product[]>(INITIAL_WISHLIST);
 
-  // Addresses state: deterministic default for SSR
+  // Addresses state: deterministic default for SSR (empty until authenticated)
   const [addresses, setAddresses] = useState<Address[]>(INITIAL_ADDRESSES);
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(INITIAL_ADDRESSES[0] || null);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
   // Orders state: deterministic default for SSR
   const [orders, setOrders] = useState<Order[]>(INITIAL_DEMO_ORDERS);
@@ -170,6 +146,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState<boolean>(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [toasts, setToasts] = useState<ToastState[]>([]);
+
+  const loadUserAddresses = async () => {
+    try {
+      const backendAddrs = await AddressApiService.getAddresses();
+      if (Array.isArray(backendAddrs) && backendAddrs.length > 0) {
+        setAddresses(backendAddrs);
+        const def = backendAddrs.find(a => a.isDefault) || backendAddrs[0] || null;
+        setSelectedAddress(def);
+        return;
+      }
+    } catch (e) {
+      console.warn('Could not load user addresses from API:', e);
+    }
+  };
 
   // Client-side hydration & background auth verification
   useEffect(() => {
@@ -199,8 +189,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
 
       // 5. Hydrate addresses
-      const storedAddresses = safeGetStorage<Address[]>('scentiva_addresses', INITIAL_ADDRESSES);
-      if (storedAddresses) {
+      const storedAddresses = safeGetStorage<Address[]>('scentiva_addresses', []);
+      if (storedAddresses && storedAddresses.length > 0) {
         setAddresses(storedAddresses);
         const def = storedAddresses.find(a => a.isDefault) || storedAddresses[0] || null;
         setSelectedAddress(def);
@@ -238,13 +228,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           .catch((err: any) => {
             if (err?.status === 401) {
               setCurrentUser(null);
+              setAddresses([]);
+              setSelectedAddress(null);
               if (typeof window !== 'undefined') {
                 localStorage.removeItem('scentiva_user');
                 localStorage.removeItem('scentiva_auth_token');
                 localStorage.removeItem('scentiva_token');
+                localStorage.removeItem('scentiva_addresses');
               }
             }
           });
+
+        loadUserAddresses();
       }
     } catch (err) {
       console.warn('Error during client hydration:', err);
@@ -424,6 +419,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     setCurrentUser(authenticatedUser);
+    await loadUserAddresses();
     showToast(`Welcome back, ${authenticatedUser.name}!`, 'success');
     return { success: true, message: 'Signed in successfully' };
   };
@@ -478,6 +474,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     setCurrentUser(newUser);
+    setAddresses([]);
+    setSelectedAddress(null);
     showToast(`Welcome to SCENTIVA Privé, ${newUser.name}!`, 'success');
     return { success: true, message: 'Account created successfully' };
   };
@@ -487,10 +485,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       AuthApiService.logout();
     } catch {}
     setCurrentUser(null);
+    setAddresses([]);
+    setSelectedAddress(null);
     if (typeof window !== 'undefined') {
       localStorage.removeItem('scentiva_user');
       localStorage.removeItem('scentiva_auth_token');
       localStorage.removeItem('scentiva_token');
+      localStorage.removeItem('scentiva_addresses');
     }
     showToast('Signed out successfully', 'info');
   };
@@ -622,19 +623,34 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setWishlist([]);
   };
 
-  // Address CRUD
+  // Address CRUD with Backend Persistence
   const addAddress = (addrData: Omit<Address, 'id'>): Address => {
+    const tempId = `addr-${Date.now()}`;
     const newAddr: Address = {
       ...addrData,
-      id: `addr-${Date.now()}`
+      id: tempId
     };
-    if (newAddr.isDefault) {
-      setAddresses(prev => prev.map(a => ({ ...a, isDefault: false })).concat(newAddr));
-      setSelectedAddress(newAddr);
+
+    if (newAddr.isDefault || addresses.length === 0) {
+      setAddresses(prev => prev.map(a => ({ ...a, isDefault: false })).concat({ ...newAddr, isDefault: true }));
+      setSelectedAddress({ ...newAddr, isDefault: true });
     } else {
       setAddresses(prev => [...prev, newAddr]);
       if (!selectedAddress) setSelectedAddress(newAddr);
     }
+
+    // Persist to backend
+    AddressApiService.addAddress(addrData)
+      .then(saved => {
+        if (saved && saved.id) {
+          setAddresses(prev => prev.map(a => a.id === tempId ? saved : a));
+          setSelectedAddress(prev => prev?.id === tempId ? saved : prev);
+        }
+      })
+      .catch(err => {
+        console.warn('Backend address save notification:', err);
+      });
+
     showToast('New shipping address saved!', 'success');
     return newAddr;
   };
@@ -652,6 +668,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return updated.isDefault ? { ...a, isDefault: false } : a;
       })
     );
+
+    AddressApiService.updateAddress(id, updated).catch(err => console.warn(err));
+    if (updated.isDefault) {
+      AddressApiService.setDefaultAddress(id).catch(err => console.warn(err));
+    }
     showToast('Address updated successfully', 'success');
   };
 
@@ -661,6 +682,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const remaining = addresses.filter(a => a.id !== id);
       setSelectedAddress(remaining[0] || null);
     }
+    AddressApiService.deleteAddress(id).catch(err => console.warn(err));
     showToast('Address removed', 'info');
   };
 

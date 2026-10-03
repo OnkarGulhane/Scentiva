@@ -33,7 +33,7 @@ import {
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { products, addToCart, toggleWishlist, isInWishlist, formatPrice, showToast } = useStore();
+  const { products, addToCart, toggleWishlist, isInWishlist, formatPrice, showToast, isLoggedIn } = useStore();
 
   const product = products.find(p => p.slug === slug || p.id === slug);
 
@@ -96,7 +96,11 @@ export const ProductDetailPage: React.FC = () => {
   const handleBuyNow = () => {
     analytics.trackCartAdded(product.id, selectedVariant.sku, selectedVariant.price, quantity);
     addToCart(product, selectedVariant, quantity);
-    navigate('/checkout');
+    if (isLoggedIn) {
+      navigate('/checkout');
+    } else {
+      navigate('/account/sign-in?redirect=/checkout');
+    }
   };
 
   const handleWishlistToggle = () => {

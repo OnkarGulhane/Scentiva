@@ -113,72 +113,89 @@ export const AccountAddressesPage: React.FC = () => {
         </div>
 
         {/* Addresses Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {addresses.map(addr => (
-            <div
-              key={addr.id}
-              className={`bg-white rounded-3xl p-6 border-2 transition-all space-y-4 ${
-                addr.isDefault
-                  ? 'border-brand-plum-900 shadow-card'
-                  : 'border-neutral-200 hover:border-neutral-300'
-              }`}
+        {addresses.length === 0 ? (
+          <div className="text-center py-12 px-4 border-2 border-dashed border-neutral-200 rounded-3xl space-y-3 bg-white">
+            <MapPin className="w-8 h-8 text-neutral-400 mx-auto" />
+            <h4 className="font-serif text-lg font-bold text-neutral-800">No saved addresses yet.</h4>
+            <p className="text-xs text-neutral-500 max-w-sm mx-auto">
+              Add your primary residence or office address for fast, one-click luxury checkout.
+            </p>
+            <button
+              onClick={handleOpenAdd}
+              className="px-6 py-2.5 rounded-full bg-brand-plum-900 text-white text-xs font-semibold hover:bg-brand-plum-800 transition-colors shadow-sm inline-flex items-center gap-1.5"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-brand-plum-950 uppercase tracking-wider bg-brand-blush-100/60 px-3 py-1 rounded-full border border-brand-blush-300/40">
-                    {addr.type}
-                  </span>
-                  {addr.isDefault && (
-                    <span className="text-[10px] font-bold text-semantic-success bg-semantic-success/10 px-2.5 py-0.5 rounded-full">
-                      DEFAULT DESTINATION
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Add New Address</span>
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {addresses.map(addr => (
+              <div
+                key={addr.id}
+                className={`bg-white rounded-3xl p-6 border-2 transition-all space-y-4 ${
+                  addr.isDefault
+                    ? 'border-brand-plum-900 shadow-card'
+                    : 'border-neutral-200 hover:border-neutral-300'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-brand-plum-950 uppercase tracking-wider bg-brand-blush-100/60 px-3 py-1 rounded-full border border-brand-blush-300/40">
+                      {addr.type}
                     </span>
-                  )}
-                </div>
+                    {addr.isDefault && (
+                      <span className="text-[10px] font-bold text-semantic-success bg-semantic-success/10 px-2.5 py-0.5 rounded-full">
+                        DEFAULT DESTINATION
+                      </span>
+                    )}
+                  </div>
 
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => handleOpenEdit(addr)}
-                    className="p-1.5 text-neutral-400 hover:text-brand-plum-900 rounded-lg hover:bg-neutral-100"
-                    title="Edit Address"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  {addresses.length > 1 && (
+                  <div className="flex items-center gap-1">
                     <button
-                      onClick={() => deleteAddress(addr.id)}
-                      className="p-1.5 text-neutral-400 hover:text-semantic-error rounded-lg hover:bg-neutral-100"
-                      title="Delete Address"
+                      onClick={() => handleOpenEdit(addr)}
+                      className="p-1.5 text-neutral-400 hover:text-brand-plum-900 rounded-lg hover:bg-neutral-100"
+                      title="Edit Address"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Edit2 className="w-4 h-4" />
                     </button>
-                  )}
+                    {addresses.length > 1 && (
+                      <button
+                        onClick={() => deleteAddress(addr.id)}
+                        className="p-1.5 text-neutral-400 hover:text-semantic-error rounded-lg hover:bg-neutral-100"
+                        title="Delete Address"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <h4 className="text-sm font-bold text-neutral-900">{addr.fullName}</h4>
-                <p className="text-xs text-neutral-600 mt-1 leading-relaxed">
-                  {addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ''}<br />
-                  {addr.city}, {addr.state} - {addr.pincode}
-                </p>
-                <div className="text-xs text-neutral-500 mt-2 font-medium">
-                  Mobile: {addr.phoneNumber}
+                <div>
+                  <h4 className="text-sm font-bold text-neutral-900">{addr.fullName}</h4>
+                  <p className="text-xs text-neutral-600 mt-1 leading-relaxed">
+                    {addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ''}<br />
+                    {addr.city}, {addr.state} - {addr.pincode}
+                  </p>
+                  <div className="text-xs text-neutral-500 mt-2 font-medium">
+                    Mobile: {addr.phoneNumber}
+                  </div>
                 </div>
-              </div>
 
-              {!addr.isDefault && (
-                <div className="pt-2 border-t border-neutral-100">
-                  <button
-                    onClick={() => updateAddress(addr.id, { isDefault: true })}
-                    className="text-xs font-semibold text-brand-plum-900 hover:underline"
-                  >
-                    Set as Default Address
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+                {!addr.isDefault && (
+                  <div className="pt-2 border-t border-neutral-100">
+                    <button
+                      onClick={() => updateAddress(addr.id, { isDefault: true })}
+                      className="text-xs font-semibold text-brand-plum-900 hover:underline"
+                    >
+                      Set as Default Address
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Address Edit/Add Modal */}
@@ -226,7 +243,7 @@ export const AccountAddressesPage: React.FC = () => {
                   required
                   value={line1}
                   onChange={e => setLine1(e.target.value)}
-                  placeholder="Villa 14, Royal Palm Residences"
+                  placeholder="Flat 402, Signature Heights, MG Road"
                   className="w-full p-2.5 rounded-xl border border-neutral-300 focus:border-brand-plum-700 focus:outline-none"
                 />
               </div>

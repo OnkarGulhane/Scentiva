@@ -159,7 +159,8 @@
 | **Phase 13** | Frontend REST API Integration & Gateway Layer | ✅ COMPLETED (`e9e27cf`) |
 | **Phase 14** | Concurrency, Idempotency, Precision & Security Stress Testing | ✅ COMPLETED (`cea7211`) |
 | **Phase 15** | Production Hardening, Docker Containerization & Multi-Env Config | ✅ COMPLETED (`58f62fa`) |
-| **Phase 16** | **Authentication UX, Hydration Resilience & SRS v1.1.0 Baseline** | ✅ **COMPLETED** |
+| **Phase 16** | Authentication UX, Hydration Resilience & SRS v1.1.0 Baseline | ✅ COMPLETED |
+| **Phase 17** | **Authentication + Checkout Complete Fix & Real Customer Address Engine** | ✅ **COMPLETED** |
 
 ---
 

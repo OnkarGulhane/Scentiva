@@ -49,9 +49,9 @@ export const INITIAL_DEMO_CUSTOMERS: Customer[] = [
   },
   {
     id: 'cust-5',
-    name: 'Demo Connoisseur',
-    email: 'demo@scentiva.com',
-    phone: '+91 98765 43210',
+    name: 'Kavita Krishnamurthy',
+    email: 'kavita.k@example.com',
+    phone: '+91 98450 78120',
     tier: 'Privé Gold',
     totalOrders: 3,
     totalSpend: 26997,
