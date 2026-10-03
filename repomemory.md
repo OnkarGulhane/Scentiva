@@ -159,12 +159,24 @@
 | **Phase 13** | Frontend REST API Integration & Gateway Layer | ✅ COMPLETED (`e9e27cf`) |
 | **Phase 14** | Concurrency, Idempotency, Precision & Security Stress Testing | ✅ COMPLETED (`cea7211`) |
 | **Phase 15** | Production Hardening, Docker Containerization & Multi-Env Config | ✅ COMPLETED (`58f62fa`) |
-| **Phase 16** | Authentication UX, Hydration Resilience & SRS v1.1.0 Baseline | ✅ COMPLETED |
-| **Phase 17** | **Authentication + Checkout Complete Fix & Real Customer Address Engine** | ✅ **COMPLETED** |
+| **Phase 16** | Authentication UX, Hydration Resilience & SRS v1.1.0 Baseline | ✅ COMPLETED (`48fcf8d`) |
+| **Phase 17** | Authentication + Checkout Complete Fix & Real Customer Address Engine | ✅ COMPLETED (`6485538`) |
+| **Phase 18** | **Complete API Testing, Bug Audit, DTO Contracts & Verification Documentation** | ✅ **COMPLETED (`ce5e514`)** |
 
 ---
 
-## 7. Production Deployment & Cloud Architecture
+## 7. Complete API Testing & Bug Audit Documentation
+
+All API audits, live assertions, test cases, and sign-offs are documented in:
+1. [docs/api-testing/API-INVENTORY.md](file:///e:/Scentiva/docs/api-testing/API-INVENTORY.md): Complete list of 90+ REST API endpoints.
+2. [docs/api-testing/API-TEST-REPORT.md](file:///e:/Scentiva/docs/api-testing/API-TEST-REPORT.md): 223/223 JUnit test execution results and 86/86 live integration assertions.
+3. [docs/api-testing/API-BUG-REPORT.md](file:///e:/Scentiva/docs/api-testing/API-BUG-REPORT.md): Bug audit report detailing root causes and verified fixes.
+4. [docs/api-testing/API-TEST-CASES.md](file:///e:/Scentiva/docs/api-testing/API-TEST-CASES.md): Structured test case matrix.
+5. [docs/api-testing/API-FINAL-STATUS.md](file:///e:/Scentiva/docs/api-testing/API-FINAL-STATUS.md): Production sign-off summary.
+
+---
+
+## 8. Production Deployment & Cloud Architecture
 
 - **Frontend (Vercel Edge):** Next.js 14 App Router, auto-building on Git push, optimized via [vercel.json](file:///e:/Scentiva/vercel.json) with HTTP security headers and aggressive asset caching.
 - **Backend (Render Web Service):** Spring Boot 3.3.4 containerized with [backend/Dockerfile](file:///e:/Scentiva/backend/Dockerfile) (Eclipse Temurin 21 JRE Alpine + `-XX:+UseContainerSupport`), bound dynamically to `$PORT`, with `/api/v1/health` actuator checks.

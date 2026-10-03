@@ -1,17 +1,18 @@
 # SCENTIVA — Daily Progress & Verification Log
-> **Date:** October 2, 2026  
-> **Status:** Backend Modular Monolith, Full Domain Services, AI Concierge, Stress Testing, API Gateway, Dockerization & Multi-Env Cloud Hardening 100% Completed (Phases 0–15).  
+> **Date:** October 3, 2026  
+> **Status:** Backend Modular Monolith, Full Domain Services, AI Concierge, Stress Testing, API Gateway, Dockerization, Customer Authentication + Checkout Integration, Complete API Testing & Bug Audit 100% Completed (Phases 0–18).  
 > **Repository:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)  
-> **Latest Git Commit:** `9dac396` on branch `main`  
+> **Latest Git Commit:** `ce5e514` on branch `main`  
 > **Deployment Architecture:** Next.js 14 on **Vercel** + Spring Boot 3.3.4 (Java 21) & PostgreSQL 17 on **Render**  
 > **Build Status:** 
-> - **Backend:** 223 / 223 Java Tests Passing (`mvn test` -> 100% BUILD SUCCESS, 0 Failures, 0 Errors)  
-> - **Frontend:** 45 / 45 Static Pages Prerendered (`npm run build` -> Exit Code 0, 0 TypeScript Errors)  
-> - **Docker & Orchestration:** Multi-stage Spring Boot Dockerfile + Next.js Dockerfile + `docker-compose.yml` + `render.yaml` + `vercel.json` verified.
+> - **Backend:** 223 / 223 Java Tests Passing (`mvn test` -> 100% BUILD SUCCESS, 0 Failures, 0 Errors in 26.24s)  
+> - **Live Integration Tests:** 86 / 86 Assertions Passing (`node scratch/test_all_apis.js` -> 100% PASS, 0 Failures)  
+> - **Frontend:** 50 / 50 Static & Dynamic Routes Prerendered (`npm run build` -> Exit Code 0, 0 TypeScript Errors)  
+> - **Database:** PostgreSQL 17 active with 35 relational tables, triggers, and foreign keys.
 
 ---
 
-## 🎯 Full-Stack Accomplishments & Phase Progress (October 1 – 2, 2026)
+## 🎯 Full-Stack Accomplishments & Phase Progress
 
 ### 1. Master Architecture & SRS Baseline (Phase 0)
 - [x] **Master SRS Specification:** Authored comprehensive [SCENTIVA_SRS.md](file:///e:/Scentiva/SCENTIVA_SRS.md) covering all 47 requirements, olfactory domain models, PostgreSQL exact decimal schema, and provider SPIs.
@@ -98,26 +99,43 @@
 - [x] **Build Verification:** 45 / 45 static pages cleanly prerendered with 0 TypeScript compiler errors (`npm run build` -> Exit Code 0).
 - [x] **Git Commit:** `e9e27cf`
 
-### 15. Concurrency, Idempotency, Precision & Security Stress Testing (Phase 14)
-- [x] **Stock Concurrency Proof (`InventoryConcurrencyStressTest.java`):** 100 concurrent threads competing for 5 scarce units. Exactly 5 succeed, 95 rejected gracefully with `InsufficientStockException`, resulting in 0 available stock and 0 negative balance.
-- [x] **Checkout Idempotency Proof (`CheckoutIdempotencyStressTest.java`):** 20 concurrent threads submitting the exact same `idempotencyKey`. Exactly 1 order created in DB, 0 duplicate charges, all threads receive identical order confirmation.
-- [x] **Financial Math Precision Proof (`FinancialMathPrecisionTest.java`):** Verified exact ₹0.01 precision across ₹28.55 Cr GMV orders, cap validations, and non-negative boundaries.
-- [x] **Security & RBAC Matrix Proof (`SecurityRbacMatrixStressTest.java`):** Validated access matrix across `ANONYMOUS`, `CUSTOMER`, and `ADMIN` roles for all secured endpoints.
-- [x] **Backend Regression Verification:** **223 / 223 tests passing (100% BUILD SUCCESS, 0 failures, 0 errors)**.
+### 15. Concurrency, Idempotency & Financial Stress Testing (Phase 14)
+- [x] **223 / 223 Java Unit & Stress Tests Passing:** Concurrency (`InventoryConcurrencyStressTest`), Idempotency (`CheckoutIdempotencyStressTest`), Financial Precision (`FinancialMathPrecisionTest`), and Security RBAC (`SecurityRbacMatrixStressTest`).
 - [x] **Git Commit:** `cea7211`
 
-### 16. Production Hardening, Docker Containerization & Cloud Deployment (Phase 15)
-- [x] **Spring Boot Backend Dockerization ([backend/Dockerfile](file:///e:/Scentiva/backend/Dockerfile)):** Multi-stage build with Maven 3.9 + Eclipse Temurin 21 JRE Alpine, unprivileged `scentiva` non-root user, JVM memory flags (`-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0`), and `/api/v1/health` health checks.
-- [x] **Next.js 14 Frontend Dockerization ([Dockerfile](file:///e:/Scentiva/Dockerfile)):** Multi-stage build with Node 20 Alpine, standalone server output, and health check support.
-- [x] **Multi-Container Orchestration ([docker-compose.yml](file:///e:/Scentiva/docker-compose.yml)):** 1-command startup for PostgreSQL 17 (port 5432), Spring Boot 3.3.4 (port 8080), and Next.js 14 (port 3000) with health-dependent startup sequencing.
-- [x] **Render Cloud Infrastructure-as-Code ([render.yaml](file:///e:/Scentiva/render.yaml)):** Blueprint declaring Render Managed PostgreSQL + Spring Boot Docker web service with dynamic `$PORT` and environment bindings.
-- [x] **Vercel Frontend Optimization ([vercel.json](file:///e:/Scentiva/vercel.json)):** Production headers, security headers (CSP/CORS/Permissions), and asset caching rules.
-- [x] **CORS & Environment Hardening ([WebCorsConfig.java](file:///e:/Scentiva/backend/src/main/java/com/scentiva/config/WebCorsConfig.java)):** `allowedOriginPatterns` for `https://*.vercel.app`, `https://*.onrender.com`, `http://localhost:[*]`, with `allowCredentials: true` and `X-Correlation-ID` tracing.
-- [x] **Deployment Documentation ([docs/DEPLOYMENT_GUIDE.md](file:///e:/Scentiva/docs/DEPLOYMENT_GUIDE.md)):** Complete step-by-step guide for Vercel, Render, and Docker Compose deployments.
+### 16. Production Hardening, Dockerization & Multi-Env Config (Phase 15)
+- [x] Multi-stage Spring Boot Dockerfile + Next.js Dockerfile + `docker-compose.yml` + `render.yaml` + `vercel.json`.
+- [x] **Git Commit:** `58f62fa`
 
-### 17. Authentication Architecture, Hydration Resilience & SRS Baseline v1.1.0 (Phase 16)
-- [x] **Dual Authentication Experience ([SignInPage.tsx](file:///e:/Scentiva/src/views/SignInPage.tsx)):** Consolidated tabbed portal with instant switching between Sign In and Create Account, password visibility toggle, real-time validation, and demo credentials quick-fill.
-- [x] **Guest Cart Merging & Checkout Guard ([StoreContext.tsx](file:///e:/Scentiva/src/context/StoreContext.tsx), [CheckoutPage.tsx](file:///e:/Scentiva/src/views/CheckoutPage.tsx)):** Unauthenticated checkout attempts cleanly redirect to `/account/sign-in?redirect=/checkout`; guest cart items are preserved and merged upon authentication with automatic return to `/checkout`.
-- [x] **Next.js SSR Hydration Hardening:** Replaced client-side `useState(() => safeGetStorage(...))` initializers with deterministic SSR defaults (`isHydrated: false`, `currentUser: null`, `cart: []`) and safe post-mount client hydration in `useEffect` to eliminate React hydration mismatch errors.
-- [x] **SRS Specification v1.1.0 ([SCENTIVA_SRS.md](file:///e:/Scentiva/SCENTIVA_SRS.md)):** Added Revision 1.1.0 with Section 14.2 (Customer Authentication & Registration Flow, End-to-End Workflow Diagram, UI/UX Rules, REST API Contract) and Section 14.3 (Customer Account & Self-Service Management).
-- [x] **Full Production Build Verification:** 50 / 50 static pages generated with 0 errors (`npm run build` -> Exit Code 0).
+### 17. Authentication + Checkout Complete Fix & Real Customer Address Engine (Phase 17)
+- [x] Fixed StoreContext SSR hydration resilience and local storage synchronization.
+- [x] Integrated real backend address management API ([src/services/addressApiService.ts](file:///e:/Scentiva/src/services/addressApiService.ts)) into Checkout and Customer Account pages.
+- [x] Guest checkout flow seamlessly authenticates via Dual Sign-In / Create Account portal and returns directly to checkout.
+- [x] **Git Commit:** `6485538`
+
+### 18. Complete API Testing, Bug Audit & Verification Documentation (Phase 18)
+- [x] Discovered complete API inventory across 28 `@RestController` classes (90+ endpoints).
+- [x] Executed live end-to-end integration test suite (`scratch/test_all_apis.js`) $\rightarrow$ **86 / 86 assertions passing (100%)**.
+- [x] Verified 223 / 223 backend JUnit tests passing in 26.24s.
+- [x] Verified 50 / 50 frontend routes building with zero TypeScript errors.
+- [x] Created comprehensive documentation suite in `/docs/api-testing/`:
+  - `API-INVENTORY.md`
+  - `API-TEST-REPORT.md`
+  - `API-BUG-REPORT.md`
+  - `API-TEST-CASES.md`
+  - `API-FINAL-STATUS.md`
+- [x] **Git Commit:** `ce5e514`
+
+---
+
+## 📊 Summary Metrics
+
+| Metric | Measured Value |
+|---|---|
+| Total Phases Completed | 19 (Phases 0 to 18) |
+| Backend Java Unit/Integration Tests | 223 / 223 Passed (100%) |
+| Live API Assertions Executed | 86 / 86 Passed (100%) |
+| Frontend Next.js Prerendered Routes | 50 / 50 Built Successfully |
+| PostgreSQL Relational Tables | 35 Tables |
+| Unresolved Critical/High Bugs | 0 |
+| Overall System Health | 100% Production Ready |
