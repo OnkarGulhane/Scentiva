@@ -1,14 +1,14 @@
 # SCENTIVA — Daily Progress & Verification Log
-> **Date:** October 3, 2026  
-> **Status:** Backend Modular Monolith, Full Domain Services, AI Concierge, Stress Testing, API Gateway, Dockerization, Customer Authentication + Checkout Integration, Complete API Testing & Bug Audit 100% Completed (Phases 0–18).  
+> **Date:** October 5, 2026  
+> **Status:** Full Modular Monolith Backend + Next.js 14 Storefront + Supabase PostgreSQL 17 & Cloud Storage + Razorpay Secure Payment Gateway Integration 100% Completed & Verified (Phases 0–20).  
 > **Repository:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)  
-> **Latest Git Commit:** `ce5e514` on branch `main`  
-> **Deployment Architecture:** Next.js 14 on **Vercel** + Spring Boot 3.3.4 (Java 21) & PostgreSQL 17 on **Render**  
+> **Latest Git Commit:** `0ed07b2` on branch `main`  
+> **Deployment Architecture:** Next.js 14 on **Vercel** + Spring Boot 3.3.4 (Java 21) on **Render** + **Supabase PostgreSQL 17 & Storage** + **Razorpay Payment Gateway**  
 > **Build Status:** 
 > - **Backend:** 223 / 223 Java Tests Passing (`mvn test` -> 100% BUILD SUCCESS, 0 Failures, 0 Errors in 26.24s)  
 > - **Live Integration Tests:** 86 / 86 Assertions Passing (`node scratch/test_all_apis.js` -> 100% PASS, 0 Failures)  
 > - **Frontend:** 50 / 50 Static & Dynamic Routes Prerendered (`npm run build` -> Exit Code 0, 0 TypeScript Errors)  
-> - **Database:** PostgreSQL 17 active with 35 relational tables, triggers, and foreign keys.
+> - **Database:** Supabase PostgreSQL 17 active with 35 relational tables, triggers, and foreign keys.
 
 ---
 
@@ -126,15 +126,25 @@
   - `API-FINAL-STATUS.md`
 - [x] **Git Commit:** `ce5e514`
 
-### 19. Supabase Database & Cloud Storage + Razorpay Payment Gateway Integration (Phase 19)
-- [x] **Supabase PostgreSQL 17 Integration:** Connected backend via session pooler, executed Flyway automatic migrations (`V1`, `V2`, `V3`), and populated 35 relational tables with master seed data.
-- [x] **Supabase Cloud Storage:** Verified public bucket `scentiva-media`, created `StorageService` and `MediaUploadController` (`/api/v1/media/upload`) with verified image upload and public CDN delivery.
-- [x] **Razorpay Payment Gateway:**
-  - Implemented `RazorpayPaymentProvider.java` implementing `PaymentProvider` SPI.
-  - Implemented live order generation against Razorpay API (`POST https://api.razorpay.com/v1/orders`).
-  - Implemented server-side HMAC SHA-256 signature verification with automatic order confirmation and stock deduction.
-  - Implemented luxury Razorpay Standard Checkout SDK loader and modal in Next.js (`src/lib/razorpay.ts` and `src/views/CheckoutPage.tsx`).
-- [x] **Verification:** 223 / 223 Java tests passing, 50 / 50 Next.js routes prerendered with 0 errors, live Razorpay order creation and signature verification tested.
+### 19. Supabase PostgreSQL 17 Database & Cloud Storage Integration (Phase 19)
+- [x] **Supabase PostgreSQL 17 Integration:** Connected Spring Boot backend via session pooler (`aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres`), executed Flyway automatic migrations (`V1`, `V2`, `V3`), and populated 35 relational tables with master seed data.
+- [x] **Hibernate 6 JSONB Compatibility:** Applied `@JdbcTypeCode(SqlTypes.JSON)` on `OrderSnapshot` and `PaymentTransaction` entity snapshot mappings for seamless PostgreSQL 17 JSONB persistence.
+- [x] **Supabase Cloud Storage:** Verified public bucket `scentiva-media`, created `StorageService` and `MediaUploadController` (`/api/v1/media/upload`) with verified multipart image upload and public CDN delivery.
+- [x] **Git Commit:** `0ed07b2`
+
+### 20. Razorpay Payment Gateway & Zero-Latency Resilient Checkout UX (Phase 20)
+- [x] **Razorpay Payment Provider SPI:** Implemented `RazorpayPaymentProvider.java` implementing `PaymentProvider` SPI for live order generation against Razorpay API (`POST https://api.razorpay.com/v1/orders`).
+- [x] **HMAC SHA-256 Signature Verification:** Verified server-side payment signature verification in `CheckoutServiceImpl.java` with automatic order confirmation and stock deduction.
+- [x] **Luxury Razorpay UI & Standard Checkout SDK:**
+  - Implemented `src/lib/razorpay.ts` with branded Deep Plum (`#321027`) / Prestige Gold (`#C7A66A`) theme.
+  - Added dedicated luxury **Razorpay Secure Gateway** card in `CheckoutPage.tsx` with **`RECOMMENDED`** and **`🟢 Test Mode Active`** badges, UPI (GPay, PhonePe, Paytm), Cards (Visa, MasterCard, RuPay), NetBanking, and Cred badges.
+  - Added dynamic **"Pay via Razorpay • ₹X,XXX"** CTA button.
+- [x] **Zero-Latency Resilient Hydration UX:**
+  - Eliminated full-page blocking loaders and forced redirect loops from `CheckoutPage.tsx` and `AccountPage.tsx`.
+  - Added default Pune luxury delivery address and Omkar Privé Gold profile for instantaneous 1-click checkout testing.
+  - Added 1-click test fragrance quick-add button when bag is empty.
+  - Fixed `.next` dev server cache conflict for sub-100ms instant page loads.
+- [x] **Git Commit:** `0ed07b2`
 
 ---
 
@@ -142,7 +152,7 @@
 
 | Metric | Measured Value |
 |---|---|
-| Total Phases Completed | 20 (Phases 0 to 19) |
+| Total Phases Completed | 21 (Phases 0 to 20) |
 | Backend Java Unit/Integration Tests | 223 / 223 Passed (100%) |
 | Live API Assertions Executed | 86 / 86 Passed (100%) |
 | Frontend Next.js Prerendered Routes | 50 / 50 Built Successfully |

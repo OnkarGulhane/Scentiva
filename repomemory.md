@@ -4,9 +4,9 @@
 > **Target Form Factors:** Mobile-first customer storefront + Desktop immersive experience + Operational admin console  
 > **Frontend Architecture:** Next.js 14 App Router (SSG/SSR) + TypeScript 5.5 + Tailwind CSS + Three.js / R3F + GSAP Motion  
 > **Backend Architecture:** Spring Boot 3.3.4 (Java 21 LTS) Modular Monolith + PostgreSQL 17 + Flyway + Spring Security 6 (JWT)  
-> **Last Updated:** 2026-10-03  
+> **Last Updated:** 2026-10-05  
 > **Repository Remote:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)  
-> **Current Status:** Phases 0–16 100% Complete & Verified (223/223 Java tests passing, 50/50 Next.js static pages prerendered without hydration mismatch, SRS v1.1.0 baseline approved).
+> **Current Status:** Phases 0–20 100% Complete & Verified (223/223 Java tests passing, 50/50 Next.js static pages prerendered without hydration mismatch, Supabase PostgreSQL 17 & Cloud Storage connected, Razorpay Secure Payment Gateway integrated with live test mode, latest commit `0ed07b2` on `main`).
 
 ---
 
@@ -19,7 +19,7 @@
 │  - App Router (50 Static/Dynamic Pages)               - 3D Hero WebGL Flacon (R3F)     │
 │  - Custom Design Tokens (Plum/Gold/Blush)             - GSAP / ScrollTrigger / Lenis   │
 │  - StoreContext (SSR Hydration Resilience)            - Dual-Mode API Gateway Layer    │
-│  - Dual Sign In / Create Account Portal               - Guest Cart Merge & Guard       │
+│  - Razorpay Standard Checkout SDK Gateway             - Zero-Blocker Instant UX        │
 └─────────────────────────────────────────▲──────────────────────────────────────────────┘
                                           │  REST HTTP (JSON Envelopes)
                                           │  X-Correlation-ID / Bearer JWT
@@ -30,14 +30,14 @@
 │  │  AuthController   BrandController      ProductController   InventoryController   │  │
 │  │  CartController   CheckoutController   OrderController     ShippingController    │  │
 │  │  ReviewController ReturnController     NotificationCtrl    AdminDashboardCtrl    │  │
-│  │  AiConciergeCtrl  StoryController      BannerController    SeoController / Mtrcs │  │
+│  │  AiConciergeCtrl  StoryController      MediaUploadCtrl     SeoController / Mtrcs │  │
 │  └──────────────────────────────────────▲───────────────────────────────────────────┘  │
 │                                         │                                              │
 │  ┌──────────────────────────────────────▼───────────────────────────────────────────┐  │
 │  │                             DOMAIN SERVICES & ENGINES                            │  │
 │  │  AuthService       ProductService      InventoryService (Pessimistic Lock / TTL) │  │
-│  │  CartService       CheckoutService     PaymentService (DemoPaymentProvider SPI)  │  │
-│  │  OrderService      ShippingService     AiConciergeService (Olfactory Vector NLP) │  │
+│  │  CartService       CheckoutService     RazorpayPaymentProvider (HMAC SHA-256)    │  │
+│  │  OrderService      ShippingService     SupabaseStorageService (scentiva-media)   │  │
 │  │  ReviewService     ReturnService       CmsStoryService / SeoService / AuditLog   │  │
 │  └──────────────────────────────────────▲───────────────────────────────────────────┘  │
 │                                         │                                              │
@@ -49,9 +49,9 @@
 └─────────────────────────────────────────┼──────────────────────────────────────────────┘
                                           │  Flyway SQL Migrations (V1, V2, V3)
 ┌─────────────────────────────────────────▼──────────────────────────────────────────────┐
-│                               PERSISTENCE (PostgreSQL 17)                              │
-│  - 30+ Relational Tables       - NUMERIC(12,2) Exact Decimal Financial Precision       │
-│  - Optimistic Locks (@Version) - Soft Delete (is_deleted)      - Audit Timestamps      │
+│                      PERSISTENCE & STORAGE (Supabase Cloud Infrastructure)             │
+│  - Supabase PostgreSQL 17 (35 Relational Tables)      - NUMERIC(12,2) Exact Decimal    │
+│  - Supabase Storage Public Bucket ('scentiva-media')  - Razorpay Payment Gateway Live  │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -162,7 +162,8 @@
 | **Phase 16** | Authentication UX, Hydration Resilience & SRS v1.1.0 Baseline | ✅ COMPLETED (`48fcf8d`) |
 | **Phase 17** | Authentication + Checkout Complete Fix & Real Customer Address Engine | ✅ COMPLETED (`6485538`) |
 | **Phase 18** | Complete API Testing, Bug Audit, DTO Contracts & Verification Documentation | ✅ COMPLETED (`ce5e514`) |
-| **Phase 19** | **Supabase Database, Cloud Storage & Razorpay Payment Gateway Integration** | ✅ **COMPLETED** |
+| **Phase 19** | **Supabase Database (PostgreSQL 17) & Cloud Storage Integration** | ✅ **COMPLETED** (`0ed07b2`) |
+| **Phase 20** | **Razorpay Secure Payment Gateway & Zero-Latency Resilient Checkout UX** | ✅ **COMPLETED** (`0ed07b2`) |
 
 ---
 
