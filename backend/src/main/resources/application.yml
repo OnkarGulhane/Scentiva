@@ -76,3 +76,10 @@ scentiva:
       - "*"
     allow-credentials: true
     max-age: 3600
+  razorpay:
+    key-id: ${RAZORPAY_KEY_ID:rzp_test_TkFZU8ecNzFnCq}
+    key-secret: ${RAZORPAY_KEY_SECRET:Faa4K7iK16vfTXWf1bs6Wfmo}
+    currency: "INR"
+    company-name: "SCENTIVA Haute Parfumerie"
+    theme-color: "#321027"
+

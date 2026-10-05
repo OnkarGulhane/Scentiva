@@ -25,13 +25,16 @@ public class OrderSnapshot {
     @JoinColumn(name = "order_id", nullable = false, unique = true)
     private Order order;
 
-    @Column(name = "customer_snapshot_json", nullable = false, columnDefinition = "TEXT")
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+    @Column(name = "customer_snapshot_json", nullable = false, columnDefinition = "jsonb")
     private String customerSnapshotJson;
 
-    @Column(name = "shipping_address_snapshot_json", nullable = false, columnDefinition = "TEXT")
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+    @Column(name = "shipping_address_snapshot_json", nullable = false, columnDefinition = "jsonb")
     private String shippingAddressSnapshotJson;
 
-    @Column(name = "pricing_matrix_snapshot_json", nullable = false, columnDefinition = "TEXT")
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+    @Column(name = "pricing_matrix_snapshot_json", nullable = false, columnDefinition = "jsonb")
     private String pricingMatrixSnapshotJson;
 
     @CreatedDate

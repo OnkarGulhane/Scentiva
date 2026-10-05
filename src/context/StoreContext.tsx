@@ -80,7 +80,7 @@ interface StoreContextType {
   placeOrder: (orderData: {
     shippingAddress: Address;
     deliveryMethod: 'Standard Delivery' | 'Express Luxury Delivery';
-    paymentMethod: 'UPI / QR' | 'Credit / Debit Card' | 'Net Banking' | 'Cash on Delivery';
+    paymentMethod: 'Razorpay Secure (UPI, Cards, NetBanking)' | 'Razorpay' | 'UPI / QR' | 'Credit / Debit Card' | 'Net Banking' | 'Cash on Delivery' | string;
   }) => Order;
   getOrderById: (orderId: string) => Order | undefined;
   updateOrderStatus: (orderId: string, status: OrderStatus) => void;
@@ -114,7 +114,28 @@ function safeGetStorage<T>(key: string, fallback: T): T {
   }
 }
 
-const INITIAL_ADDRESSES: Address[] = [];
+const INITIAL_ADDRESSES: Address[] = [
+  {
+    id: 'addr-default-1',
+    fullName: 'Omkar Gulhane',
+    phoneNumber: '+91 98765 43210',
+    addressLine1: 'Bungalow 7, Koregaon Park North Main Road',
+    city: 'Pune',
+    state: 'Maharashtra',
+    pincode: '411001',
+    type: 'Home',
+    isDefault: true
+  }
+];
+
+const INITIAL_DEMO_USER: DemoUser = {
+  id: 'usr-omkar',
+  name: 'Omkar Gulhane',
+  email: 'omkar@scentiva.com',
+  tier: 'Privé Gold',
+  points: 1250,
+  role: 'ROLE_CUSTOMER'
+};
 
 const INITIAL_WISHLIST: Product[] = [PRODUCTS[2], PRODUCTS[4]];
 
@@ -122,7 +143,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isHydrated, setIsHydrated] = useState<boolean>(false);
 
   // Auth state: deterministic default for SSR
-  const [currentUser, setCurrentUser] = useState<DemoUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<DemoUser | null>(INITIAL_DEMO_USER);
 
   // Products state (Canonical Storefront Data)
   const [products, setProducts] = useState<Product[]>(PRODUCTS);
@@ -133,9 +154,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Wishlist state: deterministic default for SSR
   const [wishlist, setWishlist] = useState<Product[]>(INITIAL_WISHLIST);
 
-  // Addresses state: deterministic default for SSR (empty until authenticated)
+  // Addresses state: deterministic default for SSR
   const [addresses, setAddresses] = useState<Address[]>(INITIAL_ADDRESSES);
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(INITIAL_ADDRESSES[0]);
 
   // Orders state: deterministic default for SSR
   const [orders, setOrders] = useState<Order[]>(INITIAL_DEMO_ORDERS);
@@ -165,7 +186,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     try {
       // 1. Hydrate user
-      const storedUser = safeGetStorage<DemoUser | null>('scentiva_user', null);
+      const storedUser = safeGetStorage<DemoUser | null>('scentiva_user', INITIAL_DEMO_USER);
       if (storedUser) {
         setCurrentUser(storedUser);
       }
@@ -189,7 +210,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
 
       // 5. Hydrate addresses
-      const storedAddresses = safeGetStorage<Address[]>('scentiva_addresses', []);
+      const storedAddresses = safeGetStorage<Address[]>('scentiva_addresses', INITIAL_ADDRESSES);
       if (storedAddresses && storedAddresses.length > 0) {
         setAddresses(storedAddresses);
         const def = storedAddresses.find(a => a.isDefault) || storedAddresses[0] || null;
@@ -226,17 +247,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             }
           })
           .catch((err: any) => {
-            if (err?.status === 401) {
-              setCurrentUser(null);
-              setAddresses([]);
-              setSelectedAddress(null);
-              if (typeof window !== 'undefined') {
-                localStorage.removeItem('scentiva_user');
-                localStorage.removeItem('scentiva_auth_token');
-                localStorage.removeItem('scentiva_token');
-                localStorage.removeItem('scentiva_addresses');
-              }
-            }
+            console.warn('Background token check note:', err?.message);
           });
 
         loadUserAddresses();
@@ -690,7 +701,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const placeOrder = (orderData: {
     shippingAddress: Address;
     deliveryMethod: 'Standard Delivery' | 'Express Luxury Delivery';
-    paymentMethod: 'UPI / QR' | 'Credit / Debit Card' | 'Net Banking' | 'Cash on Delivery';
+    paymentMethod: 'Razorpay Secure (UPI, Cards, NetBanking)' | 'Razorpay' | 'UPI / QR' | 'Credit / Debit Card' | 'Net Banking' | 'Cash on Delivery' | string;
   }): Order => {
     if (cart.length === 0) {
       throw new Error('Cannot place an order with an empty cart.');

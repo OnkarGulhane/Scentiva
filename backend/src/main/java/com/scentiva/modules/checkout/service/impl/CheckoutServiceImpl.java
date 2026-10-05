@@ -28,6 +28,7 @@ import com.scentiva.modules.order.repository.OrderItemRepository;
 import com.scentiva.modules.order.repository.OrderRepository;
 import com.scentiva.modules.order.repository.OrderSnapshotRepository;
 import com.scentiva.modules.payment.model.Payment;
+import com.scentiva.modules.payment.model.PaymentProviderType;
 import com.scentiva.modules.payment.model.PaymentStatus;
 import com.scentiva.modules.payment.provider.PaymentInitResult;
 import com.scentiva.modules.payment.provider.PaymentVerifyResult;
@@ -67,6 +68,9 @@ public class CheckoutServiceImpl implements CheckoutService {
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final ObjectMapper objectMapper;
+
+    @org.springframework.beans.factory.annotation.Value("${scentiva.razorpay.key-id:rzp_test_TkFZU8ecNzFnCq}")
+    private String razorpayKeyId;
 
     @Override
     @Transactional(readOnly = true)
@@ -356,6 +360,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .paymentId(payment != null ? payment.getId() : null)
                 .paymentStatus(paymentResult.getStatus())
                 .gatewayOrderId(paymentResult.getGatewayOrderId())
+                .keyId(request.getPaymentProvider() == PaymentProviderType.RAZORPAY ? razorpayKeyId : null)
                 .requiresAction(paymentResult.isRequiresAction())
                 .actionUrl(paymentResult.getActionUrl())
                 .message(paymentResult.getMessage())

@@ -40,7 +40,7 @@ export const OrderService = {
     cart: CartItem[];
     shippingAddress: Address;
     deliveryMethod: 'Standard Delivery' | 'Express Luxury Delivery';
-    paymentMethod: 'UPI / QR' | 'Credit / Debit Card' | 'Net Banking' | 'Cash on Delivery';
+    paymentMethod: 'Razorpay Secure (UPI, Cards, NetBanking)' | 'Razorpay' | 'UPI / QR' | 'Credit / Debit Card' | 'Net Banking' | 'Cash on Delivery' | string;
     subtotal: number;
     discount: number;
     couponCode?: string;

@@ -27,17 +27,22 @@ export const AccountPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'orders' | 'addresses' | 'rewards' | 'settings'>('orders');
 
-  React.useEffect(() => {
-    if (isHydrated && !isLoggedIn) {
-      navigate('/account/sign-in', { replace: true });
-    }
-  }, [isHydrated, isLoggedIn, navigate]);
-
-  if (!isHydrated || !isLoggedIn) {
+  if (isHydrated && !isLoggedIn) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-3">
-        <div className="w-8 h-8 border-2 border-brand-plum-900 border-t-transparent rounded-full animate-spin" />
-        <p className="text-xs text-neutral-500">Loading your Privé profile...</p>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
+        <div className="w-16 h-16 rounded-full bg-brand-blush-100 text-brand-plum-900 mx-auto flex items-center justify-center shadow-sm">
+          <User className="w-8 h-8 text-brand-plum-900" />
+        </div>
+        <h2 className="font-serif text-3xl font-bold text-neutral-900">Sign in to Privé Club</h2>
+        <p className="text-xs text-neutral-500 max-w-sm">Access your fragrance vault, tracking, addresses, and exclusive member tier benefits.</p>
+        <div className="flex gap-3 pt-2">
+          <Link to="/account/sign-in" className="px-6 py-2.5 rounded-full bg-brand-plum-900 hover:bg-brand-plum-800 text-white text-xs font-semibold">
+            Sign In
+          </Link>
+          <Link to="/account/sign-up" className="px-6 py-2.5 rounded-full border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold">
+            Create Account
+          </Link>
+        </div>
       </div>
     );
   }

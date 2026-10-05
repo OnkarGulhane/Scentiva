@@ -23,11 +23,14 @@ CREATE TABLE IF NOT EXISTS editorial_stories (
     version BIGINT NOT NULL DEFAULT 0
 );
 
-CREATE INDEX idx_editorial_stories_slug ON editorial_stories(slug);
-CREATE INDEX idx_editorial_stories_published ON editorial_stories(published_at);
+CREATE INDEX IF NOT EXISTS idx_editorial_stories_slug ON editorial_stories(slug);
+CREATE INDEX IF NOT EXISTS idx_editorial_stories_published ON editorial_stories(published_at);
+
+-- Drop old pre-V3 schema for banners if created without placement column
+DROP TABLE IF EXISTS banners CASCADE;
 
 -- 35. BANNERS (Hero & Promotional Showcase)
-CREATE TABLE IF NOT EXISTS banners (
+CREATE TABLE banners (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     subtitle VARCHAR(255),
@@ -46,10 +49,13 @@ CREATE TABLE IF NOT EXISTS banners (
     version BIGINT NOT NULL DEFAULT 0
 );
 
-CREATE INDEX idx_banners_placement ON banners(placement);
+CREATE INDEX IF NOT EXISTS idx_banners_placement ON banners(placement);
+
+-- Drop old pre-V3 schema for audit_logs if created without user_email
+DROP TABLE IF EXISTS audit_logs CASCADE;
 
 -- 36. AUDIT LOGS (Security & Administrative Action Ledgers)
-CREATE TABLE IF NOT EXISTS audit_logs (
+CREATE TABLE audit_logs (
     id BIGSERIAL PRIMARY KEY,
     user_email VARCHAR(255) NOT NULL,
     action VARCHAR(100) NOT NULL,
@@ -60,6 +66,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_audit_logs_user ON audit_logs(user_email);
-CREATE INDEX idx_audit_logs_action ON audit_logs(action);
-CREATE INDEX idx_audit_logs_created ON audit_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_email);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at);
+

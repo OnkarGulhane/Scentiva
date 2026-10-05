@@ -31,7 +31,8 @@ public class PaymentTransaction {
     @Column(name = "gateway_status", nullable = false, length = 50)
     private String gatewayStatus;
 
-    @Column(name = "raw_response", columnDefinition = "TEXT")
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+    @Column(name = "raw_response", columnDefinition = "jsonb")
     private String rawResponse;
 
     @CreatedDate

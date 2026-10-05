@@ -22,42 +22,41 @@ export interface CheckoutSummaryBackendResponse {
 }
 
 export interface CheckoutProcessPayload {
-  addressId: number;
+  shippingAddressId: number;
   paymentMethod: string;
+  paymentProvider?: 'RAZORPAY' | 'DEMO' | 'STRIPE';
   couponCode?: string;
-  orderNotes?: string;
-  idempotencyKey: string;
+  notes?: string;
+  idempotencyKey?: string;
 }
 
 export interface CheckoutProcessBackendResponse {
   orderId: number;
   orderNumber: string;
-  status: string;
+  orderStatus: string;
   totalAmount: number;
-  currency: string;
   paymentId: number;
-  paymentProvider: string;
-  paymentTransactionId: string;
-  clientSecret?: string;
+  paymentStatus: string;
+  gatewayOrderId: string;
+  keyId?: string;
   requiresAction: boolean;
   actionUrl?: string;
+  message: string;
 }
 
 export interface CheckoutVerifyPayload {
-  orderId: number;
-  paymentId: number;
-  transactionId: string;
-  providerSignature?: string;
-  rawResponsePayload?: string;
+  orderNumber: string;
+  gatewayPaymentId: string;
+  gatewaySignature?: string;
+  otp?: string;
 }
 
 export interface CheckoutVerifyBackendResponse {
-  orderId: number;
   orderNumber: string;
-  status: string;
+  orderStatus: string;
   paymentStatus: string;
-  paidAt: string;
-  estimatedDeliveryDate: string;
+  success: boolean;
+  message: string;
 }
 
 export interface CouponValidationBackendResponse {

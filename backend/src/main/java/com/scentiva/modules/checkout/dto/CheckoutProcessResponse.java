@@ -21,6 +21,7 @@ public class CheckoutProcessResponse {
     private Long paymentId;
     private PaymentStatus paymentStatus;
     private String gatewayOrderId;
+    private String keyId;
     private boolean requiresAction;
     private String actionUrl;
     private String message;

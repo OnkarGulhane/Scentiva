@@ -1,0 +1,47 @@
+spring:
+  config:
+    activate:
+      on-profile: supabase
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres.bpslvynnoegckkfjtsqo}
+    password: ${SPRING_DATASOURCE_PASSWORD:xt%X6!fMnNib6Z@}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 300000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+      pool-name: ScentivaSupabaseHikariCP
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+scentiva:
+  supabase:
+    url: "https://bpslvynnoegckkfjtsqo.supabase.co"
+    anon-key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwc2x2eW5ub2VnY2trZmp0c3FvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExOTgzNTUsImV4cCI6MjEwNjc3NDM1NX0.KubzzsUQfZzSEBLV2uHuu0xJ5BzgnnVhD98MtRW-HzU"
+    service-role-key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwc2x2eW5ub2VnY2trZmp0c3FvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MTE5ODM1NSwiZXhwIjoyMTA2Nzc0MzU1fQ.QKj2OKhwUMQced1mi7yClTq4JuqDF4benV9HgHip9cI"
+    storage:
+      bucket-name: "scentiva-media"
+      public-base-url: "https://bpslvynnoegckkfjtsqo.supabase.co/storage/v1/object/public/scentiva-media"
+  razorpay:
+    key-id: ${RAZORPAY_KEY_ID:rzp_test_TkFZU8ecNzFnCq}
+    key-secret: ${RAZORPAY_KEY_SECRET:Faa4K7iK16vfTXWf1bs6Wfmo}
+    currency: "INR"
+    company-name: "SCENTIVA Haute Parfumerie"
+    theme-color: "#321027"
+
+logging:
+  level:
+    root: INFO
+    com.scentiva: DEBUG
+    org.springframework.security: INFO
+    org.flywaydb: INFO

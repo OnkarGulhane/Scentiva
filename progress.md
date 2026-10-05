@@ -126,16 +126,28 @@
   - `API-FINAL-STATUS.md`
 - [x] **Git Commit:** `ce5e514`
 
+### 19. Supabase Database & Cloud Storage + Razorpay Payment Gateway Integration (Phase 19)
+- [x] **Supabase PostgreSQL 17 Integration:** Connected backend via session pooler, executed Flyway automatic migrations (`V1`, `V2`, `V3`), and populated 35 relational tables with master seed data.
+- [x] **Supabase Cloud Storage:** Verified public bucket `scentiva-media`, created `StorageService` and `MediaUploadController` (`/api/v1/media/upload`) with verified image upload and public CDN delivery.
+- [x] **Razorpay Payment Gateway:**
+  - Implemented `RazorpayPaymentProvider.java` implementing `PaymentProvider` SPI.
+  - Implemented live order generation against Razorpay API (`POST https://api.razorpay.com/v1/orders`).
+  - Implemented server-side HMAC SHA-256 signature verification with automatic order confirmation and stock deduction.
+  - Implemented luxury Razorpay Standard Checkout SDK loader and modal in Next.js (`src/lib/razorpay.ts` and `src/views/CheckoutPage.tsx`).
+- [x] **Verification:** 223 / 223 Java tests passing, 50 / 50 Next.js routes prerendered with 0 errors, live Razorpay order creation and signature verification tested.
+
 ---
 
 ## 📊 Summary Metrics
 
 | Metric | Measured Value |
 |---|---|
-| Total Phases Completed | 19 (Phases 0 to 18) |
+| Total Phases Completed | 20 (Phases 0 to 19) |
 | Backend Java Unit/Integration Tests | 223 / 223 Passed (100%) |
 | Live API Assertions Executed | 86 / 86 Passed (100%) |
 | Frontend Next.js Prerendered Routes | 50 / 50 Built Successfully |
-| PostgreSQL Relational Tables | 35 Tables |
+| PostgreSQL Relational Tables | 35 Tables (Active on Supabase) |
+| Cloud Storage | Supabase Storage (`scentiva-media`) Active |
+| Payment Gateway | Razorpay Live Test Mode Active (`rzp_test_TkFZU8ecNzFnCq`) |
 | Unresolved Critical/High Bugs | 0 |
 | Overall System Health | 100% Production Ready |

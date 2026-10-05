@@ -143,7 +143,7 @@ export interface Order {
   status: OrderStatus;
   trackingNumber: string;
   estimatedDelivery: string;
-  paymentMethod: 'UPI / QR' | 'Credit / Debit Card' | 'Net Banking' | 'Cash on Delivery';
+  paymentMethod: 'Razorpay Secure (UPI, Cards, NetBanking)' | 'Razorpay' | 'UPI / QR' | 'Credit / Debit Card' | 'Net Banking' | 'Cash on Delivery' | string;
   paymentStatus: 'Paid' | 'Pending' | 'Demo Confirmed';
   timeline: {
     status: OrderStatus;
