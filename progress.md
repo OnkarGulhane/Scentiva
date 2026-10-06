@@ -1,13 +1,14 @@
 # SCENTIVA — Daily Progress & Verification Log
-> **Date:** October 6, 2026  
-> **Status:** Full Modular Monolith Backend + Next.js 14 Storefront + Supabase PostgreSQL 17 & Cloud Storage + Razorpay Secure Payment Gateway + Google Identity Services OAuth 2.0 100% Completed & Verified (Phases 0–21).  
-> **Latest Git Commit:** `47c8941` on branch `main`  
-> **Deployment Architecture:** Next.js 14 on **Vercel** + Spring Boot 3.3.4 (Java 21) on **Render** + **Supabase PostgreSQL 17 & Storage** + **Razorpay Payment Gateway** + **Google OAuth 2.0**  
+> **Date:** October 7, 2026  
+> **Status:** Full Modular Monolith Backend + Next.js 14 Storefront + Scentiva AI Platform (FastAPI + pgvector + Multi-Lingual AI Assistant) + Supabase PostgreSQL 17 & Storage + Razorpay Gateway + Google OAuth 2.0 100% Completed & Verified (Phases 0–24).  
+> **Latest Git Commit:** `660f402` on branch `main`  
+> **Deployment Architecture:** Next.js 14 on **Vercel** + Spring Boot 3.3.4 (Java 21) on **Render** + Python AI Service (FastAPI) + **Supabase PostgreSQL 17 & Storage** + **Razorpay Payment Gateway** + **Google OAuth 2.0**  
 > **Build Status:** 
-> - **Backend:** 223 / 223 Java Tests Passing (`mvn test` -> 100% BUILD SUCCESS, 0 Failures, 0 Errors in 26.24s)  
+> - **Backend:** 236 / 236 Java Tests Passing (`mvn test` -> 100% BUILD SUCCESS, 0 Failures, 0 Errors)  
+> - **Python AI Service:** 21 / 21 Pytest Tests Passing (`pytest` -> 100% PASS, 0 Failures)  
 > - **Live Integration Tests:** 86 / 86 Assertions Passing (`node scratch/test_all_apis.js` -> 100% PASS, 0 Failures)  
 > - **Frontend:** 50 / 50 Static & Dynamic Routes Prerendered (`npm run build` -> Exit Code 0, 0 TypeScript Errors)  
-> - **Database:** Supabase PostgreSQL 17 active with 35 relational tables, triggers, and foreign keys.
+> - **Database:** Supabase PostgreSQL 17 active with 35 relational tables + pgvector RAG store.
 
 ---
 
@@ -185,17 +186,41 @@
   - Added "Tax Invoice" action buttons to `OrderSuccessPage.tsx`, `AccountOrdersPage.tsx`, `OrderTrackingPage.tsx`, and `AdminOrdersPage.tsx`.
 - [x] **Automated Verification:** Added `InvoiceServiceTest.java` and `InvoiceControllerTest.java` bringing backend tests to **236 / 236 (100% BUILD SUCCESS)** and all 50+ Next.js routes prerendered with 0 errors.
 
+### 24. Scentiva AI Platform & Multi-Lingual AI Assistant Engine (Phase 24)
+- [x] **Python AI Service Microservice (`ai-service/`):**
+  - Built with FastAPI (`main.py`) + LangChain + PostgreSQL `pgvector` vector store + Uvicorn server on port `8000`.
+  - Implemented deterministic & OpenAI LLM / Embeddings factories (`llm/factory.py`, `rag/embeddings.py`).
+  - Catalog querying & filtering tools (`tools/catalog_tools.py`) with strict price/stock verification and luxury budget fallbacks.
+  - Live customer order tracking & policy RAG search tools (`tools/order_tools.py`, `tools/policy_tools.py`).
+  - Query understanding and sensory intent parsing (`services/query_understanding.py`) for English, Marathi-English, and Hindi-English queries.
+  - Rate limiting, secret-redacted logging (`app_logging/logger.py`), and prompt injection guardrails (`validators/guardrails.py`).
+  - Pytest automated test suite: **21 / 21 unit & integration tests passing (100%)**.
+- [x] **Spring Boot 3.3.4 Backend AI Gateway Integration:**
+  - Flyway migration `V5__scentiva_pgvector_schema.sql` adding `pgvector` extension, `scentiva_rag_documents`, and `scentiva_ai_conversations`.
+  - Implemented `PythonAiServiceClient.java` with timeout handling and automatic graceful fallback to in-JVM `DefaultAiConciergeProvider`.
+  - `AiConciergeController.java` exposing unified `/api/v1/ai/assistant/chat`, `/semantic-search`, `/scent-finder`, `/recommendations`, `/support/chat`.
+  - JUnit test suite: **236 / 236 Java tests passing (100% BUILD SUCCESS)**.
+- [x] **Next.js 14 Multi-Lingual AI Assistant UI:**
+  - Rebranded AI component from "AI Concierge" to **"AI Assistant"** across the entire application.
+  - Built **3-Language Selector Switcher** (**English** | **मराठी** | **हिंदी**) in `ScentivaAiConciergeDrawer.tsx` header with dynamic localized greetings, prompt suggestion chips, and localized placeholders.
+  - Interactive direct action triggers ("Add to Bag" / "View Fragrance") from AI recommendations.
+  - Integrated `AiPersonalizedRail.tsx` on homepage, AI sensory search banner on `SearchPage.tsx`, and AI Scent Finder on `FragranceFinderPage.tsx`.
+  - Next.js build: **50 / 50 static and dynamic routes prerendered with 0 errors**.
+- [x] **Git Commit:** `660f402` on branch `main` (Pushed to GitHub).
+
 ---
 
 ## 📊 Summary Metrics
 
 | Metric | Measured Value |
 |---|---|
-| Total Phases Completed | 24 (Phases 0 to 23) |
+| Total Phases Completed | 25 (Phases 0 to 24) |
 | Backend Java Unit/Integration Tests | 236 / 236 Passed (100%) |
+| Python AI Service Unit/Integration Tests | 21 / 21 Passed (100%) |
 | Live API Assertions Executed | 86 / 86 Passed (100%) |
 | Frontend Next.js Prerendered Routes | 50 / 50 Built Successfully |
-| PostgreSQL Relational Tables | 35 Tables (Active on Supabase) |
+| PostgreSQL Relational Tables | 35 Tables + pgvector RAG (Active on Supabase) |
+| Multi-Lingual AI Assistant | English, Marathi (मराठी), Hindi (हिंदी) |
 | Cloud Storage | Supabase Storage (`scentiva-media`) Active |
 | Payment Gateway | Razorpay Live Test Mode Active (`rzp_test_TkFZU8ecNzFnCq`) |
 | Single Sign-On (SSO) | Google Identity Services OAuth 2.0 Active |
@@ -203,5 +228,6 @@
 | Invoice / PDF Engine | OpenPDF 2.0.3 Vector Engine + Client-Side A4 Print |
 | Unresolved Critical/High Bugs | 0 |
 | Overall System Health | 100% Production Ready |
+
 
 
