@@ -140,5 +140,13 @@ export const OrderService = {
     all[index] = updatedOrder;
     saveStoredOrders(all);
     return updatedOrder;
+  },
+
+  delete: (orderId: string): boolean => {
+    const all = getStoredOrders();
+    const cleanId = orderId.trim().toLowerCase();
+    const filtered = all.filter(o => o.id.toLowerCase() !== cleanId && o.orderNumber.toLowerCase() !== cleanId);
+    saveStoredOrders(filtered);
+    return true;
   }
 };

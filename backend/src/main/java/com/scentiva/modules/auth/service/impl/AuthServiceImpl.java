@@ -43,6 +43,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final com.scentiva.modules.notification.service.EmailService emailService;
 
     @Value("${scentiva.security.google.client-id:}")
     private String googleClientId;
@@ -76,6 +77,12 @@ public class AuthServiceImpl implements AuthService {
         customer = customerRepository.save(customer);
 
         log.info("Successfully registered new customer user: id={}, email={}", user.getId(), user.getEmail());
+
+        try {
+            emailService.sendWelcomeEmail(user.getEmail(), customer.getFirstName(), customer.getLoyaltyTier().name());
+        } catch (Exception ex) {
+            log.warn("Could not dispatch welcome email to {}: {}", user.getEmail(), ex.getMessage());
+        }
 
         // 3. Issue JWT Access Token
         String token = jwtTokenProvider.generateTokenFromUserIdAndEmail(user.getId(), user.getEmail(), user.getRole().name());
@@ -182,6 +189,11 @@ public class AuthServiceImpl implements AuthService {
                     customerRepository.save(newCustomer);
 
                     log.info("Created new customer account from Google OAuth: id={}, email={}", newUser.getId(), normalizedEmail);
+                    try {
+                        emailService.sendWelcomeEmail(normalizedEmail, finalGivenName, LoyaltyTier.BRONZE.name());
+                    } catch (Exception ex) {
+                        log.warn("Could not dispatch Google welcome email to {}: {}", normalizedEmail, ex.getMessage());
+                    }
                     return newUser;
                 });
 

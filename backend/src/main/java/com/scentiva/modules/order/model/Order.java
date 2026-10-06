@@ -54,6 +54,16 @@ public class Order extends BaseEntity {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "invoice_number", unique = true, length = 100)
+    private String invoiceNumber;
+
+    @Column(name = "invoice_generated_at")
+    private java.time.LocalDateTime invoiceGeneratedAt;
+
+    @Column(name = "invoice_status", length = 50)
+    @Builder.Default
+    private String invoiceStatus = "ISSUED";
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();

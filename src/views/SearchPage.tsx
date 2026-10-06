@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import { analytics } from '../services/analyticsService';
 
+import { AiApiService, SemanticSearchBackendResponse } from '../services/aiApiService';
+
 const FRAGRANCE_FAMILIES: FragranceFamily[] = [
   'Fresh',
   'Woody',
@@ -39,6 +41,8 @@ export const SearchPage: React.FC = () => {
 
   const queryParam = searchParams.get('q') || searchParams.get('search') || '';
   const [inputQuery, setInputQuery] = useState(queryParam);
+  const [semanticData, setSemanticData] = useState<SemanticSearchBackendResponse | null>(null);
+  const [isSemanticLoading, setIsSemanticLoading] = useState(false);
   
   // Filter States
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
@@ -48,14 +52,26 @@ export const SearchPage: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(8);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Sync input query with search param
+  // Sync input query with search param and run AI semantic search
   useEffect(() => {
     setInputQuery(queryParam);
     if (queryParam.trim()) {
       SearchService.addRecentSearch(queryParam);
       analytics.trackSearchStarted(queryParam.trim());
+
+      // Trigger AI Semantic Search
+      setIsSemanticLoading(true);
+      AiApiService.semanticSearch(queryParam.trim())
+        .then(res => {
+          setSemanticData(res);
+        })
+        .catch(err => console.debug('Semantic search background note:', err))
+        .finally(() => setIsSemanticLoading(false));
+    } else {
+      setSemanticData(null);
     }
   }, [queryParam]);
+
 
   const recentSearches = useMemo(() => SearchService.getRecentSearches(), [queryParam]);
 
@@ -201,6 +217,42 @@ export const SearchPage: React.FC = () => {
 
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        
+        {/* AI Semantic Search Insights Banner */}
+        {semanticData && (semanticData.detectedNotes?.length || semanticData.interpretedIntent) && (
+          <div className="mb-6 p-4 rounded-2xl bg-neutral-900 border border-brand-gold-500/30 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-brand-gold-500/20 border border-brand-gold-500/40 flex items-center justify-center text-brand-gold-400 shrink-0">
+                <Sparkles className="w-4 h-4 animate-pulse" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-brand-gold-400">
+                    AI Semantic Understanding
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-gold-500/10 text-brand-gold-300 border border-brand-gold-500/20">
+                    Natural Language
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-300 mt-0.5">
+                  {semanticData.interpretedIntent || `Interpreted olfactory intent for "${queryParam}"`}
+                </p>
+              </div>
+            </div>
+
+            {semanticData.detectedNotes && semanticData.detectedNotes.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 self-stretch md:self-auto">
+                <span className="text-[10px] uppercase font-bold text-neutral-400 mr-1">Detected Notes:</span>
+                {semanticData.detectedNotes.map(n => (
+                  <span key={n} className="px-2 py-0.5 rounded-md bg-neutral-800 border border-neutral-700 text-brand-gold-300 text-[11px] font-medium">
+                    {n}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Active Filter Chips & Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-neutral-200">
           <div className="flex items-center gap-2">
@@ -213,6 +265,7 @@ export const SearchPage: React.FC = () => {
               </span>
             )}
           </div>
+
 
           <div className="flex items-center gap-3">
             {/* Mobile Filter Toggle */}

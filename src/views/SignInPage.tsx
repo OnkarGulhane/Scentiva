@@ -5,9 +5,7 @@ import { useNavigate, useSearchParams, useLocation } from '@/hooks/useNavigation
 import { useStore } from '../context/StoreContext';
 import { getSafeRedirectUrl } from '@/lib/utils/url';
 import { Lock, Mail, User, Sparkles, ArrowRight, ShieldCheck, ShoppingBag, Loader2 } from 'lucide-react';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 const SignInContent: React.FC = () => {
   const { signIn, signUp, loginWithGoogle, showToast, cartCount } = useStore();
@@ -178,19 +176,11 @@ const SignInContent: React.FC = () => {
 
           {/* Quick Google OAuth Sign-In */}
           <div className="space-y-3">
-            <div className="flex justify-center w-full">
-              <div className="w-full flex justify-center [&>div]:!w-full [&>div>div]:!w-full [&>div>div]:!justify-center shadow-xs hover:shadow-card transition-all rounded-full overflow-hidden">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  theme="outline"
-                  size="large"
-                  shape="pill"
-                  text="continue_with"
-                  width="100%"
-                />
-              </div>
-            </div>
+            <GoogleSignInButton
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              isSubmitting={isSubmitting}
+            />
 
             <div className="relative flex items-center justify-center my-3">
               <div className="absolute inset-0 flex items-center">
@@ -403,10 +393,6 @@ const SignInContent: React.FC = () => {
 };
 
 export const SignInPage: React.FC = () => {
-  return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <SignInContent />
-    </GoogleOAuthProvider>
-  );
+  return <SignInContent />;
 };
 

@@ -91,4 +91,12 @@ public class OrderController {
         ApiPaginatedResponse<OrderSummaryResponse> response = orderService.getAllOrders(status, pageable);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{orderNumber}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'PRODUCT_MANAGER')")
+    @Operation(summary = "Delete order (Admin)", description = "Soft deletes/cancels an order from the active management ledger.")
+    public ResponseEntity<ApiResponse<Void>> deleteOrder(@PathVariable String orderNumber) {
+        orderService.deleteOrder(orderNumber);
+        return ResponseEntity.ok(ApiResponse.ok(null, "Order deleted successfully"));
+    }
 }

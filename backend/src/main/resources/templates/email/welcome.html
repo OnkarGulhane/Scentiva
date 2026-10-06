@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to SCENTIVA Privé</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #FAF8F7; margin: 0; padding: 24px 12px; color: #1D171B; }
+        .wrapper { max-width: 620px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; overflow: hidden; border: 1px solid #E4DCDA; box-shadow: 0 4px 20px rgba(50, 16, 39, 0.06); }
+        .header { background: linear-gradient(135deg, #321027 0%, #451333 100%); padding: 40px 30px; text-align: center; }
+        .brand-title { color: #C7A66A; font-family: 'Georgia', serif; font-size: 28px; letter-spacing: 5px; font-weight: 700; margin: 0; text-transform: uppercase; }
+        .brand-subtitle { color: #E9B7D8; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
+        .content { padding: 36px 32px; }
+        .greeting { font-family: 'Georgia', serif; font-size: 22px; color: #321027; margin: 0 0 14px 0; font-weight: 600; }
+        .lead-text { color: #5B4E56; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+        .tier-badge { display: inline-block; background: #FAF8F7; border: 1px solid #C7A66A; color: #5B1B43; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; letter-spacing: 1px; margin-bottom: 20px; }
+        .btn-cta { display: block; text-align: center; background: #321027; color: #C7A66A !important; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-weight: 600; font-size: 13px; letter-spacing: 1.5px; border: 1px solid #C7A66A; margin: 24px 0; }
+        .footer { background: #F2EEEC; padding: 24px; text-align: center; font-size: 12px; color: #7A6E75; border-top: 1px solid #E4DCDA; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <h1 class="brand-title">SCENTIVA</h1>
+            <div class="brand-subtitle">Haute Parfumerie • Privé Club</div>
+        </div>
+
+        <div class="content">
+            <div class="greeting">Welcome to Haute Parfumerie, <span th:text="${customerName}">Connoisseur</span></div>
+            <p class="lead-text">
+                We are delighted to welcome you to the world of SCENTIVA. As a member of our fragrance circle, you have been inducted into the:
+            </p>
+
+            <div style="text-align: center;">
+                <div class="tier-badge">
+                    ✦ <span th:text="${loyaltyTier}">BRONZE</span> PRIVÉ MEMBER ✦
+                </div>
+            </div>
+
+            <p class="lead-text">
+                Enjoy curated access to rare extraits de parfum, artisanal perfumer notes, early access to private reserves, and tailored scent profiles.
+            </p>
+
+            <a th:href="${portalUrl}" class="btn-cta">EXPLORE YOUR PRIVÉ PORTAL</a>
+        </div>
+
+        <div class="footer">
+            <p><strong>SCENTIVA HAUTE PARFUMERIE</strong></p>
+            <p>© 2026 SCENTIVA Inc. Pune • Mumbai • New Delhi • Paris</p>
+        </div>
+    </div>
+</body>
+</html>

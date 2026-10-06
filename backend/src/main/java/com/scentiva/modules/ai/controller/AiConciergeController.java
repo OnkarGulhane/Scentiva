@@ -45,6 +45,35 @@ public class AiConciergeController {
         return ResponseEntity.ok(ApiResponse.ok(response, "Semantic search results"));
     }
 
+    @PostMapping("/assistant/chat")
+    @Operation(summary = "AI Shopping Assistant", description = "Understands natural language shopping queries, extracts olfactory constraints, and returns verified real catalog recommendations.")
+    public ResponseEntity<ApiResponse<AiAssistantChatResponse>> assistantChat(@Valid @RequestBody AiAssistantChatRequest request) {
+        AiAssistantChatResponse response = aiConciergeService.assistantChat(request);
+        return ResponseEntity.ok(ApiResponse.ok(response, "Assistant response generated"));
+    }
+
+    @GetMapping("/recommendations")
+    @Operation(summary = "Personalized AI Recommendations", description = "Generates recommendations based on user history, viewed items, wishlist, and olfactory preferences.")
+    public ResponseEntity<ApiResponse<AiRecommendationResponse>> getRecommendations(
+            @RequestParam(required = false) String userId,
+            @RequestParam(required = false) java.util.List<String> viewed,
+            @RequestParam(required = false) java.util.List<String> cart,
+            @RequestParam(required = false) java.util.List<String> wishlist,
+            @RequestParam(required = false) java.util.List<String> brands,
+            @RequestParam(required = false) java.util.List<String> families,
+            @RequestParam(defaultValue = "4") int limit) {
+        AiRecommendationResponse response = aiConciergeService.getPersonalizedRecommendations(
+                userId, viewed, cart, wishlist, brands, families, limit);
+        return ResponseEntity.ok(ApiResponse.ok(response, "Recommendations retrieved"));
+    }
+
+    @PostMapping("/support/chat")
+    @Operation(summary = "AI Customer Support Chat", description = "Customer service assistant answering policy, shipping, return and live authenticated order tracking inquiries.")
+    public ResponseEntity<ApiResponse<AiSupportChatResponse>> supportChat(@Valid @RequestBody AiSupportChatRequest request) {
+        AiSupportChatResponse response = aiConciergeService.supportChat(request);
+        return ResponseEntity.ok(ApiResponse.ok(response, "Support response generated"));
+    }
+
     @PostMapping("/concierge/chat")
     @Operation(summary = "AI Fragrance Concierge Chat", description = "Conversational perfumery assistance, advice and fragrance discovery.")
     public ResponseEntity<ApiResponse<AiChatResponse>> chat(@Valid @RequestBody AiChatRequest request) {
@@ -68,3 +97,4 @@ public class AiConciergeController {
         return ResponseEntity.ok(ApiResponse.ok(response, "Sentiment analysis summarized"));
     }
 }
+

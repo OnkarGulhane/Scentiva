@@ -1,0 +1,66 @@
+[
+  {
+    "id": "b-dior",
+    "name": "Christian Dior",
+    "slug": "christian-dior",
+    "origin_country": "France",
+    "tier": "Prestige",
+    "description": "House of Dior creates iconic couture fragrances rooted in French savoir-faire and pure raw materials from Grasse."
+  },
+  {
+    "id": "b-chanel",
+    "name": "CHANEL",
+    "slug": "chanel",
+    "origin_country": "France",
+    "tier": "Prestige",
+    "description": "Legendary Parisian perfumery house celebrated for revolutionary elegance, timeless accords, and proprietary jasmine and rose fields."
+  },
+  {
+    "id": "b-creed",
+    "name": "House of Creed",
+    "slug": "house-of-creed",
+    "origin_country": "France / UK",
+    "tier": "Niche Luxury",
+    "description": "Established in 1760, crafting aristocratic fragrances through time-honored infusion and millésime artisan techniques."
+  },
+  {
+    "id": "b-tom-ford",
+    "name": "Tom Ford",
+    "slug": "tom-ford",
+    "origin_country": "United States",
+    "tier": "Prestige / Private Blend",
+    "description": "Glamorous, provocative, and opulent perfumery engineered to captivate and command immediate distinction."
+  },
+  {
+    "id": "b-mfk",
+    "name": "Maison Francis Kurkdjian",
+    "slug": "maison-francis-kurkdjian",
+    "origin_country": "France",
+    "tier": "Niche Ultra-Luxury",
+    "description": "A prestigious Parisian atelier known for luminous olfactory architecture, crystalline sillage, and exquisite raw resins."
+  },
+  {
+    "id": "b-ysl",
+    "name": "Yves Saint Laurent",
+    "slug": "yves-saint-laurent",
+    "origin_country": "France",
+    "tier": "Prestige",
+    "description": "Bold, rebellious Parisian luxury combining unexpected contrasts of Diva lavender and Moroccan orange blossom."
+  },
+  {
+    "id": "b-versace",
+    "name": "Versace",
+    "slug": "versace",
+    "origin_country": "Italy",
+    "tier": "Prestige",
+    "description": "Italian haute couture perfumery celebrating Greek mythology, passionate citrus, and intense woody vibrance."
+  },
+  {
+    "id": "b-armani",
+    "name": "Giorgio Armani",
+    "slug": "giorgio-armani",
+    "origin_country": "Italy",
+    "tier": "Prestige",
+    "description": "Italian refinement capturing the elemental purity of the Mediterranean sea, mineral rocks, and volcanic woods."
+  }
+]

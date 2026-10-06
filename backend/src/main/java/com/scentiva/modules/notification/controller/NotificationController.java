@@ -25,6 +25,33 @@ import org.springframework.web.bind.annotation.*;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final com.scentiva.modules.notification.service.EmailService emailService;
+
+    @PostMapping("/test-email")
+    @Operation(summary = "Send test luxury email", description = "Dispatches a live test email using the configured provider (Resend/Gmail SMTP).")
+    public ResponseEntity<ApiResponse<String>> sendTestEmail(@Valid @RequestBody com.scentiva.modules.notification.dto.EmailTestRequest request) {
+        String type = (request.getTemplateType() != null && !request.getTemplateType().isBlank())
+                ? request.getTemplateType().toLowerCase() : "order-confirmed";
+        String name = (request.getCustomerName() != null && !request.getCustomerName().isBlank())
+                ? request.getCustomerName() : "Connoisseur";
+
+        switch (type) {
+            case "welcome" -> emailService.sendWelcomeEmail(request.getTo(), name, "GOLD");
+            case "order-shipped" -> emailService.sendOrderShippedEmail(
+                    request.getTo(), name, "SC-2026-TEST-777", "Luxury Express Apex", "SC-TRK-99881", "http://localhost:3000/orders/SC-2026-TEST-777");
+            case "order-delivered" -> emailService.sendOrderDeliveredEmail(
+                    request.getTo(), name, "SC-2026-TEST-777", "http://localhost:3000/account");
+            case "order-cancelled" -> emailService.sendOrderCancelledEmail(
+                    request.getTo(), name, "SC-2026-TEST-777", new java.math.BigDecimal("18500.00"));
+            case "password-reset" -> emailService.sendPasswordResetEmail(
+                    request.getTo(), name, "test-token-uuid-12345", "http://localhost:3000/auth/reset-password?token=test-token-uuid-12345");
+            default -> emailService.sendOrderConfirmationEmail(
+                    request.getTo(), name, "SC-2026-TEST-777", new java.math.BigDecimal("18500.00"),
+                    "http://localhost:3000/orders/SC-2026-TEST-777", null, "Aura Prestige Towers, Baner, Pune 411045");
+        }
+
+        return ResponseEntity.ok(ApiResponse.ok("Test email dispatched to " + request.getTo() + " using template: " + type, "Dispatched successfully"));
+    }
 
     @GetMapping
     @Operation(summary = "Get customer notifications", description = "Retrieves paginated notifications for the logged in customer.")

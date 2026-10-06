@@ -19,3 +19,9 @@ logging:
   level:
     root: INFO
     com.scentiva: DEBUG
+
+scentiva:
+  mail:
+    provider: mock
+    enabled: true
+

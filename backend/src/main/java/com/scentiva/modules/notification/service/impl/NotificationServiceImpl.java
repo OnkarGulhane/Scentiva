@@ -31,6 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final CustomerRepository customerRepository;
+    private final com.scentiva.modules.notification.service.EmailService emailService;
 
     @Override
     @Transactional
@@ -52,6 +53,10 @@ public class NotificationServiceImpl implements NotificationService {
         notification = notificationRepository.save(notification);
         log.info("Dispatched notification id={} to customer={}, subject='{}'",
                 notification.getId(), customer.getUser().getEmail(), notification.getSubject());
+
+        if (notification.getChannel() == NotificationChannel.EMAIL && customer.getUser() != null && customer.getUser().getEmail() != null) {
+            emailService.sendHtmlEmail(customer.getUser().getEmail(), notification.getSubject(), notification.getMessageBody());
+        }
 
         return mapToNotificationResponse(notification);
     }
@@ -151,6 +156,23 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.save(notification);
         log.info("Saved automated order notification for order={}, event={}", event.getOrderNumber(), event.getEventType());
+
+        if (customer.getUser() != null && customer.getUser().getEmail() != null) {
+            String recipientEmail = customer.getUser().getEmail();
+            String customerName = customer.getFirstName();
+
+            switch (event.getEventType()) {
+                case "CONFIRMED" -> emailService.sendOrderConfirmationEmail(
+                        recipientEmail, customerName, event.getOrderNumber(), event.getTotalAmount(), null, null, null);
+                case "SHIPPED" -> emailService.sendOrderShippedEmail(
+                        recipientEmail, customerName, event.getOrderNumber(), event.getCarrierName(), event.getTrackingNumber(), null);
+                case "DELIVERED" -> emailService.sendOrderDeliveredEmail(
+                        recipientEmail, customerName, event.getOrderNumber(), null);
+                case "CANCELLED" -> emailService.sendOrderCancelledEmail(
+                        recipientEmail, customerName, event.getOrderNumber(), event.getTotalAmount());
+                default -> emailService.sendHtmlEmail(recipientEmail, subject, body);
+            }
+        }
     }
 
     private Customer getCustomerByEmail(String email) {

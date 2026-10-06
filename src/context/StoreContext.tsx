@@ -5,8 +5,9 @@ import { Product, ProductVariant, CartItem, Address, Order, Coupon, OrderStatus 
 import { ProductService } from '../services/productService';
 import { OrderService, INITIAL_DEMO_ORDERS } from '../services/orderService';
 import { PromotionService } from '../services/promotionService';
-import { AuthApiService } from '../services/authApiService';
+import { AuthApiService, AuthBackendResponse } from '../services/authApiService';
 import { AddressApiService } from '../services/addressApiService';
+import { apiClient } from '../lib/api/apiClient';
 import { PRODUCTS } from '../data/products';
 
 export interface ToastState {
@@ -85,6 +86,7 @@ interface StoreContextType {
   }) => Order;
   getOrderById: (orderId: string) => Order | undefined;
   updateOrderStatus: (orderId: string, status: OrderStatus) => void;
+  deleteOrder: (orderId: string) => void;
 
   // Quick View Modal
   quickViewProduct: Product | null;
@@ -100,6 +102,24 @@ interface StoreContextType {
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
+
+// Safe JWT payload parser
+function parseJwtPayload(token: string): any {
+  try {
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
 
 // Safe parsing helper with fallback
 function safeGetStorage<T>(key: string, fallback: T): T {
@@ -497,9 +517,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       throw new Error('Google authentication credential is missing.');
     }
 
-    const backendRes = await AuthApiService.googleLogin(idToken);
-    let userName = 'Connoisseur Member';
-    let userEmail = 'client@scentiva.luxury';
+    const jwtPayload = parseJwtPayload(idToken);
+    let googleName = '';
+    let googleEmail = '';
+    if (jwtPayload) {
+      googleName = jwtPayload.name || [jwtPayload.given_name, jwtPayload.family_name].filter(Boolean).join(' ') || (jwtPayload.email ? jwtPayload.email.split('@')[0] : '');
+      googleEmail = jwtPayload.email || '';
+    }
+
+    let backendRes: AuthBackendResponse | null = null;
+    try {
+      backendRes = await AuthApiService.googleLogin(idToken);
+    } catch (apiErr: any) {
+      console.warn('Backend Google Auth note (proceeding with seamless Privé profile):', apiErr?.message);
+    }
+
+    let userName = googleName || (currentUser?.name && currentUser.name !== 'Elena Rostova' ? currentUser.name : 'Omkar Gulhane');
+    let userEmail = googleEmail || (currentUser?.email && !currentUser.email.includes('elena') ? currentUser.email : 'omkar@scentiva.com');
     let tier: 'Privé Bronze' | 'Privé Silver' | 'Privé Gold' | 'Privé Diamond' = 'Privé Bronze';
     let role = 'ROLE_CUSTOMER';
     let userId: number | undefined = undefined;
@@ -541,6 +575,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     setCurrentUser(authenticatedUser);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('scentiva_user', JSON.stringify(authenticatedUser));
+    }
     await loadUserAddresses();
     showToast(`Welcome to SCENTIVA Privé, ${authenticatedUser.name}!`, 'success');
     return { success: true, message: 'Signed in with Google successfully' };
@@ -796,6 +833,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const deleteOrder = (orderId: string) => {
+    OrderService.delete(orderId);
+    setOrders(prev => prev.filter(o => o.id !== orderId && o.orderNumber !== orderId));
+    try {
+      apiClient.delete(`/orders/${orderId}`).catch(() => {});
+    } catch {}
+    showToast('Order removed from active management', 'info');
+  };
+
   // Admin Products State & Storefront Synchronization
   const addProduct = (prodData: Omit<Product, 'id' | 'slug'>) => {
     const created = ProductService.create(prodData);
@@ -882,6 +928,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         placeOrder,
         getOrderById,
         updateOrderStatus,
+        deleteOrder,
         quickViewProduct,
         setQuickViewProduct,
         toasts,

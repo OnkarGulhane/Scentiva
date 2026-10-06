@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useSearchParams } from '@/hooks/useNavigation';
 import { Link } from '@/components/common/Link';
 import { useStore } from '../context/StoreContext';
-import { CheckCircle2, Sparkles, Package, Truck, ArrowRight, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Sparkles, Package, Truck, ArrowRight, ShieldCheck, FileText } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const OrderSuccessPage: React.FC = () => {
@@ -59,15 +59,22 @@ export const OrderSuccessPage: React.FC = () => {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
             <Link
+              to={`/account/orders/${order.orderNumber || order.id}/invoice`}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-[#C7A66A] hover:bg-[#b5955a] text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-all"
+            >
+              <FileText className="w-4 h-4" />
+              <span>View Tax Invoice</span>
+            </Link>
+            <Link
               to={`/account/orders/${order.id}`}
-              className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-brand-plum-900 hover:bg-brand-plum-800 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-md transition-all"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-brand-plum-900 hover:bg-brand-plum-800 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-md transition-all"
             >
               <Truck className="w-4 h-4" />
               <span>Track Live Delivery</span>
             </Link>
             <Link
               to="/shop"
-              className="w-full sm:w-auto px-7 py-3.5 rounded-full border border-neutral-300 text-neutral-800 hover:bg-neutral-100 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-full border border-neutral-300 text-neutral-800 hover:bg-neutral-100 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
             >
               <span>Continue Shopping</span>
               <ArrowRight className="w-4 h-4" />

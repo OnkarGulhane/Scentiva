@@ -1,0 +1,32 @@
+[
+  {
+    "topic": "Shipping Policy",
+    "category": "shipping",
+    "title": "SCENTIVA Temperature-Controlled Luxury Transit & Expedited Dispatch",
+    "content": "All orders placed on SCENTIVA are packaged in thermal-insulated luxury coffrets and dispatched within 24 hours from our climate-controlled vault in Pune, Maharashtra. We partner with Bluedart Apex, Delhivery Express, and Air Courier Services to guarantee transit across Tier 1 and Tier 2 cities in India within 2-4 business days. Free shipping applies automatically to all orders above ₹999."
+  },
+  {
+    "topic": "Returns & Replacement Policy",
+    "category": "returns",
+    "title": "SCENTIVA 7-Day Privilege Return with Discovery Sample Guard",
+    "content": "To preserve product hygiene and collector flacon integrity, full-size bottles are returnable within 7 calendar days from delivery provided the outer cellophane and holographic security seal remain completely unbroken. You may freely use the included 2ml discovery spray to test the scent on your skin. If broken, damaged in transit, or incorrect, doorstep exchange is arranged with zero friction."
+  },
+  {
+    "topic": "Refunds Policy",
+    "category": "refunds",
+    "title": "Instant Gateway Reversals & Bank Transfer Refund Protocols",
+    "content": "Refunds for pre-paid orders cancelled before dispatch are initiated instantly via Razorpay to the source account (UPI / Debit / Credit / NetBanking) and settle in 24-48 hours. Returns collected from your doorstep are inspected within 24 hours of arrival at our fulfillment atelier, and refunds are released within 3-5 business days."
+  },
+  {
+    "topic": "Authenticity Guarantee",
+    "category": "authenticity",
+    "title": "100% Brand-Authorized Origin & Batch Code Verification",
+    "content": "SCENTIVA guarantees 100% authenticity on every single bottle. We source directly from official brand ateliers in France, Italy, UK, and authorized master distributors. Each package features verified batch codes matching the flacon base, tamper-proof security holograms, and an official Digital Certificate of Authenticity accessible in your account."
+  },
+  {
+    "topic": "Payments & Security",
+    "category": "payments",
+    "title": "PCI-DSS Level 1 256-Bit Encrypted Payment Processing",
+    "content": "All transactions are secured by 256-bit SSL encryption via Razorpay. We support UPI (Google Pay, PhonePe, Paytm), Visa, MasterCard, American Express, RuPay, Net Banking, and Cash on Delivery for eligible pincodes."
+  }
+]

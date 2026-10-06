@@ -37,6 +37,9 @@ public class OrderResponse {
     private PaymentStatus paymentStatus;
     private PaymentMethod paymentMethod;
     private ShipmentResponse shipment;
+    private String invoiceNumber;
+    private LocalDateTime invoiceGeneratedAt;
+    private String invoiceStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

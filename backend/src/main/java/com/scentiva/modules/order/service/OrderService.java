@@ -19,4 +19,6 @@ public interface OrderService {
     ApiPaginatedResponse<OrderSummaryResponse> getAllOrders(OrderStatus status, Pageable pageable);
 
     ShipmentTrackingResponse trackOrder(String email, String orderNumber);
+
+    void deleteOrder(String orderNumber);
 }

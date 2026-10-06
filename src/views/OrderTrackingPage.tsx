@@ -14,7 +14,8 @@ import {
   ShieldCheck, 
   ArrowLeft,
   Phone,
-  Sparkles
+  Sparkles,
+  FileText
 } from 'lucide-react';
 
 export const OrderTrackingPage: React.FC = () => {
@@ -62,7 +63,7 @@ export const OrderTrackingPage: React.FC = () => {
     <div className="min-h-screen bg-neutral-50 py-10 lg:py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Navigation */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <Link
             to="/account/orders"
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-600 hover:text-brand-plum-900 transition-colors"
@@ -71,9 +72,19 @@ export const OrderTrackingPage: React.FC = () => {
             <span>Back to Orders</span>
           </Link>
 
-          <span className="text-xs bg-brand-blush-100 text-brand-plum-900 font-bold px-3 py-1 rounded-full border border-brand-blush-300">
-            {order.status}
-          </span>
+          <div className="flex items-center gap-3">
+            <Link
+              to={`/account/orders/${order.orderNumber || order.id}/invoice`}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-1.5 rounded-full border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-800 shadow-xs transition-colors"
+            >
+              <FileText className="w-3.5 h-3.5 text-[#8C6B28]" />
+              <span>View Tax Invoice</span>
+            </Link>
+
+            <span className="text-xs bg-brand-blush-100 text-brand-plum-900 font-bold px-3 py-1.5 rounded-full border border-brand-blush-300">
+              {order.status}
+            </span>
+          </div>
         </div>
 
         {/* Tracking Header Box */}

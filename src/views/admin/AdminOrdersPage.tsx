@@ -3,11 +3,11 @@
 import React, { useState } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { OrderStatus } from '../../types';
-import { ShoppingBag, CheckCircle2, Truck, Eye, Search } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, Truck, Eye, Search, FileText, Trash2 } from 'lucide-react';
 import { Link } from '@/components/common/Link';
 
 export const AdminOrdersPage: React.FC = () => {
-  const { orders, updateOrderStatus, formatPrice } = useStore();
+  const { orders, updateOrderStatus, deleteOrder, formatPrice } = useStore();
   const [selectedStatus, setSelectedStatus] = useState<string>('All');
   const [search, setSearch] = useState('');
 
@@ -83,7 +83,7 @@ export const AdminOrdersPage: React.FC = () => {
                 <th className="py-3.5 px-4">Perfumes Ordered</th>
                 <th className="py-3.5 px-4">Total Value</th>
                 <th className="py-3.5 px-4">Status & Update</th>
-                <th className="py-3.5 px-4 text-right">Live Track</th>
+                <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
@@ -125,13 +125,36 @@ export const AdminOrdersPage: React.FC = () => {
                     </select>
                   </td>
                   <td className="py-3 px-4 text-right">
-                    <Link
-                      to={`/account/orders/${order.id}`}
-                      className="inline-flex items-center gap-1 text-xs text-brand-plum-900 font-semibold hover:underline"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Track</span>
-                    </Link>
+                    <div className="flex items-center justify-end gap-3">
+                      <Link
+                        to={`/account/orders/${order.orderNumber || order.id}/invoice`}
+                        className="inline-flex items-center gap-1 text-xs text-[#8C6B28] hover:text-[#72551e] font-semibold"
+                        title="View / Print Tax Invoice"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Invoice</span>
+                      </Link>
+                      <Link
+                        to={`/account/orders/${order.id}`}
+                        className="inline-flex items-center gap-1 text-xs text-brand-plum-900 font-semibold hover:underline"
+                        title="Track Shipment Details"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Track</span>
+                      </Link>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to delete and remove order "${order.orderNumber}"?`)) {
+                            deleteOrder(order.id);
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 text-xs text-rose-600 hover:text-rose-800 font-semibold transition-colors"
+                        title="Delete Order"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

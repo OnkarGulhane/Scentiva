@@ -46,3 +46,24 @@ target/
 hs_err_pid*
 replay_pid*
 
+# Python & AI service
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ai-service/.env
+ai-service/venv/
+ai-service/.venv/
+ai-service/__pycache__/
+ai-service/**/__pycache__/
+.pytest_cache/
+ai-service/.pytest_cache/
+.coverage
+htmlcov/
+scratch/
+
+

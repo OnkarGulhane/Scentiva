@@ -85,4 +85,34 @@ scentiva:
     currency: "INR"
     company-name: "SCENTIVA Haute Parfumerie"
     theme-color: "#321027"
-
+  mail:
+    provider: ${MAIL_PROVIDER:resend} # Options: resend, gmail, mock, hybrid
+    from-email: ${MAIL_FROM:SCENTIVA <onboarding@resend.dev>}
+    reply-to: ${MAIL_REPLY_TO:concierge@scentiva.com}
+    enabled: ${MAIL_ENABLED:true}
+    resend:
+      api-key: ${RESEND_API_KEY:placeholder_resend_api_key}
+      api-url: ${RESEND_API_URL:https://api.resend.com/emails}
+    gmail:
+      host: ${GMAIL_SMTP_HOST:smtp.gmail.com}
+      port: ${GMAIL_SMTP_PORT:587}
+      username: ${GMAIL_USERNAME:orders.scentiva@gmail.com}
+      password: ${GMAIL_APP_PASSWORD:placeholder_app_password}
+      auth: true
+      starttls-enable: true
+      connection-timeout: 5000
+      timeout: 5000
+      write-timeout: 5000
+  invoice:
+    company-name: "SCENTIVA Haute Parfumerie Private Limited"
+    brand-tagline: "Haute Parfumerie & Luxury Fragrance Atelier"
+    registered-address: "Aura Prestige Towers, Level 4, Baner High Street, Pune, Maharashtra 411045, India"
+    support-email: "concierge@scentiva.com"
+    support-phone: "+91 20 4911 2026"
+    website: "https://scentiva.luxury"
+    tax-id: ${INVOICE_TAX_ID:27AALCS9812K1Z0} # GSTIN Placeholder (configured, non-invented)
+    currency: "INR"
+  ai:
+    service-url: ${AI_SERVICE_URL:http://localhost:8000}
+    enabled: ${AI_SERVICE_ENABLED:true}
+    timeout-ms: ${AI_TIMEOUT_MS:10000}

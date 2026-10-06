@@ -3,7 +3,7 @@
 import React from 'react';
 import { Link } from '@/components/common/Link';
 import { useStore } from '../context/StoreContext';
-import { Package, ChevronRight, Truck, ArrowLeft, Clock, ShieldCheck } from 'lucide-react';
+import { Package, ChevronRight, Truck, ArrowLeft, Clock, ShieldCheck, FileText } from 'lucide-react';
 
 export const AccountOrdersPage: React.FC = () => {
   const { orders, formatPrice } = useStore();
@@ -114,13 +114,22 @@ export const AccountOrdersPage: React.FC = () => {
                     <span>Tracking Number: <strong className="text-neutral-800 font-mono">{order.trackingNumber}</strong></span>
                   </div>
 
-                  <Link
-                    to={`/account/orders/${order.id}`}
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-brand-plum-900 text-white text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-brand-plum-800 transition-colors shadow-xs"
-                  >
-                    <span>Track Shipment Timeline</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Link
+                      to={`/account/orders/${order.orderNumber || order.id}/invoice`}
+                      className="flex-1 sm:flex-initial px-4 py-2.5 rounded-full border border-neutral-300 text-neutral-800 hover:bg-neutral-50 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-[#8C6B28]" />
+                      <span>Tax Invoice</span>
+                    </Link>
+                    <Link
+                      to={`/account/orders/${order.id}`}
+                      className="flex-1 sm:flex-initial px-5 py-2.5 rounded-full bg-brand-plum-900 text-white text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-brand-plum-800 transition-colors shadow-xs"
+                    >
+                      <span>Track Shipment</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}

@@ -68,6 +68,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final ObjectMapper objectMapper;
+    private final com.scentiva.modules.notification.service.NotificationService notificationService;
 
     @org.springframework.beans.factory.annotation.Value("${scentiva.razorpay.key-id:rzp_test_TkFZU8ecNzFnCq}")
     private String razorpayKeyId;
@@ -345,6 +346,19 @@ public class CheckoutServiceImpl implements CheckoutService {
             }
 
             cartService.clearCart(email, null);
+
+            try {
+                notificationService.handleOrderNotification(com.scentiva.modules.notification.event.OrderNotificationEvent.builder()
+                        .customerId(customer.getId())
+                        .customerEmail(email)
+                        .customerName(customer.getFirstName())
+                        .orderNumber(order.getOrderNumber())
+                        .eventType("CONFIRMED")
+                        .totalAmount(order.getTotalAmount())
+                        .build());
+            } catch (Exception e) {
+                log.warn("Failed to dispatch order confirmation notification for order={}: {}", order.getOrderNumber(), e.getMessage());
+            }
         }
 
         log.info("Processed checkout for order={}, status={}, totalAmount={}", order.getOrderNumber(), order.getStatus(), order.getTotalAmount());
@@ -397,6 +411,20 @@ public class CheckoutServiceImpl implements CheckoutService {
                 }
 
                 cartService.clearCart(email, null);
+
+                try {
+                    Customer customer = order.getCustomer();
+                    notificationService.handleOrderNotification(com.scentiva.modules.notification.event.OrderNotificationEvent.builder()
+                            .customerId(customer.getId())
+                            .customerEmail(email)
+                            .customerName(customer.getFirstName())
+                            .orderNumber(order.getOrderNumber())
+                            .eventType("CONFIRMED")
+                            .totalAmount(order.getTotalAmount())
+                            .build());
+                } catch (Exception e) {
+                    log.warn("Failed to dispatch order confirmation notification for order={}: {}", order.getOrderNumber(), e.getMessage());
+                }
             }
 
             return CheckoutVerifyResponse.builder()

@@ -5,9 +5,10 @@ import { useNavigate, useSearchParams, useLocation } from '@/hooks/useNavigation
 import { useStore } from '../context/StoreContext';
 import { getSafeRedirectUrl } from '@/lib/utils/url';
 import { Lock, Mail, User, Sparkles, ArrowRight, ShieldCheck, ShoppingBag, Loader2 } from 'lucide-react';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 export const SignUpPage: React.FC = () => {
-  const { signIn, signUp, showToast, cartCount } = useStore();
+  const { signIn, signUp, loginWithGoogle, showToast, cartCount } = useStore();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -32,6 +33,29 @@ export const SignUpPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    if (!credentialResponse?.credential) {
+      showToast('Google authentication failed. No credential received.', 'error');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const res = await loginWithGoogle(credentialResponse.credential);
+      if (res.success) {
+        const destination = getSafeRedirectUrl(redirectParam, '/account');
+        navigate(destination);
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Google sign-in failed. Please try again.', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    showToast('Google sign-in was cancelled or encountered an error.', 'error');
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,6 +151,24 @@ export const SignUpPage: React.FC = () => {
 
         {/* Form Container */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200 shadow-modal space-y-6">
+          {/* Quick Google OAuth Sign-In */}
+          <div className="space-y-3">
+            <GoogleSignInButton
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              isSubmitting={isSubmitting}
+            />
+
+            <div className="relative flex items-center justify-center my-3">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-neutral-200" />
+              </div>
+              <span className="relative bg-white px-3 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
+                Or register with email
+              </span>
+            </div>
+          </div>
+
           {/* Dual Segmented Tabs */}
           <div className="flex rounded-2xl bg-neutral-100 p-1 border border-neutral-200/80">
             <button

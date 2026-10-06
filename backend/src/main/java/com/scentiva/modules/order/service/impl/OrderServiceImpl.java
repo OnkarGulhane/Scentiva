@@ -48,6 +48,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentRepository paymentRepository;
     private final PaymentService paymentService;
     private final ShipmentRepository shipmentRepository;
+    private final com.scentiva.modules.notification.service.NotificationService notificationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -142,6 +143,20 @@ public class OrderServiceImpl implements OrderService {
 
         log.info("Cancelled order={}, previousStatus={}, reason={}", order.getOrderNumber(), originalStatus, request.getReason());
 
+        try {
+            Customer customer = order.getCustomer();
+            notificationService.handleOrderNotification(com.scentiva.modules.notification.event.OrderNotificationEvent.builder()
+                    .customerId(customer.getId())
+                    .customerEmail(customer.getUser() != null ? customer.getUser().getEmail() : null)
+                    .customerName(customer.getFirstName())
+                    .orderNumber(order.getOrderNumber())
+                    .eventType("CANCELLED")
+                    .totalAmount(order.getTotalAmount())
+                    .build());
+        } catch (Exception e) {
+            log.warn("Failed to dispatch cancel notification for order={}: {}", order.getOrderNumber(), e.getMessage());
+        }
+
         return mapToOrderResponse(order);
     }
 
@@ -159,6 +174,20 @@ public class OrderServiceImpl implements OrderService {
         order = orderRepository.save(order);
         log.info("Updated order={} status to {}", order.getOrderNumber(), request.getStatus());
 
+        try {
+            Customer customer = order.getCustomer();
+            notificationService.handleOrderNotification(com.scentiva.modules.notification.event.OrderNotificationEvent.builder()
+                    .customerId(customer.getId())
+                    .customerEmail(customer.getUser() != null ? customer.getUser().getEmail() : null)
+                    .customerName(customer.getFirstName())
+                    .orderNumber(order.getOrderNumber())
+                    .eventType(request.getStatus().name())
+                    .totalAmount(order.getTotalAmount())
+                    .build());
+        } catch (Exception e) {
+            log.warn("Failed to dispatch status update notification for order={}: {}", order.getOrderNumber(), e.getMessage());
+        }
+
         return mapToOrderResponse(order);
     }
 
@@ -167,7 +196,7 @@ public class OrderServiceImpl implements OrderService {
     public ApiPaginatedResponse<OrderSummaryResponse> getAllOrders(OrderStatus status, Pageable pageable) {
         Page<Order> orderPage = (status != null)
                 ? orderRepository.findByStatusAndIsDeletedFalse(status, pageable)
-                : orderRepository.findAll(pageable);
+                : orderRepository.findByIsDeletedFalse(pageable);
 
         List<OrderSummaryResponse> content = orderPage.getContent().stream()
                 .map(this::mapToOrderSummary)
@@ -179,6 +208,17 @@ public class OrderServiceImpl implements OrderService {
                 orderPage.getSize(),
                 orderPage.getTotalElements()
         );
+    }
+
+    @Override
+    @Transactional
+    public void deleteOrder(String orderNumber) {
+        Order order = orderRepository.findByOrderNumberAndIsDeletedFalse(orderNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "orderNumber", orderNumber));
+        order.setDeleted(true);
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        log.info("Order={} marked as deleted/cancelled by admin", orderNumber);
     }
 
     @Override
@@ -274,6 +314,9 @@ public class OrderServiceImpl implements OrderService {
                 .paymentStatus(latestPayment != null ? latestPayment.getStatus() : null)
                 .paymentMethod(latestPayment != null ? latestPayment.getPaymentMethod() : null)
                 .shipment(shipmentResponse)
+                .invoiceNumber(order.getInvoiceNumber())
+                .invoiceGeneratedAt(order.getInvoiceGeneratedAt())
+                .invoiceStatus(order.getInvoiceStatus())
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .build();
