@@ -5,9 +5,12 @@ import { useNavigate, useSearchParams, useLocation } from '@/hooks/useNavigation
 import { useStore } from '../context/StoreContext';
 import { getSafeRedirectUrl } from '@/lib/utils/url';
 import { Lock, Mail, User, Sparkles, ArrowRight, ShieldCheck, ShoppingBag, Loader2 } from 'lucide-react';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
-export const SignInPage: React.FC = () => {
-  const { signIn, signUp, showToast, cartCount } = useStore();
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+
+const SignInContent: React.FC = () => {
+  const { signIn, signUp, loginWithGoogle, showToast, cartCount } = useStore();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -107,6 +110,29 @@ export const SignInPage: React.FC = () => {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    if (!credentialResponse?.credential) {
+      showToast('Google authentication failed. No credential received.', 'error');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const res = await loginWithGoogle(credentialResponse.credential);
+      if (res.success) {
+        const destination = getSafeRedirectUrl(redirectParam, '/account');
+        navigate(destination);
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Google sign-in failed. Please try again.', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    showToast('Google sign-in was cancelled or encountered an error.', 'error');
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6">
@@ -127,6 +153,55 @@ export const SignInPage: React.FC = () => {
 
         {/* Form Container */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200 shadow-modal space-y-6">
+          {/* Context Banner if Redirected from Checkout */}
+          {isCheckoutRedirect ? (
+            <div className="p-3.5 rounded-2xl bg-brand-blush-100 border border-brand-blush-300 text-xs text-brand-plum-950 space-y-1">
+              <div className="flex items-center gap-1.5 font-bold">
+                <ShoppingBag className="w-4 h-4 text-brand-rose-500" />
+                <span>Checkout Authentication Required</span>
+              </div>
+              <p className="text-[11px] text-neutral-700 leading-relaxed">
+                Your shopping bag ({cartCount} {cartCount === 1 ? 'item' : 'items'}) has been saved. Complete authentication to finalize delivery and payment.
+              </p>
+            </div>
+          ) : (
+            <div className="p-3.5 rounded-2xl bg-brand-blush-100/60 border border-brand-blush-300/40 text-xs text-brand-plum-950 space-y-1">
+              <div className="flex items-center gap-1.5 font-bold">
+                <Sparkles className="w-3.5 h-3.5 text-brand-gold-500" />
+                <span>Privé Client Benefits</span>
+              </div>
+              <p className="text-[11px] text-neutral-600">
+                Unlock complimentary discovery samples, order tracking, and private consultations.
+              </p>
+            </div>
+          )}
+
+          {/* Quick Google OAuth Sign-In */}
+          <div className="space-y-3">
+            <div className="flex justify-center w-full">
+              <div className="w-full flex justify-center [&>div]:!w-full [&>div>div]:!w-full [&>div>div]:!justify-center shadow-xs hover:shadow-card transition-all rounded-full overflow-hidden">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  theme="outline"
+                  size="large"
+                  shape="pill"
+                  text="continue_with"
+                  width="100%"
+                />
+              </div>
+            </div>
+
+            <div className="relative flex items-center justify-center my-3">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-neutral-200" />
+              </div>
+              <span className="relative bg-white px-3 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
+                Or continue with email
+              </span>
+            </div>
+          </div>
+
           {/* Dual Segmented Tabs */}
           <div className="flex rounded-2xl bg-neutral-100 p-1 border border-neutral-200/80">
             <button
@@ -152,29 +227,6 @@ export const SignInPage: React.FC = () => {
               Create Account
             </button>
           </div>
-
-          {/* Context Banner if Redirected from Checkout */}
-          {isCheckoutRedirect ? (
-            <div className="p-3.5 rounded-2xl bg-brand-blush-100 border border-brand-blush-300 text-xs text-brand-plum-950 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold">
-                <ShoppingBag className="w-4 h-4 text-brand-rose-500" />
-                <span>Checkout Authentication Required</span>
-              </div>
-              <p className="text-[11px] text-neutral-700 leading-relaxed">
-                Your shopping bag ({cartCount} {cartCount === 1 ? 'item' : 'items'}) has been saved. Complete authentication to finalize delivery and payment.
-              </p>
-            </div>
-          ) : (
-            <div className="p-3.5 rounded-2xl bg-brand-blush-100/60 border border-brand-blush-300/40 text-xs text-brand-plum-950 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold">
-                <Sparkles className="w-3.5 h-3.5 text-brand-gold-500" />
-                <span>Privé Client Benefits</span>
-              </div>
-              <p className="text-[11px] text-neutral-600">
-                Unlock complimentary discovery samples, order tracking, and private consultations.
-              </p>
-            </div>
-          )}
 
           {/* SIGN IN FORM */}
           {activeTab === 'signin' && (
@@ -349,3 +401,12 @@ export const SignInPage: React.FC = () => {
     </div>
   );
 };
+
+export const SignInPage: React.FC = () => {
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <SignInContent />
+    </GoogleOAuthProvider>
+  );
+};
+

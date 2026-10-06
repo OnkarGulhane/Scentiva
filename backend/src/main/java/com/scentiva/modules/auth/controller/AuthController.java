@@ -55,6 +55,16 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok(authResponse, "Authentication successful"));
     }
 
+    @PostMapping("/google")
+    @Operation(summary = "Authenticate with Google OAuth", description = "Verifies Google Identity Services ID token, synchronizes customer account and returns JWT bearer token.")
+    public ResponseEntity<ApiResponse<AuthResponse>> googleLogin(
+            @Valid @RequestBody GoogleLoginRequest request,
+            HttpServletResponse response) {
+        AuthResponse authResponse = authService.googleLogin(request);
+        setAuthCookie(response, authResponse.getAccessToken(), (int) (jwtExpirationMs / 1000));
+        return ResponseEntity.ok(ApiResponse.ok(authResponse, "Google authentication successful"));
+    }
+
     @GetMapping("/me")
     @SecurityRequirement(name = "BearerAuth")
     @Operation(summary = "Get current authenticated user profile", description = "Returns full profile details of the current JWT bearer principal.")

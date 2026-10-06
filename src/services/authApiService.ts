@@ -80,6 +80,21 @@ export const AuthApiService = {
     }
   },
 
+  async googleLogin(idToken: string): Promise<AuthBackendResponse> {
+    try {
+      const res = await apiClient.post<AuthBackendResponse>('/auth/google', { idToken });
+      if (res.data?.accessToken) {
+        apiClient.setToken(res.data.accessToken);
+      }
+      return res.data;
+    } catch (err: any) {
+      if (err instanceof ApiError) {
+        throw new Error(err.message || 'Google authentication failed. Please try again.');
+      }
+      throw err;
+    }
+  },
+
   async getMe(): Promise<UserBackendProfile> {
     const res = await apiClient.get<UserBackendProfile>('/auth/me');
     return res.data;

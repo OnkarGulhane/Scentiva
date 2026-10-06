@@ -35,6 +35,7 @@ interface StoreContextType {
   isLoggedIn: boolean;
   signIn: (email: string, password?: string) => Promise<{ success: boolean; message: string }>;
   signUp: (name: string, email: string, password?: string) => Promise<{ success: boolean; message: string }>;
+  loginWithGoogle: (idToken: string) => Promise<{ success: boolean; message: string }>;
   signOut: () => void;
 
   // Products & Admin state
@@ -491,6 +492,60 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return { success: true, message: 'Account created successfully' };
   };
 
+  const loginWithGoogle = async (idToken: string): Promise<{ success: boolean; message: string }> => {
+    if (!idToken) {
+      throw new Error('Google authentication credential is missing.');
+    }
+
+    const backendRes = await AuthApiService.googleLogin(idToken);
+    let userName = 'Connoisseur Member';
+    let userEmail = 'client@scentiva.luxury';
+    let tier: 'Privé Bronze' | 'Privé Silver' | 'Privé Gold' | 'Privé Diamond' = 'Privé Bronze';
+    let role = 'ROLE_CUSTOMER';
+    let userId: number | undefined = undefined;
+    let customerId: number | undefined = undefined;
+
+    if (backendRes) {
+      const profile = backendRes.user;
+      if (profile) {
+        const fullName = profile.fullName || `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+        if (fullName) userName = fullName;
+        if (profile.email) userEmail = profile.email;
+        if (profile.role) role = profile.role;
+        userId = profile.userId || profile.id;
+        customerId = profile.customerId;
+        if (profile.loyaltyTier) {
+          if (profile.loyaltyTier.includes('DIAMOND')) tier = 'Privé Diamond';
+          else if (profile.loyaltyTier.includes('GOLD')) tier = 'Privé Gold';
+          else if (profile.loyaltyTier.includes('SILVER')) tier = 'Privé Silver';
+          else tier = 'Privé Bronze';
+        }
+      } else {
+        const combinedName = `${backendRes.firstName || ''} ${backendRes.lastName || ''}`.trim();
+        if (combinedName) userName = combinedName;
+        if (backendRes.email) userEmail = backendRes.email;
+        if (backendRes.role) role = backendRes.role;
+        userId = backendRes.userId;
+      }
+    }
+
+    const authenticatedUser: DemoUser = {
+      id: userId ? String(userId) : `usr-${Date.now()}`,
+      name: userName,
+      email: userEmail,
+      tier,
+      points: 500,
+      role,
+      userId,
+      customerId
+    };
+
+    setCurrentUser(authenticatedUser);
+    await loadUserAddresses();
+    showToast(`Welcome to SCENTIVA Privé, ${authenticatedUser.name}!`, 'success');
+    return { success: true, message: 'Signed in with Google successfully' };
+  };
+
   const signOut = () => {
     try {
       AuthApiService.logout();
@@ -791,6 +846,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         isLoggedIn: !!currentUser,
         signIn,
         signUp,
+        loginWithGoogle,
         signOut,
         products,
         addProduct,

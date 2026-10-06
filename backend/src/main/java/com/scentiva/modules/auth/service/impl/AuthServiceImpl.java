@@ -1,5 +1,9 @@
 package com.scentiva.modules.auth.service.impl;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import com.scentiva.common.exception.BadRequestException;
 import com.scentiva.common.exception.ConflictException;
 import com.scentiva.common.exception.ResourceNotFoundException;
@@ -15,12 +19,16 @@ import com.scentiva.modules.customer.model.LoyaltyTier;
 import com.scentiva.modules.customer.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.UUID;
 
 /**
  * Implementation of Authentication & User Account Management Service.
@@ -35,6 +43,9 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+
+    @Value("${scentiva.security.google.client-id:}")
+    private String googleClientId;
 
     @Override
     @Transactional
@@ -109,6 +120,102 @@ public class AuthServiceImpl implements AuthService {
                 .expiresInMs(jwtTokenProvider.getExpirationDurationMs())
                 .user(userProfile)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public AuthResponse googleLogin(GoogleLoginRequest request) {
+        if (request.getIdToken() == null || request.getIdToken().trim().isEmpty()) {
+            throw new BadRequestException("Google ID token cannot be empty");
+        }
+
+        GoogleIdToken idToken = verifyGoogleToken(request.getIdToken().trim());
+        if (idToken == null) {
+            throw new BadRequestException("Invalid or expired Google authentication token");
+        }
+
+        GoogleIdToken.Payload payload = idToken.getPayload();
+        String email = payload.getEmail();
+        if (email == null || email.trim().isEmpty()) {
+            throw new BadRequestException("Google account email could not be verified");
+        }
+        String normalizedEmail = email.trim().toLowerCase();
+
+        String givenName = (String) payload.get("given_name");
+        String familyName = (String) payload.get("family_name");
+        String name = (String) payload.get("name");
+
+        if (givenName == null || givenName.trim().isEmpty()) {
+            if (name != null && !name.trim().isEmpty()) {
+                String[] parts = name.trim().split("\\s+", 2);
+                givenName = parts[0];
+                familyName = parts.length > 1 ? parts[1] : "";
+            } else {
+                givenName = "Privé";
+                familyName = "Client";
+            }
+        }
+        if (familyName == null) {
+            familyName = "";
+        }
+
+        final String finalGivenName = givenName.trim();
+        final String finalFamilyName = familyName.trim();
+
+        // Find or create User
+        User user = userRepository.findByEmailAndIsDeletedFalse(normalizedEmail)
+                .orElseGet(() -> {
+                    User newUser = User.builder()
+                            .email(normalizedEmail)
+                            .passwordHash(passwordEncoder.encode(UUID.randomUUID().toString()))
+                            .role(Role.ROLE_CUSTOMER)
+                            .status(UserStatus.ACTIVE)
+                            .build();
+                    newUser = userRepository.save(newUser);
+
+                    Customer newCustomer = Customer.builder()
+                            .user(newUser)
+                            .firstName(finalGivenName)
+                            .lastName(finalFamilyName)
+                            .loyaltyTier(LoyaltyTier.BRONZE)
+                            .build();
+                    customerRepository.save(newCustomer);
+
+                    log.info("Created new customer account from Google OAuth: id={}, email={}", newUser.getId(), normalizedEmail);
+                    return newUser;
+                });
+
+        if (user.getStatus() == UserStatus.SUSPENDED) {
+            throw new BadRequestException("Your account has been suspended. Please contact concierge support.");
+        }
+
+        Customer customer = customerRepository.findByUserIdAndIsDeletedFalse(user.getId()).orElse(null);
+
+        String token = jwtTokenProvider.generateTokenFromUserIdAndEmail(user.getId(), user.getEmail(), user.getRole().name());
+        UserProfileResponse userProfile = buildUserProfileResponse(user, customer);
+
+        log.info("User successfully authenticated via Google OAuth: id={}, email={}", user.getId(), user.getEmail());
+
+        return AuthResponse.builder()
+                .accessToken(token)
+                .tokenType("Bearer")
+                .expiresInMs(jwtTokenProvider.getExpirationDurationMs())
+                .user(userProfile)
+                .build();
+    }
+
+    private GoogleIdToken verifyGoogleToken(String tokenString) {
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    new NetHttpTransport(),
+                    GsonFactory.getDefaultInstance())
+                    .setAudience(Collections.singletonList(googleClientId))
+                    .build();
+            return verifier.verify(tokenString);
+        } catch (Exception e) {
+            log.error("Google ID Token verification failed: {}", e.getMessage());
+            throw new BadRequestException("Google ID Token verification failed: " + e.getMessage());
+        }
     }
 
     @Override
