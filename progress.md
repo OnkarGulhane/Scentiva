@@ -2,11 +2,12 @@
 > **Date:** October 7, 2026  
 > **Status:** Full Modular Monolith Backend + Next.js 14 Storefront + Scentiva AI Platform (FastAPI + pgvector + Multi-Lingual AI Assistant) + Supabase PostgreSQL 17 & Storage + Razorpay Gateway + Google OAuth 2.0 100% Completed & Verified (Phases 0–24).  
 > **Latest Git Commit:** `660f402` on branch `main`  
-> **Deployment Architecture:** Next.js 14 on **Vercel** + Spring Boot 3.3.4 (Java 21) on **Render** + Python AI Service (FastAPI) + **Supabase PostgreSQL 17 & Storage** + **Razorpay Payment Gateway** + **Google OAuth 2.0**  
+> **Deployment Architecture:** Next.js 14 on **Vercel** + Spring Boot 3.3.4 (Java 21) on **Render** (`https://scentiva-backend-zmvo.onrender.com`) + Python AI Service (FastAPI) + **Supabase PostgreSQL 17 & Storage** + **Razorpay Payment Gateway** + **Google OAuth 2.0**  
 > **Build Status:** 
 > - **Backend:** 236 / 236 Java Tests Passing (`mvn test` -> 100% BUILD SUCCESS, 0 Failures, 0 Errors)  
 > - **Python AI Service:** 21 / 21 Pytest Tests Passing (`pytest` -> 100% PASS, 0 Failures)  
 > - **Live Integration Tests:** 86 / 86 Assertions Passing (`node scratch/test_all_apis.js` -> 100% PASS, 0 Failures)  
+> - **Live Render Production Audit:** 13 / 13 Production Assertions Passing (`node scratch/test_live_render.cjs` -> 100% PASS, 0 Failures)  
 > - **Frontend:** 50 / 50 Static & Dynamic Routes Prerendered (`npm run build` -> Exit Code 0, 0 TypeScript Errors)  
 > - **Database:** Supabase PostgreSQL 17 active with 35 relational tables + pgvector RAG store.
 
