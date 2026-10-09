@@ -5,9 +5,9 @@
 > **Frontend Architecture:** Next.js 14 App Router (SSG/SSR) + TypeScript 5.5 + Tailwind CSS + Three.js / R3F + GSAP Motion  
 > **Backend Architecture:** Spring Boot 3.3.4 (Java 21 LTS) Modular Monolith + PostgreSQL 17 + Flyway + Spring Security 6 (JWT)  
 > **AI Architecture:** Python FastAPI Microservice (`ai-service/`) + LangChain + PostgreSQL pgvector RAG + Multi-Lingual NLP Engine  
-> **Last Updated:** 2026-10-07  
+> **Last Updated:** 2026-10-09  
 > **Repository Remote:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)  
-> **Current Status:** Phases 0–24 100% Complete & Verified (236/236 Java JUnit tests passing, 21/21 Python AI pytest tests passing, 86/86 Live API assertions passing, 13/13 Live Render Production Assertions passing on `https://scentiva-backend-zmvo.onrender.com`, 50/50 Next.js static pages prerendered without hydration mismatch, Multi-Lingual AI Assistant with English/Marathi/Hindi switcher, Scentiva pgvector RAG & catalog tools, Production Order Invoice OpenPDF engine, Google Identity Services OAuth 2.0, Supabase PostgreSQL 17 & Storage, Razorpay Secure Gateway live test mode, latest commit `3499a3b` on `main`).
+> **Current Status:** Phases 0–24 100% Complete & Verified + Mobile-First PWA & Responsiveness Suite (236/236 Java JUnit tests passing, 21/21 Python AI pytest tests passing, 86/86 Live API assertions passing, 13/13 Live Render Production Assertions passing on `https://scentiva-backend-zmvo.onrender.com`, 50/50 Next.js static pages prerendered without hydration mismatch, PWA manifest with standalone display, Native Web Share & numeric input keyboards, iOS-style bottom sheet filters, Multi-Lingual AI Assistant with English/Marathi/Hindi switcher, Scentiva pgvector RAG & catalog tools, Production Order Invoice OpenPDF engine, Google Identity Services OAuth 2.0, Supabase PostgreSQL 17 & Storage, Razorpay Secure Gateway live test mode on `main`).
 
 ---
 

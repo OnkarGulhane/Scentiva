@@ -46,9 +46,9 @@ export const HeroSection: React.FC = () => {
           {/* Left Column: Typography & CTAs (Immediate First Render) */}
           <div className="lg:col-span-6 space-y-6 text-center lg:text-left z-10">
             {/* Eyebrow */}
-            <div className="hero-eyebrow inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-plum-900 text-brand-blush-200 text-xs font-semibold tracking-widest uppercase shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-brand-gold-500" />
-              <span>Haute Parfumerie & Multi-Brand Vault • Since 2026</span>
+            <div className="hero-eyebrow inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-brand-plum-900 text-brand-blush-200 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest uppercase shadow-sm max-w-full">
+              <Sparkles className="w-3.5 h-3.5 text-brand-gold-500 shrink-0" />
+              <span className="truncate">Haute Parfumerie & Multi-Brand Vault • Since 2026</span>
             </div>
 
             {/* Headline (Section 11 Core Message) */}

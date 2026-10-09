@@ -1,0 +1,25 @@
+{
+  "name": "SCENTIVA — Haute Parfumerie",
+  "short_name": "SCENTIVA",
+  "description": "Luxury Multi-Brand Fragrance Marketplace — Since 2026",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FAF8F7",
+  "theme_color": "#321027",
+  "categories": ["shopping", "lifestyle", "luxury"],
+  "icons": [
+    {
+      "src": "/assets/scentiva-emblem.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/scentiva-crest.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

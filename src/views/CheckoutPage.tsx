@@ -393,7 +393,7 @@ export const CheckoutPage: React.FC = () => {
                       }
                       setCurrentStep(2);
                     }}
-                    className={`px-8 py-3.5 rounded-2xl bg-brand-plum-900 text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-2 hover:bg-brand-plum-800 transition-all shadow-md ${
+                    className={`w-full sm:w-auto px-8 py-4 rounded-2xl bg-brand-plum-900 text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-brand-plum-800 transition-all shadow-md active:scale-98 ${
                       !selectedAddress ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >
@@ -463,10 +463,10 @@ export const CheckoutPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
+                <div className="pt-4 border-t border-neutral-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
                   <button
                     onClick={() => setCurrentStep(1)}
-                    className="px-5 py-2.5 rounded-full border border-neutral-300 text-neutral-700 text-xs font-semibold flex items-center gap-1.5 hover:bg-neutral-100 transition-colors"
+                    className="w-full sm:w-auto px-5 py-3 rounded-full border border-neutral-300 text-neutral-700 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-neutral-100 transition-colors"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Back to Address</span>
@@ -476,7 +476,7 @@ export const CheckoutPage: React.FC = () => {
                       setCurrentStep(3);
                       navigate('/checkout/payment');
                     }}
-                    className="px-8 py-3.5 rounded-2xl bg-brand-plum-900 text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-2 hover:bg-brand-plum-800 transition-all shadow-md"
+                    className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-brand-plum-900 text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-brand-plum-800 transition-all shadow-md active:scale-98"
                   >
                     <span>Proceed to Payment</span>
                     <ArrowRight className="w-4 h-4" />
@@ -597,13 +597,13 @@ export const CheckoutPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
+                <div className="pt-4 border-t border-neutral-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
                   <button
                     onClick={() => {
                       setCurrentStep(2);
                       navigate('/checkout');
                     }}
-                    className="px-5 py-2.5 rounded-full border border-neutral-300 text-neutral-700 text-xs font-semibold flex items-center gap-1.5 hover:bg-neutral-100 transition-colors"
+                    className="w-full sm:w-auto px-5 py-3 rounded-full border border-neutral-300 text-neutral-700 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-neutral-100 transition-colors"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Back to Delivery</span>
@@ -611,7 +611,7 @@ export const CheckoutPage: React.FC = () => {
                   <button
                     disabled={isSubmitting}
                     onClick={handlePlaceOrder}
-                    className={`px-8 py-4 rounded-2xl bg-brand-plum-900 hover:bg-brand-plum-800 text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-2 shadow-lg transition-all active:scale-98 ${
+                    className={`w-full sm:w-auto px-8 py-4 rounded-2xl bg-brand-plum-900 hover:bg-brand-plum-800 text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all active:scale-98 ${
                       isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
                     }`}
                   >
@@ -725,6 +725,8 @@ export const CheckoutPage: React.FC = () => {
                 <label className="font-semibold text-neutral-700 block mb-1">Mobile Phone</label>
                 <input
                   type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   required
                   value={newPhone}
                   onChange={e => setNewPhone(e.target.value)}
@@ -760,9 +762,13 @@ export const CheckoutPage: React.FC = () => {
                   <label className="font-semibold text-neutral-700 block mb-1">PIN Code</label>
                   <input
                     type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={6}
+                    autoComplete="postal-code"
                     required
                     value={newPincode}
-                    onChange={e => setNewPincode(e.target.value)}
+                    onChange={e => setNewPincode(e.target.value.replace(/\D/g, ''))}
                     className="w-full p-2.5 rounded-xl border border-neutral-300 focus:border-brand-plum-700 focus:outline-none"
                   />
                 </div>

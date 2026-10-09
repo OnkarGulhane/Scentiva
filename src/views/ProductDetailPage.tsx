@@ -103,6 +103,23 @@ export const ProductDetailPage: React.FC = () => {
     }
   };
 
+  const handleShare = async () => {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: `${product.brandName} - ${product.name} | SCENTIVA`,
+          text: `Discover ${product.name} by ${product.brandName} on SCENTIVA Haute Parfumerie.`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        // User cancelled or ignored share dialog
+      }
+    } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      await navigator.clipboard.writeText(window.location.href);
+      showToast('Fragrance link copied to clipboard!', 'info');
+    }
+  };
+
   const handleWishlistToggle = () => {
     if (!isWishlisted) {
       analytics.trackWishlistAdded(product.id, product.name);
@@ -194,15 +211,26 @@ export const ProductDetailPage: React.FC = () => {
                 </div>
               )}
 
-              <button
-                onClick={handleWishlistToggle}
-                className={`absolute top-4 right-4 p-3 rounded-full bg-white/90 backdrop-blur-md shadow-md transition-all hover:scale-110 ${
-                  isWishlisted ? 'text-brand-rose-500 bg-brand-blush-100' : 'text-neutral-600 hover:text-brand-rose-500'
-                }`}
-                aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-              >
-                <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
-              </button>
+              <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="p-2.5 sm:p-3 rounded-full bg-white/90 backdrop-blur-md shadow-md text-neutral-600 hover:text-brand-plum-900 transition-all hover:scale-110 active:scale-95"
+                  aria-label="Share fragrance"
+                >
+                  <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleWishlistToggle}
+                  className={`p-2.5 sm:p-3 rounded-full bg-white/90 backdrop-blur-md shadow-md transition-all hover:scale-110 active:scale-95 ${
+                    isWishlisted ? 'text-brand-rose-500 bg-brand-blush-100' : 'text-neutral-600 hover:text-brand-rose-500'
+                  }`}
+                  aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isWishlisted ? 'fill-current' : ''}`} />
+                </button>
+              </div>
             </div>
 
             {/* Thumbnails */}
@@ -354,10 +382,12 @@ export const ProductDetailPage: React.FC = () => {
               <form onSubmit={handlePincodeCheck} className="flex gap-2">
                 <input
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   maxLength={6}
                   placeholder="Enter 6-digit Pincode (e.g. 411001)"
                   value={pincodeInput}
-                  onChange={e => setPincodeInput(e.target.value)}
+                  onChange={e => setPincodeInput(e.target.value.replace(/\D/g, ''))}
                   className="flex-1 px-3 py-2 text-xs rounded-xl border border-neutral-300 focus:outline-none focus:border-brand-plum-900"
                 />
                 <button
@@ -697,9 +727,9 @@ export const ProductDetailPage: React.FC = () => {
       )}
 
       {/* Mobile Sticky Bottom CTA Bar */}
-      <div className="lg:hidden fixed bottom-14 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-neutral-200 p-3 px-4 flex items-center justify-between gap-4 shadow-modal">
-        <div>
-          <span className="text-[10px] text-neutral-500 block uppercase tracking-wider">{selectedVariant.size}</span>
+      <div className="lg:hidden fixed bottom-14 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-neutral-200/90 p-3 px-4 flex items-center justify-between gap-3 shadow-modal pb-safe">
+        <div className="min-w-0">
+          <span className="text-[10px] text-neutral-500 block uppercase tracking-wider truncate">{selectedVariant.size}</span>
           <span className="text-base font-bold text-brand-plum-950 tabular-nums">
             {formatPrice(selectedVariant.price)}
           </span>
@@ -708,7 +738,7 @@ export const ProductDetailPage: React.FC = () => {
           onClick={handleAddToCart}
           className="flex-1 py-3 px-4 rounded-xl bg-brand-plum-900 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all"
         >
-          <ShoppingBag className="w-4 h-4" />
+          <ShoppingBag className="w-4 h-4 shrink-0" />
           <span>Add to Bag</span>
         </button>
       </div>

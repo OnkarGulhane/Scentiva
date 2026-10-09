@@ -221,7 +221,7 @@ export const CartDrawer: React.FC = () => {
 
           {/* Footer & Checkout Summary */}
           {cart.length > 0 && (
-            <div className="p-4 sm:p-5 border-t border-neutral-200 bg-neutral-50/70 space-y-4">
+            <div className="p-4 sm:p-5 border-t border-neutral-200 bg-neutral-50/70 space-y-4 pb-safe">
               {/* Promo code input */}
               <div>
                 {appliedCoupon ? (

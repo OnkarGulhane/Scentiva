@@ -45,16 +45,16 @@ export const AnnouncementBar: React.FC = () => {
           <span>Haute Parfumerie</span>
         </div>
 
-        <div className="flex-1 flex items-center justify-center text-center gap-2">
-          <span className="bg-brand-plum-800 text-brand-blush-300 px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase">
+        <div className="flex-1 flex items-center justify-center text-center gap-1.5 sm:gap-2 px-2 overflow-hidden min-w-0">
+          <span className="bg-brand-plum-800 text-brand-blush-300 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-semibold tracking-wider uppercase shrink-0">
             {current.badge}
           </span>
           <Link
             to={current.link}
-            className="hover:text-brand-blush-200 transition-colors inline-flex items-center gap-1.5 font-light"
+            className="hover:text-brand-blush-200 transition-colors inline-flex items-center gap-1.5 font-light text-[11px] sm:text-xs truncate"
           >
-            <span>{current.text}</span>
-            <ArrowRight className="w-3 h-3 opacity-70 hidden sm:inline" />
+            <span className="truncate">{current.text}</span>
+            <ArrowRight className="w-3 h-3 opacity-70 hidden sm:inline shrink-0" />
           </Link>
         </div>
 

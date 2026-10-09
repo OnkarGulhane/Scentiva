@@ -14,6 +14,12 @@ export const metadata: Metadata = {
     shortcut: '/assets/scentiva-emblem.svg',
     apple: '/assets/scentiva-emblem.svg',
   },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'SCENTIVA',
+  },
   openGraph: {
     title: 'SCENTIVA — Luxury Multi-Brand Fragrance Marketplace',
     description: 'Explore authentic luxury, designer, and artisanal fragrances curated under one prestigious address.',

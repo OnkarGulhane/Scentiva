@@ -487,12 +487,16 @@ export const ShopPage: React.FC = () => {
             className="fixed inset-0 bg-neutral-950/60 backdrop-blur-xs transition-opacity"
             onClick={() => setMobileFiltersOpen(false)}
           />
-          <div className="relative bg-white rounded-t-3xl max-h-[85vh] flex flex-col p-6 shadow-modal border-t border-neutral-200 z-10 animate-in slide-in-from-bottom duration-300">
-            <div className="flex items-center justify-between pb-4 border-b border-neutral-200">
+          <div className="relative bg-white rounded-t-3xl max-h-[85vh] flex flex-col p-5 sm:p-6 shadow-modal border-t border-neutral-200 z-10 animate-in slide-in-from-bottom duration-300">
+            {/* Native Mobile Drag Pill Handle */}
+            <div className="w-12 h-1.5 bg-neutral-300/80 rounded-full mx-auto mb-3 shrink-0" />
+
+            <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
               <h2 className="font-serif text-lg font-bold text-brand-plum-950">Filters & Options</h2>
               <button
                 onClick={() => setMobileFiltersOpen(false)}
-                className="p-1.5 text-neutral-500 hover:text-neutral-800"
+                className="p-1.5 text-neutral-500 hover:text-neutral-800 rounded-full hover:bg-neutral-100"
+                aria-label="Close filters"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -503,7 +507,7 @@ export const ShopPage: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between text-xs font-semibold">
                   <span>Max Budget</span>
-                  <span className="text-brand-plum-900">{formatPrice(priceRange)}</span>
+                  <span className="text-brand-plum-900 font-bold">{formatPrice(priceRange)}</span>
                 </div>
                 <input
                   type="range"
@@ -553,16 +557,16 @@ export const ShopPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-neutral-200 flex gap-3">
+            <div className="pt-4 border-t border-neutral-200 flex gap-3 pb-safe">
               <button
                 onClick={clearAllFilters}
-                className="w-1/3 py-3 rounded-full bg-neutral-100 text-neutral-800 text-xs font-semibold"
+                className="w-1/3 py-3 rounded-full bg-neutral-100 text-neutral-800 text-xs font-semibold hover:bg-neutral-200 active:scale-98 transition-all"
               >
                 Reset
               </button>
               <button
                 onClick={() => setMobileFiltersOpen(false)}
-                className="w-2/3 py-3 rounded-full bg-brand-plum-900 text-white text-xs font-semibold shadow-sm"
+                className="w-2/3 py-3 rounded-full bg-brand-plum-900 text-white text-xs font-semibold shadow-sm hover:bg-brand-plum-800 active:scale-98 transition-all"
               >
                 Show {sortedProducts.length} Fragrances
               </button>

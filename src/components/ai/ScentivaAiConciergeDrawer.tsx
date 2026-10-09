@@ -528,7 +528,7 @@ export const ScentivaAiConciergeDrawer: React.FC<ScentivaAiConciergeDrawerProps>
           </div>
 
           {/* Input Footer */}
-          <div className="p-3.5 md:p-4 bg-neutral-950 border-t border-neutral-800">
+          <div className="p-3.5 md:p-4 bg-neutral-950 border-t border-neutral-800 pb-safe">
             <form
               onSubmit={(e) => {
                 e.preventDefault();

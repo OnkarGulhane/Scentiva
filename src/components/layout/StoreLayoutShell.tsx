@@ -37,34 +37,38 @@ export const StoreLayoutShell: React.FC<StoreLayoutShellProps> = ({ children }) 
     return <>{children}</>;
   }
 
+  const isCheckoutRoute = pathname === '/checkout';
+  const isPdpRoute = pathname.startsWith('/product/');
+  const hasBottomNav = !isAdminRoute && !isCheckoutRoute;
+
   return (
     <div className="flex flex-col min-h-screen w-full relative">
       <AnnouncementBar />
       <Navbar />
-      <main className="flex-1 w-full">
+      <main className={`flex-1 w-full ${hasBottomNav ? (isPdpRoute ? 'pb-32 lg:pb-0' : 'pb-20 lg:pb-0') : ''}`}>
         {children}
       </main>
       <Footer />
       <MobileBottomNav />
 
       {/* Floating Scentiva Luxury AI Assistant Trigger */}
-      <div className="fixed bottom-20 right-4 lg:bottom-8 lg:right-8 z-40">
+      <div className={`fixed right-4 lg:bottom-8 lg:right-8 z-40 ${isPdpRoute ? 'bottom-28' : 'bottom-20'}`}>
         <button
           onClick={() => {
             setAiTab('assistant');
             setIsAiOpen(true);
           }}
-          className="group relative flex items-center gap-2.5 px-4 py-3 bg-neutral-900/95 hover:bg-neutral-800 text-white rounded-full border border-brand-gold-500/40 shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-brand-gold-400 focus:outline-none focus:ring-2 focus:ring-brand-gold-500/50"
+          className="group relative flex items-center gap-2 px-3.5 py-2.5 sm:px-4 sm:py-3 bg-neutral-900/95 hover:bg-neutral-800 text-white rounded-full border border-brand-gold-500/40 shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-brand-gold-400 focus:outline-none focus:ring-2 focus:ring-brand-gold-500/50"
           aria-label="Open Scentiva AI Assistant"
         >
-          <div className="w-6 h-6 rounded-full bg-linear-to-br from-brand-gold-500 to-brand-gold-400 flex items-center justify-center text-neutral-950 font-bold shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+          <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-linear-to-br from-brand-gold-500 to-brand-gold-400 flex items-center justify-center text-neutral-950 font-bold shadow-xs">
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-pulse" />
           </div>
-          <div className="flex flex-col items-start pr-1">
-            <span className="text-[11px] font-semibold tracking-wider uppercase text-brand-gold-300">
+          <div className="flex flex-col items-start pr-0.5 sm:pr-1">
+            <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase text-brand-gold-300">
               AI Assistant
             </span>
-            <span className="text-[9px] text-neutral-400 hidden sm:inline">Perfume & Order Help</span>
+            <span className="text-[9px] text-neutral-400 hidden md:inline">Perfume & Order Help</span>
           </div>
         </button>
       </div>

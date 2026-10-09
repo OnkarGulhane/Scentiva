@@ -158,18 +158,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </Link>
 
       {/* Content Body */}
-      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+      <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between space-y-2.5 sm:space-y-3">
         <div className="space-y-1">
           {/* Brand Name */}
           <Link
             to={`/brands/${product.brandId.replace('b-', '')}`}
-            className="text-[11px] font-bold uppercase tracking-widest text-brand-rose-500 hover:text-brand-plum-900 transition-colors block"
+            className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-brand-rose-500 hover:text-brand-plum-900 transition-colors block truncate"
           >
             {product.brandName}
           </Link>
 
           {/* Product Title */}
-          <h3 className="font-serif text-base sm:text-lg font-bold text-neutral-900 group-hover:text-brand-plum-900 transition-colors line-clamp-2 min-h-[2.75rem] leading-snug">
+          <h3 className="font-serif text-sm sm:text-base lg:text-lg font-bold text-neutral-900 group-hover:text-brand-plum-900 transition-colors line-clamp-2 min-h-[2.4rem] sm:min-h-[2.75rem] leading-snug">
             <Link 
               to={`/product/${product.slug}`}
               onClick={() => analytics.trackProductViewed(product.id, product.name, selectedVariant.price)}
@@ -179,9 +179,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </h3>
 
           <div className="flex items-center justify-between text-xs text-neutral-500 pt-0.5 gap-2">
-            <span className="text-[11px] text-neutral-500 truncate">{product.concentration}</span>
-            <div className="flex items-center gap-1 text-[11px] font-semibold text-neutral-800 shrink-0">
-              <Star className="w-3.5 h-3.5 fill-brand-gold-500 text-brand-gold-500 shrink-0" />
+            <span className="text-[10px] sm:text-[11px] text-neutral-500 truncate">{product.concentration}</span>
+            <div className="flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-neutral-800 shrink-0">
+              <Star className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-brand-gold-500 text-brand-gold-500 shrink-0" />
               <span>{product.rating}</span>
               <span className="text-neutral-400 font-normal">({product.reviewCount?.toLocaleString() || 0})</span>
             </div>
@@ -190,7 +190,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Size Pills Selector */}
         {product.variants && product.variants.length > 1 && (
-          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 pt-0.5">
             {product.variants.map(variant => (
               <button
                 key={variant.sku}
@@ -200,7 +200,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   e.stopPropagation();
                   setSelectedVariant(variant);
                 }}
-                className={`text-[10px] px-2.5 py-0.5 rounded-md font-medium border transition-all ${
+                className={`text-[9px] sm:text-[10px] px-2 sm:px-2.5 py-0.5 rounded-md font-medium border transition-all ${
                   selectedVariant.sku === variant.sku
                     ? 'bg-brand-plum-900 text-white border-brand-plum-900 shadow-xs'
                     : 'bg-neutral-50 text-neutral-600 border-neutral-200 hover:border-neutral-400 hover:bg-neutral-100'
@@ -214,14 +214,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         )}
 
         {/* Price and Add to Cart Action */}
-        <div className="pt-3 border-t border-neutral-100 flex items-center justify-between gap-2 mt-auto">
+        <div className="pt-2.5 sm:pt-3 border-t border-neutral-100 flex items-center justify-between gap-1.5 sm:gap-2 mt-auto">
           <div className="min-w-0">
-            <div className="flex items-baseline gap-1.5 flex-wrap">
-              <span className="text-base sm:text-lg font-bold text-neutral-950 tabular-nums">
+            <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
+              <span className="text-sm sm:text-base lg:text-lg font-bold text-neutral-950 tabular-nums">
                 {formatPrice(selectedVariant.price)}
               </span>
               {selectedVariant.mrp && selectedVariant.mrp > selectedVariant.price && (
-                <span className="text-xs text-neutral-400 line-through tabular-nums">
+                <span className="text-[10px] sm:text-xs text-neutral-400 line-through tabular-nums">
                   {formatPrice(selectedVariant.mrp)}
                 </span>
               )}
@@ -232,15 +232,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             type="button"
             onClick={handleAddToCart}
             disabled={isOutOfStock}
-            className={`px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition-all shrink-0 ${
+            className={`px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 shadow-sm transition-all shrink-0 ${
               isOutOfStock
                 ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
                 : 'bg-brand-plum-900 hover:bg-brand-plum-800 active:scale-95 text-white'
             }`}
             aria-label={isOutOfStock ? `${product.name} is out of stock` : `Add ${product.name} to bag`}
           >
-            <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-            <span>{isOutOfStock ? 'Sold Out' : 'Add to Bag'}</span>
+            <ShoppingBag className="w-3 sm:w-3.5 h-3 sm:h-3.5 shrink-0" />
+            <span>{isOutOfStock ? 'Sold Out' : 'Add'}</span>
           </button>
         </div>
       </div>

@@ -284,7 +284,7 @@ export const Hero3DCanvas: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="w-full h-full min-h-[480px] sm:min-h-[540px] lg:min-h-[600px] xl:min-h-[640px] relative overflow-hidden rounded-3xl cursor-grab active:cursor-grabbing select-none bg-radial-gradient from-brand-blush-200/25 via-transparent to-transparent flex items-center justify-center"
+      className="w-full h-full min-h-[380px] sm:min-h-[500px] lg:min-h-[600px] xl:min-h-[640px] relative overflow-hidden rounded-3xl cursor-grab active:cursor-grabbing select-none bg-radial-gradient from-brand-blush-200/25 via-transparent to-transparent flex items-center justify-center"
     >
       <Suspense fallback={<StaticFlaconFallback />}>
         <Canvas
@@ -374,16 +374,16 @@ export const Hero3DCanvas: React.FC = () => {
 
       {/* Floating Interactive Badge & Controls */}
       <div className="absolute top-4 left-4 flex items-center gap-2">
-        <span className="px-3 py-1 rounded-full bg-brand-plum-950/80 backdrop-blur-md text-brand-blush-200 text-[11px] font-semibold tracking-wider uppercase border border-brand-gold-500/30 flex items-center gap-1.5 shadow-sm">
+        <span className="px-3 py-1 rounded-full bg-brand-plum-950/80 backdrop-blur-md text-brand-blush-200 text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase border border-brand-gold-500/30 flex items-center gap-1.5 shadow-sm">
           <SparklesIcon className="w-3 h-3 text-brand-gold-400" />
           <span>100ml Pure Parfum Flacon</span>
         </span>
       </div>
 
-      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-auto">
-        <div className="bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-brand-blush-300/50 text-[11px] text-brand-plum-950 font-medium shadow-md flex items-center gap-2 select-none">
-          <span className="w-2 h-2 rounded-full bg-brand-gold-500 animate-pulse" />
-          <span>🖱️ Drag to Rotate 360°</span>
+      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-auto gap-2">
+        <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-brand-blush-300/50 text-[10px] sm:text-[11px] text-brand-plum-950 font-medium shadow-md flex items-center gap-1.5 sm:gap-2 select-none">
+          <span className="w-2 h-2 rounded-full bg-brand-gold-500 animate-pulse shrink-0" />
+          <span className="truncate">✨ Touch / Rotate 360°</span>
         </div>
 
         <button
