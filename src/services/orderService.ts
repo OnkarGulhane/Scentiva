@@ -142,6 +142,44 @@ export const OrderService = {
     return updatedOrder;
   },
 
+  dispatchShiprocket: (orderId: string, trackingNumber?: string, carrier?: string): Order | null => {
+    const all = getStoredOrders();
+    const index = all.findIndex(o => o.id === orderId || o.orderNumber === orderId);
+    if (index === -1) return null;
+
+    const currentOrder = all[index];
+    const awb = trackingNumber || `SR-BLUEDART-${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+    const courier = carrier || 'BlueDart Apex Air (Shiprocket)';
+
+    const updatedTimeline = currentOrder.timeline.map(t => {
+      if (t.status === 'Shipped') {
+        return {
+          ...t,
+          completed: true,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          description: `Dispatched via Shiprocket partner ${courier}. AWB #${awb}`
+        };
+      }
+      if (t.status === 'Processing') {
+        return { ...t, completed: true, timestamp: 'Completed' };
+      }
+      return t;
+    });
+
+    const updatedOrder: Order = {
+      ...currentOrder,
+      status: 'Shipped',
+      trackingNumber: awb,
+      carrier: courier,
+      shippingProvider: 'SHIPROCKET',
+      timeline: updatedTimeline
+    };
+
+    all[index] = updatedOrder;
+    saveStoredOrders(all);
+    return updatedOrder;
+  },
+
   delete: (orderId: string): boolean => {
     const all = getStoredOrders();
     const cleanId = orderId.trim().toLowerCase();

@@ -32,6 +32,7 @@ public class ShippingServiceImpl implements ShippingService {
     private final ShipmentEventRepository shipmentEventRepository;
     private final OrderRepository orderRepository;
     private final List<ShippingProvider> shippingProviders;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     @Override
     @Transactional
@@ -54,9 +55,55 @@ public class ShippingServiceImpl implements ShippingService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported shipping provider: " + providerType));
 
+        // Extract customer and recipient details
+        String recipientName = order.getCustomer() != null ? order.getCustomer().getFullName() : "Valued Customer";
+        String recipientPhone = order.getCustomer() != null && order.getCustomer().getPhone() != null ? order.getCustomer().getPhone() : "9820012345";
+        String recipientEmail = order.getCustomer() != null && order.getCustomer().getUser() != null ? order.getCustomer().getUser().getEmail() : "concierge@scentiva.luxury";
+        String addressLine = "Boutique Fragrance Vault, Baner Road";
+        String city = "Pune";
+        String state = "Maharashtra";
+        String postalCode = "411045";
+        String country = "India";
+
+        if (order.getSnapshot() != null && order.getSnapshot().getShippingAddressSnapshotJson() != null) {
+            try {
+                com.fasterxml.jackson.databind.JsonNode addrNode = objectMapper.readTree(order.getSnapshot().getShippingAddressSnapshotJson());
+                if (addrNode.hasNonNull("fullName")) recipientName = addrNode.get("fullName").asText();
+                if (addrNode.hasNonNull("addressLine1")) addressLine = addrNode.get("addressLine1").asText();
+                if (addrNode.hasNonNull("city")) city = addrNode.get("city").asText();
+                if (addrNode.hasNonNull("state")) state = addrNode.get("state").asText();
+                if (addrNode.hasNonNull("postalCode")) postalCode = addrNode.get("postalCode").asText();
+                if (addrNode.hasNonNull("country")) country = addrNode.get("country").asText();
+            } catch (Exception e) {
+                log.warn("Could not parse shipping address snapshot for order={}", order.getOrderNumber());
+            }
+        }
+
+        List<ShipmentItemDto> itemDtos = new java.util.ArrayList<>();
+        if (order.getItems() != null) {
+            for (com.scentiva.modules.order.model.OrderItem oi : order.getItems()) {
+                itemDtos.add(ShipmentItemDto.builder()
+                        .name(oi.getProductName() != null ? oi.getProductName() : "Luxury Fragrance")
+                        .sku(oi.getSku() != null ? oi.getSku() : "SC-VAULT-EDP")
+                        .quantity(oi.getQuantity())
+                        .price(oi.getUnitPrice())
+                        .build());
+            }
+        }
+
         ShipmentCreateCommand command = ShipmentCreateCommand.builder()
                 .orderId(order.getId())
                 .orderNumber(order.getOrderNumber())
+                .recipientName(recipientName)
+                .recipientPhone(recipientPhone)
+                .recipientEmail(recipientEmail)
+                .shippingAddress(addressLine)
+                .city(city)
+                .state(state)
+                .postalCode(postalCode)
+                .country(country)
+                .orderTotal(order.getTotalAmount())
+                .items(itemDtos)
                 .carrierName(request.getCarrierName())
                 .customTrackingNumber(request.getCustomTrackingNumber())
                 .dispatchLocation(request.getDispatchLocation() != null ? request.getDispatchLocation() : "Mumbai Central Hub")

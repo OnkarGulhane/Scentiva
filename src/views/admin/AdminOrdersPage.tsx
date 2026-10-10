@@ -3,13 +3,14 @@
 import React, { useState } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { OrderStatus } from '../../types';
-import { ShoppingBag, CheckCircle2, Truck, Eye, Search, FileText, Trash2 } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, Truck, Eye, Search, FileText, Trash2, ExternalLink, Loader2 } from 'lucide-react';
 import { Link } from '@/components/common/Link';
 
 export const AdminOrdersPage: React.FC = () => {
-  const { orders, updateOrderStatus, deleteOrder, formatPrice } = useStore();
+  const { orders, updateOrderStatus, dispatchShiprocket, deleteOrder, formatPrice } = useStore();
   const [selectedStatus, setSelectedStatus] = useState<string>('All');
   const [search, setSearch] = useState('');
+  const [shippingLoadingId, setShippingLoadingId] = useState<string | null>(null);
 
   const STATUSES: (OrderStatus | 'All')[] = [
     'All',
@@ -112,20 +113,59 @@ export const AdminOrdersPage: React.FC = () => {
                     {formatPrice(order.total)}
                   </td>
                   <td className="py-3 px-4">
-                    <select
-                      value={order.status}
-                      onChange={e => updateOrderStatus(order.id, e.target.value as OrderStatus)}
-                      className="px-2.5 py-1 text-[11px] rounded-lg border border-neutral-300 font-semibold bg-brand-blush-100/50 text-brand-plum-950 cursor-pointer"
-                    >
-                      <option value="Order Placed">Order Placed</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Shipped">Shipped</option>
-                      <option value="Out for Delivery">Out for Delivery</option>
-                      <option value="Delivered">Delivered</option>
-                    </select>
+                    <div className="space-y-1.5">
+                      <select
+                        value={order.status}
+                        onChange={e => updateOrderStatus(order.id, e.target.value as OrderStatus)}
+                        className="px-2.5 py-1 text-[11px] rounded-lg border border-neutral-300 font-semibold bg-brand-blush-100/50 text-brand-plum-950 cursor-pointer block w-full max-w-[140px]"
+                      >
+                        <option value="Order Placed">Order Placed</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Out for Delivery">Out for Delivery</option>
+                        <option value="Delivered">Delivered</option>
+                      </select>
+
+                      {order.shippingProvider === 'SHIPROCKET' || order.trackingNumber?.startsWith('SR-') ? (
+                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 text-[10px] text-purple-700 font-semibold border border-purple-200" title={`Shiprocket AWB: ${order.trackingNumber}`}>
+                          <Truck className="w-3 h-3 text-purple-600" />
+                          <span>Shiprocket AWB</span>
+                        </div>
+                      ) : (order.status === 'Order Placed' || order.status === 'Processing') ? (
+                        <button
+                          onClick={async () => {
+                            setShippingLoadingId(order.id);
+                            await dispatchShiprocket(order.id);
+                            setShippingLoadingId(null);
+                          }}
+                          disabled={shippingLoadingId === order.id}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-r from-purple-700 to-brand-plum-900 hover:from-purple-800 hover:to-brand-plum-950 text-white text-[10px] font-bold shadow-xs transition-all active:scale-95 disabled:opacity-50"
+                          title="Generate Shiprocket AWB & Dispatch Courier"
+                        >
+                          {shippingLoadingId === order.id ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Truck className="w-3 h-3 text-brand-gold-300" />
+                          )}
+                          <span>Ship via Shiprocket</span>
+                        </button>
+                      ) : null}
+                    </div>
                   </td>
                   <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end gap-3">
+                    <div className="flex items-center justify-end gap-2.5">
+                      {order.trackingNumber?.startsWith('SR-') && (
+                        <a
+                          href={`https://shiprocket.co/tracking/${order.trackingNumber}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] text-purple-700 hover:text-purple-900 font-semibold"
+                          title="Track on Shiprocket Logistics Hub"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          <span>Shiprocket</span>
+                        </a>
+                      )}
                       <Link
                         to={`/account/orders/${order.orderNumber || order.id}/invoice`}
                         className="inline-flex items-center gap-1 text-xs text-[#8C6B28] hover:text-[#72551e] font-semibold"

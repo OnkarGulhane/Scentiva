@@ -15,7 +15,8 @@ import {
   ArrowLeft,
   Phone,
   Sparkles,
-  FileText
+  FileText,
+  ExternalLink
 } from 'lucide-react';
 
 export const OrderTrackingPage: React.FC = () => {
@@ -91,10 +92,23 @@ export const OrderTrackingPage: React.FC = () => {
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200 shadow-xs space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-100 pb-4">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-brand-rose-500 block">
-                Air Waybill #{order.trackingNumber}
-              </span>
-              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-neutral-900">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-rose-500 block">
+                  Air Waybill #{order.trackingNumber}
+                </span>
+                {order.trackingNumber?.startsWith('SR-') && (
+                  <a
+                    href={`https://shiprocket.co/tracking/${order.trackingNumber}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700 bg-purple-100 hover:bg-purple-200 px-2 py-0.5 rounded-full transition-colors"
+                  >
+                    <span>Shiprocket Live</span>
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </a>
+                )}
+              </div>
+              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-neutral-900 mt-1">
                 Order {order.orderNumber}
               </h1>
             </div>
@@ -169,8 +183,22 @@ export const OrderTrackingPage: React.FC = () => {
               <span>Courier Partner Information</span>
             </div>
             <div className="space-y-1 text-xs text-neutral-600">
-              <p><strong>Carrier:</strong> BlueDart Apex Air Express (Priority Thermal)</p>
-              <p><strong>Tracking Number:</strong> {order.trackingNumber}</p>
+              <p><strong>Carrier:</strong> {order.carrier || (order.trackingNumber?.startsWith('SR-') ? 'BlueDart Apex Air Express (via Shiprocket)' : 'BlueDart Apex Air Express (Priority Thermal)')}</p>
+              <p className="flex items-center gap-1.5 flex-wrap">
+                <strong>Tracking Number:</strong>
+                <span className="font-mono font-bold text-neutral-900">{order.trackingNumber}</span>
+                {order.trackingNumber?.startsWith('SR-') && (
+                  <a
+                    href={`https://shiprocket.co/tracking/${order.trackingNumber}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-0.5 text-purple-700 hover:text-purple-900 font-semibold underline text-[11px] ml-1"
+                  >
+                    <span>Track on Shiprocket</span>
+                    <ExternalLink className="w-3 h-3 inline" />
+                  </a>
+                )}
+              </p>
               <p><strong>Package Type:</strong> Insulated Luxury Vault Coffret</p>
               <p><strong>Security Seal:</strong> Verified & Tamper-Evident</p>
             </div>

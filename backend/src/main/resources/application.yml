@@ -116,3 +116,16 @@ scentiva:
     service-url: ${AI_SERVICE_URL:http://localhost:8000}
     enabled: ${AI_SERVICE_ENABLED:true}
     timeout-ms: ${AI_TIMEOUT_MS:10000}
+  shipping:
+    shiprocket:
+      enabled: ${SHIPROCKET_ENABLED:true}
+      base-url: ${SHIPROCKET_BASE_URL:https://apiv2.shiprocket.in/v2/console}
+      email: ${SHIPROCKET_EMAIL:placeholder_shiprocket_email@scentiva.luxury}
+      password: ${SHIPROCKET_PASSWORD:placeholder_shiprocket_password}
+      pickup-location: ${SHIPROCKET_PICKUP_LOCATION:Primary Warehouse}
+      mock-mode: ${SHIPROCKET_MOCK_MODE:true}
+      default-weight: 0.45
+      default-length: 15
+      default-breadth: 10
+      default-height: 8
+

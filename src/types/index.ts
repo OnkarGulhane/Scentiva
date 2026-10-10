@@ -142,6 +142,8 @@ export interface Order {
   total: number;
   status: OrderStatus;
   trackingNumber: string;
+  carrier?: string;
+  shippingProvider?: 'MANUAL' | 'SHIPROCKET';
   estimatedDelivery: string;
   paymentMethod: 'Razorpay Secure (UPI, Cards, NetBanking)' | 'Razorpay' | 'UPI / QR' | 'Credit / Debit Card' | 'Net Banking' | 'Cash on Delivery' | string;
   paymentStatus: 'Paid' | 'Pending' | 'Demo Confirmed';

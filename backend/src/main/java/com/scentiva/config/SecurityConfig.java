@@ -73,8 +73,8 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // Public Authentication Endpoints
                         .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/google", "/api/v1/auth/logout").permitAll()
-                        // Public Test Email Endpoint
-                        .requestMatchers("/api/v1/notifications/test-email").permitAll()
+                        // Public Test Email & Logistics Webhook Endpoints
+                        .requestMatchers("/api/v1/notifications/test-email", "/api/v1/shipping/webhooks/**").permitAll()
                         // Public Storefront Read Operations & Tracking
                         .requestMatchers(HttpMethod.GET, "/api/v1/catalog/**", "/api/v1/products/**",
                                 "/api/v1/brands/**", "/api/v1/categories/**", "/api/v1/stories/**",

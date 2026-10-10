@@ -210,17 +210,35 @@
   - Next.js build: **50 / 50 static and dynamic routes prerendered with 0 errors**.
 - [x] **Git Commit:** `660f402` on branch `main` (Pushed to GitHub).
 
+### 26. Automated Shiprocket Logistics & Courier Integration Suite (Phase 25)
+- [x] **Spring Boot Shiprocket Integration Architecture:**
+  - Configured `scentiva.shipping.shiprocket` properties in [application.yml](file:///e:/Scentiva/backend/src/main/resources/application.yml) with mock-mode auto fallback.
+  - Implemented [ShiprocketProperties.java](file:///e:/Scentiva/backend/src/main/java/com/scentiva/modules/shipping/config/ShiprocketProperties.java) with credentials validation.
+  - Authored full Shiprocket DTO suite: `ShiprocketLoginRequest`, `ShiprocketLoginResponse`, `ShiprocketCreateOrderRequest`, `ShiprocketOrderItem`, `ShiprocketCreateOrderResponse`, `ShiprocketAssignAwbRequest`, `ShiprocketAssignAwbResponse`, and `ShiprocketWebhookPayload`.
+  - Built [ShiprocketApiClient.java](file:///e:/Scentiva/backend/src/main/java/com/scentiva/modules/shipping/client/ShiprocketApiClient.java) using modern Spring 6 `RestClient` with JWT token caching (23-hr TTL) and graceful simulated mock fallback for zero-downtime testing.
+  - Implemented [ShiprocketShippingProvider.java](file:///e:/Scentiva/backend/src/main/java/com/scentiva/modules/shipping/provider/impl/ShiprocketShippingProvider.java) conforming to Scentiva's `ShippingProvider` SPI.
+  - Created [ShiprocketWebhookController.java](file:///e:/Scentiva/backend/src/main/java/com/scentiva/modules/shipping/controller/ShiprocketWebhookController.java) accepting live milestone events (`PICKED UP`, `IN TRANSIT`, `OUT FOR DELIVERY`, `DELIVERED`) and automatically transitioning order lifecycle.
+  - Allowed `/api/v1/shipping/webhooks/**` in [SecurityConfig.java](file:///e:/Scentiva/backend/src/main/java/com/scentiva/config/SecurityConfig.java).
+  - Enriched [ShippingServiceImpl.java](file:///e:/Scentiva/backend/src/main/java/com/scentiva/modules/shipping/service/impl/ShippingServiceImpl.java) to populate customer address snapshot, contact details, and line items into `ShipmentCreateCommand`.
+  - Automated tests: [ShiprocketShippingProviderTest.java](file:///e:/Scentiva/backend/src/test/java/com/scentiva/modules/shipping/provider/ShiprocketShippingProviderTest.java) and [ShiprocketWebhookControllerTest.java](file:///e:/Scentiva/backend/src/test/java/com/scentiva/modules/shipping/controller/ShiprocketWebhookControllerTest.java) passing 100%.
+- [x] **Next.js 14 Admin & Customer Tracking Integration:**
+  - Added `dispatchShiprocket` action in [orderService.ts](file:///e:/Scentiva/src/services/orderService.ts) and [StoreContext.tsx](file:///e:/Scentiva/src/context/StoreContext.tsx).
+  - Added 1-Click **"Ship via Shiprocket"** dispatch button in [AdminOrdersPage.tsx](file:///e:/Scentiva/src/views/admin/AdminOrdersPage.tsx) with live AWB badge and direct Shiprocket tracking hub link.
+  - Enhanced [OrderTrackingPage.tsx](file:///e:/Scentiva/src/views/OrderTrackingPage.tsx) to display dynamic Shiprocket carrier information and live Shiprocket tracking link (`https://shiprocket.co/tracking/{awb}`).
+  - Frontend build: **50 / 50 static and dynamic routes prerendered with 0 errors**.
+
 ---
 
 ## 📊 Summary Metrics
 
 | Metric | Measured Value |
 |---|---|
-| Total Phases Completed | 25 (Phases 0 to 24) |
-| Backend Java Unit/Integration Tests | 236 / 236 Passed (100%) |
+| Total Phases Completed | 26 (Phases 0 to 25) |
+| Backend Java Unit/Integration Tests | 239 / 239 Passed (100%) |
 | Python AI Service Unit/Integration Tests | 21 / 21 Passed (100%) |
 | Live API Assertions Executed | 86 / 86 Passed (100%) |
 | Frontend Next.js Prerendered Routes | 50 / 50 Built Successfully |
+| Logistics & Fulfillment | Shiprocket API + BlueDart / Delhivery automated dispatch + Webhooks |
 | PostgreSQL Relational Tables | 35 Tables + pgvector RAG (Active on Supabase) |
 | Multi-Lingual AI Assistant | English, Marathi (मराठी), Hindi (हिंदी) |
 | Cloud Storage | Supabase Storage (`scentiva-media`) Active |
