@@ -37,11 +37,11 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-brand-plum-950 text-white border-t border-brand-plum-800/80 pt-16 pb-24 lg:pb-16 mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <footer className="bg-brand-plum-950 text-white border-t border-brand-plum-800/80 pt-12 sm:pt-16 pb-24 lg:pb-16 mt-16 sm:mt-20 w-full max-w-full overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 w-full">
         {/* Newsletter & Club Invite */}
-        <div className="rounded-2xl bg-gradient-to-r from-brand-plum-900 via-brand-plum-800 to-brand-plum-950 p-6 sm:p-10 border border-brand-blush-300/20 shadow-modal flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center md:text-left max-w-lg">
+        <div className="rounded-2xl bg-gradient-to-r from-brand-plum-900 via-brand-plum-800 to-brand-plum-950 p-4 sm:p-8 md:p-10 border border-brand-blush-300/20 shadow-modal flex flex-col md:flex-row items-center justify-between gap-6 w-full overflow-hidden">
+          <div className="space-y-2 text-center md:text-left max-w-lg w-full">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-brand-gold-500">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Privé Connoisseurs Club</span>
@@ -54,24 +54,24 @@ export const Footer: React.FC = () => {
             </p>
           </div>
 
-          <div className="w-full md:w-auto min-w-[320px]">
+          <div className="w-full md:w-auto min-w-0 md:min-w-[320px]">
             {subscribed ? (
               <div className="flex items-center gap-2 text-semantic-success bg-white/10 px-4 py-3 rounded-xl border border-semantic-success/40 text-xs font-medium">
                 <CheckCircle2 className="w-5 h-5 text-brand-blush-300 flex-shrink-0" />
                 <span>You're subscribed! Use coupon code <strong>WELCOME10</strong> at checkout.</span>
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="flex gap-2">
+              <form onSubmit={handleSubscribe} className="flex gap-2 w-full">
                 <input
                   type="email"
                   placeholder="Enter your email address..."
                   value={newsletterEmail}
                   onChange={e => setNewsletterEmail(e.target.value)}
-                  className="flex-1 px-4 py-3 text-xs rounded-xl bg-white/10 border border-brand-blush-300/30 text-white placeholder:text-brand-blush-200/50 focus:outline-none focus:border-brand-blush-300 focus:ring-2 focus:ring-brand-blush-300/20"
+                  className="flex-1 min-w-0 px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs rounded-xl bg-white/10 border border-brand-blush-300/30 text-white placeholder:text-brand-blush-200/50 focus:outline-none focus:border-brand-blush-300 focus:ring-2 focus:ring-brand-blush-300/20"
                 />
                 <button
                   type="submit"
-                  className="px-5 py-3 rounded-xl bg-brand-gold-500 hover:bg-brand-gold-500/90 text-brand-plum-950 font-semibold text-xs transition-all shadow-md flex items-center gap-1.5"
+                  className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-brand-gold-500 hover:bg-brand-gold-500/90 text-brand-plum-950 font-semibold text-xs transition-all shadow-md flex items-center gap-1.5 shrink-0"
                 >
                   <span>Join</span>
                   <Send className="w-3.5 h-3.5" />

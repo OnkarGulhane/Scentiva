@@ -42,10 +42,10 @@ export const StoreLayoutShell: React.FC<StoreLayoutShellProps> = ({ children }) 
   const hasBottomNav = !isAdminRoute && !isCheckoutRoute;
 
   return (
-    <div className="flex flex-col min-h-screen w-full relative">
+    <div className="flex flex-col min-h-screen w-full max-w-full overflow-x-hidden relative">
       <AnnouncementBar />
       <Navbar />
-      <main className={`flex-1 w-full ${hasBottomNav ? (isPdpRoute ? 'pb-32 lg:pb-0' : 'pb-20 lg:pb-0') : ''}`}>
+      <main className={`flex-1 w-full max-w-full overflow-x-hidden ${hasBottomNav ? (isPdpRoute ? 'pb-32 lg:pb-0' : 'pb-20 lg:pb-0') : ''}`}>
         {children}
       </main>
       <Footer />

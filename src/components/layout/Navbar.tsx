@@ -122,20 +122,20 @@ export const Navbar: React.FC = () => {
           : 'bg-white border-b border-neutral-200/60 py-4'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-1.5 sm:gap-4">
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="lg:hidden p-2 text-neutral-800 hover:text-brand-plum-900 rounded-lg hover:bg-neutral-100 transition-colors"
+            className="lg:hidden p-1.5 text-neutral-800 hover:text-brand-plum-900 rounded-lg hover:bg-neutral-100 transition-colors shrink-0"
             aria-label="Open Navigation Menu"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3 group shrink-0">
-            <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-brand-plum-900 p-1 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+            <div className="relative w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-brand-plum-900 p-1 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform shrink-0">
               <img
                 src="/assets/scentiva-emblem.svg"
                 alt="SCENTIVA Emblem"
@@ -143,10 +143,10 @@ export const Navbar: React.FC = () => {
               />
             </div>
             <div className="flex flex-col">
-              <span className="font-serif text-2xl sm:text-3xl font-semibold tracking-wider text-brand-plum-950 leading-none group-hover:text-brand-plum-800 transition-colors">
+              <span className="font-serif text-xl sm:text-3xl font-semibold tracking-wider text-brand-plum-950 leading-none group-hover:text-brand-plum-800 transition-colors">
                 SCENTIVA
               </span>
-              <span className="text-[9px] sm:text-[10px] font-sans font-semibold tracking-[0.3em] text-brand-rose-500 uppercase mt-0.5">
+              <span className="text-[8px] sm:text-[10px] font-sans font-semibold tracking-[0.25em] sm:tracking-[0.3em] text-brand-rose-500 uppercase mt-0.5">
                 HAUTE PARFUMERIE
               </span>
             </div>
@@ -369,7 +369,7 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Search Bar & Actions */}
-          <div className="flex items-center gap-2 sm:gap-3" ref={searchContainerRef}>
+          <div className="flex items-center gap-1.5 sm:gap-3" ref={searchContainerRef}>
             {/* Search Input with Autocomplete */}
             <div className="relative hidden md:block">
               <form onSubmit={handleSearchSubmit} className="relative">
@@ -495,10 +495,10 @@ export const Navbar: React.FC = () => {
               </span>
             </button>
 
-            {/* Admin Console Direct Link */}
+            {/* Admin Console Direct Link (Desktop/Tablet Only - Mobile uses Drawer) */}
             <Link
               to="/admin"
-              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-brand-plum-950 hover:bg-brand-plum-900 text-brand-gold-300 hover:text-white text-xs font-semibold shadow-sm transition-all border border-brand-gold-500/30 group cursor-pointer"
+              className="hidden sm:flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-brand-plum-950 hover:bg-brand-plum-900 text-brand-gold-300 hover:text-white text-xs font-semibold shadow-sm transition-all border border-brand-gold-500/30 group cursor-pointer"
               aria-label="Open Admin Operations Console"
               title="Open Admin Operations Console"
             >

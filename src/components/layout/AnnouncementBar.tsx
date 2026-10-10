@@ -38,8 +38,8 @@ export const AnnouncementBar: React.FC = () => {
   const current = ANNOUNCEMENTS[index];
 
   return (
-    <div className="bg-brand-plum-950 text-white text-xs py-2 px-4 transition-all duration-300 border-b border-brand-plum-800/60 relative z-40">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="bg-brand-plum-950 text-white text-xs py-2 px-2.5 sm:px-4 transition-all duration-300 border-b border-brand-plum-800/60 relative z-40 w-full max-w-full overflow-hidden">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 w-full overflow-hidden">
         <div className="hidden md:flex items-center gap-2 text-brand-gold-500 font-medium tracking-widest text-[11px] uppercase">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Haute Parfumerie</span>

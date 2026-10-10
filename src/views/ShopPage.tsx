@@ -252,23 +252,23 @@ export const ShopPage: React.FC = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between sm:justify-start gap-2.5 sm:gap-3 w-full sm:w-auto">
             {/* Mobile Filter Sheet Button */}
             <button
               onClick={() => setMobileFiltersOpen(true)}
-              className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-neutral-300 text-xs font-semibold text-neutral-800 shadow-xs"
+              className="lg:hidden flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-white border border-neutral-300 text-xs font-semibold text-neutral-800 shadow-xs"
             >
               <SlidersHorizontal className="w-4 h-4 text-brand-plum-900" />
               <span>Filters ({activeFiltersCount})</span>
             </button>
 
             {/* Sort Dropdown */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-1 sm:flex-initial justify-end">
               <span className="text-xs text-neutral-500 font-medium hidden sm:inline">Sort by:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-3.5 py-2 rounded-xl bg-white border border-neutral-300 text-xs font-semibold text-neutral-800 focus:outline-none focus:border-brand-plum-700 shadow-xs"
+                className="w-full sm:w-auto px-3 sm:px-3.5 py-2 rounded-xl bg-white border border-neutral-300 text-xs font-semibold text-neutral-800 focus:outline-none focus:border-brand-plum-700 shadow-xs"
               >
                 <option value="recommended">Curator's Pick</option>
                 <option value="price-asc">Price: Low to High</option>
