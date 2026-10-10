@@ -5,9 +5,9 @@
 > **Frontend Architecture:** Next.js 14 App Router (SSG/SSR) + TypeScript 5.5 + Tailwind CSS + Three.js / R3F + GSAP Motion  
 > **Backend Architecture:** Spring Boot 3.3.4 (Java 21 LTS) Modular Monolith + PostgreSQL 17 + Flyway + Spring Security 6 (JWT)  
 > **AI Architecture:** Python FastAPI Microservice (`ai-service/`) + LangChain + PostgreSQL pgvector RAG + Multi-Lingual NLP Engine  
-> **Last Updated:** 2026-10-09  
+> **Last Updated:** 2026-10-10  
 > **Repository Remote:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)  
-> **Current Status:** Phases 0–24 100% Complete & Verified + Mobile-First PWA & Responsiveness Suite (236/236 Java JUnit tests passing, 21/21 Python AI pytest tests passing, 86/86 Live API assertions passing, 13/13 Live Render Production Assertions passing on `https://scentiva-backend-zmvo.onrender.com`, 50/50 Next.js static pages prerendered without hydration mismatch, PWA manifest with standalone display, Native Web Share & numeric input keyboards, iOS-style bottom sheet filters, Multi-Lingual AI Assistant with English/Marathi/Hindi switcher, Scentiva pgvector RAG & catalog tools, Production Order Invoice OpenPDF engine, Google Identity Services OAuth 2.0, Supabase PostgreSQL 17 & Storage, Razorpay Secure Gateway live test mode, latest commit `eb43e81` on `main`).
+> **Current Status:** Phases 0–25 100% Complete & Verified + Mobile-First PWA Suite + Viewport Overflow Fix + Automated Shiprocket Logistics & Courier Integration Suite (239/239 Java JUnit tests passing, 21/21 Python AI pytest tests passing, 86/86 Live API assertions passing, 13/13 Live Render Production Assertions passing on `https://scentiva-backend-zmvo.onrender.com`, 50/50 Next.js static pages prerendered without hydration mismatch, PWA manifest with standalone display, Native Web Share & numeric input keyboards, iOS-style bottom sheet filters, Mobile horizontal overflow eliminate with strict viewport tags, Automated Shiprocket SPI provider with Spring 6 RestClient, token caching, mock mode fallback, live tracking webhooks, 1-Click Admin dispatch button, and Customer Shiprocket AWB tracking link, latest commit `fa71c68` on `main`).
 
 ---
 
@@ -126,7 +126,7 @@
 9. **`order`:** Full lifecycle state machine (`PLACED` → `CONFIRMED` → `PROCESSING` → `SHIPPED` → `DELIVERED` / `CANCELLED` / `REFUNDED`), immutable JSON snapshots (`OrderSnapshot`), and automated restock + refund triggers upon cancellation.
 10. **`invoice`:** OpenPDF 2.0.3 deterministic A4 vector PDF engine (`PdfInvoiceGenerator.java`), `INV-YYYY-XXXXXX` numbering format, and endpoints for both JSON metadata and inline PDF streaming (`/api/v1/orders/{orderNumber}/invoice/pdf`).
 11. **`email`:** Pluggable `EmailProvider` SPI with `ResendEmailProvider`, `GmailSmtpEmailProvider`, and `MockEmailProvider` utilizing luxury Deep Plum/Gold HTML Thymeleaf templates.
-12. **`shipping`:** Shipping SPI abstraction (`ShippingProvider`), `ManualShippingProvider` (generating `SC-TRK-*` courier tracking numbers), carrier status transitions (`DISPATCHED` → `IN_TRANSIT` → `OUT_FOR_DELIVERY` → `DELIVERED`), and timeline events.
+12. **`shipping`:** Shipping SPI abstraction (`ShippingProvider`), `ManualShippingProvider` (generating `SC-TRK-*` courier tracking numbers), and `ShiprocketShippingProvider` (automated Shiprocket API v2 adhoc order dispatch, AWB assignment with BlueDart/Delhivery, JWT token caching with 23-hr TTL, mock-mode auto fallback, and live tracking webhook receiver `/api/v1/shipping/webhooks/shiprocket`), carrier status transitions (`DISPATCHED` → `IN_TRANSIT` → `OUT_FOR_DELIVERY` → `DELIVERED`), and timeline events.
 13. **`review`:** Product reviews with verified-purchase enforcement against delivered orders, 1-5 star ratings, automated sentiment heuristics, and backoffice moderation (`PENDING`, `APPROVED`, `REJECTED`).
 14. **`returns`:** Customer return workflow with item-level reasons, return status transitions (`REQUESTED` → `APPROVED` → `PICKED_UP` → `RECEIVED` → `REFUNDED`), stock return adjustments, and payment refund processing.
 15. **`notification`:** Multi-channel notifications (`IN_APP`, `EMAIL`, `SMS`, `WHATSAPP`), Spring `@EventListener` triggers for order lifecycle events, unread badge counters, and mark-as-read endpoints.
@@ -168,7 +168,7 @@
 
 ## 6. Automated Verification & Stress Testing Suite
 
-- **Total Backend Tests:** **236 / 236 Java tests passing (100% BUILD SUCCESS, 0 failures, 0 errors)**
+- **Total Backend Tests:** **239 / 239 Java tests passing (100% BUILD SUCCESS, 0 failures, 0 errors)**
 - **Python AI Service Tests:** **21 / 21 Pytest tests passing (100% PASS, 0 failures)**
 - **Live HTTP Test Assertions:** **86 / 86 tests passing (100% PASS, 0 failures)**
 - **Stress & Concurrency Proofs:**
@@ -210,6 +210,7 @@
 | **Phase 22** | **Hybrid Email Service (Resend API & Gmail SMTP SPI) + Luxury HTML Templates** | ✅ **COMPLETED** |
 | **Phase 23** | **Production Order Invoice & Receipt System (OpenPDF A4 Engine)** | ✅ **COMPLETED** |
 | **Phase 24** | **Scentiva AI Platform (FastAPI + pgvector + Multi-Lingual AI Assistant)** | ✅ **COMPLETED** (`660f402`) |
+| **Phase 25** | **Automated Shiprocket Logistics & Courier Integration Suite** | ✅ **COMPLETED** (`fa71c68`) |
 
 ---
 
