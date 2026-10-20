@@ -86,10 +86,13 @@ scentiva:
     company-name: "SCENTIVA Haute Parfumerie"
     theme-color: "#321027"
   mail:
-    provider: ${MAIL_PROVIDER:resend} # Options: resend, gmail, mock, hybrid
-    from-email: ${MAIL_FROM:SCENTIVA <onboarding@resend.dev>}
+    provider: ${MAIL_PROVIDER:brevo} # Options: brevo, resend, gmail, mock, hybrid
+    from-email: ${MAIL_FROM:SCENTIVA <orders@scentiva.com>}
     reply-to: ${MAIL_REPLY_TO:concierge@scentiva.com}
     enabled: ${MAIL_ENABLED:true}
+    brevo:
+      api-key: ${BREVO_API_KEY:placeholder_brevo_api_key}
+      api-url: ${BREVO_API_URL:https://api.brevo.com/v3/smtp/email}
     resend:
       api-key: ${RESEND_API_KEY:placeholder_resend_api_key}
       api-url: ${RESEND_API_URL:https://api.resend.com/emails}

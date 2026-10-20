@@ -1,5 +1,6 @@
 package com.scentiva.modules.notification.service;
 
+import com.scentiva.modules.notification.provider.impl.BrevoEmailProvider;
 import com.scentiva.modules.notification.provider.impl.MockEmailProvider;
 import com.scentiva.modules.notification.provider.impl.ResendEmailProvider;
 import com.scentiva.modules.notification.provider.impl.GmailSmtpEmailProvider;
@@ -25,6 +26,9 @@ class EmailServiceTest {
 
     @Autowired
     private MockEmailProvider mockEmailProvider;
+
+    @Autowired
+    private BrevoEmailProvider brevoEmailProvider;
 
     @Autowired
     private ResendEmailProvider resendEmailProvider;
@@ -118,6 +122,7 @@ class EmailServiceTest {
         assertThat(mockEmailProvider.getProviderName()).isEqualTo("MOCK");
         assertThat(mockEmailProvider.isAvailable()).isTrue();
 
+        assertThat(brevoEmailProvider.getProviderName()).isEqualTo("BREVO");
         assertThat(resendEmailProvider.getProviderName()).isEqualTo("RESEND");
         assertThat(gmailSmtpEmailProvider.getProviderName()).isEqualTo("GMAIL_SMTP");
     }

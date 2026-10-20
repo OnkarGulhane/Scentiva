@@ -7,7 +7,7 @@
 > **AI Architecture:** Python FastAPI Microservice (`ai-service/`) + LangChain + PostgreSQL pgvector RAG + Multi-Lingual NLP Engine  
 > **Last Updated:** 2026-10-10  
 > **Repository Remote:** [https://github.com/OnkarGulhane/Scentiva](https://github.com/OnkarGulhane/Scentiva)  
-> **Current Status:** Phases 0–25 100% Complete & Verified + Mobile-First PWA Suite + Viewport Overflow Fix + Automated Shiprocket Logistics & Courier Integration Suite (239/239 Java JUnit tests passing, 21/21 Python AI pytest tests passing, 86/86 Live API assertions passing, 13/13 Live Render Production Assertions passing on `https://scentiva-backend-zmvo.onrender.com`, 50/50 Next.js static pages prerendered without hydration mismatch, PWA manifest with standalone display, Native Web Share & numeric input keyboards, iOS-style bottom sheet filters, Mobile horizontal overflow eliminate with strict viewport tags, Automated Shiprocket SPI provider with Spring 6 RestClient, token caching, mock mode fallback, live tracking webhooks, 1-Click Admin dispatch button, and Customer Shiprocket AWB tracking link, latest commit `fa71c68` on `main`).
+> **Current Status:** Phases 0–25 100% Complete & Verified + Mobile-First PWA Suite + Viewport Overflow Fix + Automated Shiprocket Logistics & Courier Integration Suite + Multi-Provider Email Suite (Brevo REST API v3, Resend, Gmail SMTP SPI) (243/243 Java JUnit tests passing, 21/21 Python AI pytest tests passing, 86/86 Live API assertions passing, 13/13 Live Render Production Assertions passing on `https://scentiva-backend-zmvo.onrender.com`, 50/50 Next.js static pages prerendered without hydration mismatch, PWA manifest with standalone display, Native Web Share & numeric input keyboards, iOS-style bottom sheet filters, Mobile horizontal overflow eliminate with strict viewport tags, Automated Shiprocket SPI provider with Spring 6 RestClient, token caching, mock mode fallback, live tracking webhooks, 1-Click Admin dispatch button, Customer Shiprocket AWB tracking link, Brevo REST API v3 transactional email integration with hybrid failover, latest commit on `main`).
 
 ---
 
@@ -40,7 +40,7 @@
 │  │  AuthService       ProductService      InventoryService (Pessimistic Lock / TTL) │  │
 │  │  CartService       CheckoutService     RazorpayPaymentProvider (HMAC SHA-256)    │  │
 │  │  OrderService      ShippingService     SupabaseStorageService (scentiva-media)   │  │
-│  │  InvoiceService    ScentivaEmailService (Resend + Gmail SMTP SPI)                │  │
+│  │  InvoiceService    ScentivaEmailService (Brevo + Resend + Gmail SMTP SPI)        │  │
 │  │  ReviewService     ReturnService       CmsStoryService / SeoService / AuditLog   │  │
 │  └──────────────────────────────────────▲───────────────────────────────────────────┘  │
 │                                         │                                              │
@@ -125,7 +125,7 @@
 8. **`payment`:** Payment SPI abstraction (`PaymentProvider`), `RazorpayPaymentProvider` (live order creation & HMAC SHA-256 signature verification), `DemoPaymentProvider` (simulating instant capture, 3D-Secure challenge, card decline, and refunds), transactions log, and idempotency protection.
 9. **`order`:** Full lifecycle state machine (`PLACED` → `CONFIRMED` → `PROCESSING` → `SHIPPED` → `DELIVERED` / `CANCELLED` / `REFUNDED`), immutable JSON snapshots (`OrderSnapshot`), and automated restock + refund triggers upon cancellation.
 10. **`invoice`:** OpenPDF 2.0.3 deterministic A4 vector PDF engine (`PdfInvoiceGenerator.java`), `INV-YYYY-XXXXXX` numbering format, and endpoints for both JSON metadata and inline PDF streaming (`/api/v1/orders/{orderNumber}/invoice/pdf`).
-11. **`email`:** Pluggable `EmailProvider` SPI with `ResendEmailProvider`, `GmailSmtpEmailProvider`, and `MockEmailProvider` utilizing luxury Deep Plum/Gold HTML Thymeleaf templates.
+11. **`email`:** Pluggable `EmailProvider` SPI with `BrevoEmailProvider`, `ResendEmailProvider`, `GmailSmtpEmailProvider`, and `MockEmailProvider` utilizing luxury Deep Plum/Gold HTML Thymeleaf templates.
 12. **`shipping`:** Shipping SPI abstraction (`ShippingProvider`), `ManualShippingProvider` (generating `SC-TRK-*` courier tracking numbers), and `ShiprocketShippingProvider` (automated Shiprocket API v2 adhoc order dispatch, AWB assignment with BlueDart/Delhivery, JWT token caching with 23-hr TTL, mock-mode auto fallback, and live tracking webhook receiver `/api/v1/shipping/webhooks/shiprocket`), carrier status transitions (`DISPATCHED` → `IN_TRANSIT` → `OUT_FOR_DELIVERY` → `DELIVERED`), and timeline events.
 13. **`review`:** Product reviews with verified-purchase enforcement against delivered orders, 1-5 star ratings, automated sentiment heuristics, and backoffice moderation (`PENDING`, `APPROVED`, `REJECTED`).
 14. **`returns`:** Customer return workflow with item-level reasons, return status transitions (`REQUESTED` → `APPROVED` → `PICKED_UP` → `RECEIVED` → `REFUNDED`), stock return adjustments, and payment refund processing.
@@ -168,7 +168,7 @@
 
 ## 6. Automated Verification & Stress Testing Suite
 
-- **Total Backend Tests:** **239 / 239 Java tests passing (100% BUILD SUCCESS, 0 failures, 0 errors)**
+- **Total Backend Tests:** **243 / 243 Java tests passing (100% BUILD SUCCESS, 0 failures, 0 errors)**
 - **Python AI Service Tests:** **21 / 21 Pytest tests passing (100% PASS, 0 failures)**
 - **Live HTTP Test Assertions:** **86 / 86 tests passing (100% PASS, 0 failures)**
 - **Stress & Concurrency Proofs:**

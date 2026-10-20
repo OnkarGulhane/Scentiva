@@ -28,7 +28,7 @@ public class NotificationController {
     private final com.scentiva.modules.notification.service.EmailService emailService;
 
     @PostMapping("/test-email")
-    @Operation(summary = "Send test luxury email", description = "Dispatches a live test email using the configured provider (Resend/Gmail SMTP).")
+    @Operation(summary = "Send test luxury email", description = "Dispatches a live test email using the configured provider (Brevo/Resend/Gmail SMTP).")
     public ResponseEntity<ApiResponse<String>> sendTestEmail(@Valid @RequestBody com.scentiva.modules.notification.dto.EmailTestRequest request) {
         String type = (request.getTemplateType() != null && !request.getTemplateType().isBlank())
                 ? request.getTemplateType().toLowerCase() : "order-confirmed";

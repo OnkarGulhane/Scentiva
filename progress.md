@@ -4,7 +4,7 @@
 > **Latest Git Commit:** `eb43e81` on branch `main`  
 > **Deployment Architecture:** Next.js 14 on **Vercel** + Spring Boot 3.3.4 (Java 21) on **Render** (`https://scentiva-backend-zmvo.onrender.com`) + Python AI Service (FastAPI) + **Supabase PostgreSQL 17 & Storage** + **Razorpay Payment Gateway** + **Google OAuth 2.0** + **PWA Standalone Web App**  
 > **Build Status:** 
-> - **Backend:** 236 / 236 Java Tests Passing (`mvn test` -> 100% BUILD SUCCESS, 0 Failures, 0 Errors)  
+> - **Backend:** 243 / 243 Java Tests Passing (`mvn test` -> 100% BUILD SUCCESS, 0 Failures, 0 Errors)  
 > - **Python AI Service:** 21 / 21 Pytest Tests Passing (`pytest` -> 100% PASS, 0 Failures)  
 > - **Live Integration Tests:** 86 / 86 Assertions Passing (`node scratch/test_all_apis.js` -> 100% PASS, 0 Failures)  
 > - **Live Render Production Audit:** 13 / 13 Production Assertions Passing (`node scratch/test_live_render.cjs` -> 100% PASS, 0 Failures)  
@@ -234,7 +234,7 @@
 | Metric | Measured Value |
 |---|---|
 | Total Phases Completed | 26 (Phases 0 to 25) |
-| Backend Java Unit/Integration Tests | 239 / 239 Passed (100%) |
+| Backend Java Unit/Integration Tests | 243 / 243 Passed (100%) |
 | Python AI Service Unit/Integration Tests | 21 / 21 Passed (100%) |
 | Live API Assertions Executed | 86 / 86 Passed (100%) |
 | Frontend Next.js Prerendered Routes | 50 / 50 Built Successfully |
@@ -244,7 +244,7 @@
 | Cloud Storage | Supabase Storage (`scentiva-media`) Active |
 | Payment Gateway | Razorpay Live Test Mode Active (`rzp_test_TkFZU8ecNzFnCq`) |
 | Single Sign-On (SSO) | Google Identity Services OAuth 2.0 Active |
-| Email Service Providers | Resend REST API + Gmail SMTP (TLS 587) + Mock |
+| Email Service Providers | Brevo REST API v3 + Resend REST API + Gmail SMTP (TLS 587) + Mock |
 | Invoice / PDF Engine | OpenPDF 2.0.3 Vector Engine + Client-Side A4 Print |
 | Unresolved Critical/High Bugs | 0 |
 | Overall System Health | 100% Production Ready |

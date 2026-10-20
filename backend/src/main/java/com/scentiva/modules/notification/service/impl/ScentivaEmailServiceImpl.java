@@ -2,6 +2,7 @@ package com.scentiva.modules.notification.service.impl;
 
 import com.scentiva.modules.notification.provider.EmailProvider;
 import com.scentiva.modules.notification.provider.dto.EmailPayload;
+import com.scentiva.modules.notification.provider.impl.BrevoEmailProvider;
 import com.scentiva.modules.notification.provider.impl.GmailSmtpEmailProvider;
 import com.scentiva.modules.notification.provider.impl.MockEmailProvider;
 import com.scentiva.modules.notification.provider.impl.ResendEmailProvider;
@@ -24,12 +25,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ScentivaEmailServiceImpl implements EmailService {
 
+    private final BrevoEmailProvider brevoProvider;
     private final ResendEmailProvider resendProvider;
     private final GmailSmtpEmailProvider gmailProvider;
     private final MockEmailProvider mockProvider;
     private final TemplateEngine templateEngine;
 
-    @Value("${scentiva.mail.provider:resend}")
+    @Value("${scentiva.mail.provider:brevo}")
     private String preferredProvider;
 
     @Value("${scentiva.mail.enabled:true}")
@@ -165,28 +167,50 @@ public class ScentivaEmailServiceImpl implements EmailService {
     private void dispatchWithFallback(EmailPayload payload) {
         boolean sent = false;
 
-        // 1. If Resend preferred
-        if ("resend".equalsIgnoreCase(preferredProvider)) {
-            if (resendProvider.isAvailable()) {
+        // 1. If Brevo preferred
+        if ("brevo".equalsIgnoreCase(preferredProvider)) {
+            if (brevoProvider.isAvailable()) {
+                sent = brevoProvider.sendEmail(payload);
+            }
+            if (!sent && resendProvider.isAvailable()) {
+                log.info("[EmailService] Primary provider 'brevo' failed or unavailable. Falling back to Resend...");
                 sent = resendProvider.sendEmail(payload);
             }
             if (!sent && gmailProvider.isAvailable()) {
-                log.info("[EmailService] Primary provider 'resend' failed or unavailable. Falling back to Gmail SMTP...");
+                log.info("[EmailService] Secondary fallback to Gmail SMTP...");
                 sent = gmailProvider.sendEmail(payload);
             }
         }
-        // 2. If Gmail SMTP preferred
+        // 2. If Resend preferred
+        else if ("resend".equalsIgnoreCase(preferredProvider)) {
+            if (resendProvider.isAvailable()) {
+                sent = resendProvider.sendEmail(payload);
+            }
+            if (!sent && brevoProvider.isAvailable()) {
+                log.info("[EmailService] Primary provider 'resend' failed or unavailable. Falling back to Brevo...");
+                sent = brevoProvider.sendEmail(payload);
+            }
+            if (!sent && gmailProvider.isAvailable()) {
+                log.info("[EmailService] Secondary fallback to Gmail SMTP...");
+                sent = gmailProvider.sendEmail(payload);
+            }
+        }
+        // 3. If Gmail SMTP preferred
         else if ("gmail".equalsIgnoreCase(preferredProvider)) {
             if (gmailProvider.isAvailable()) {
                 sent = gmailProvider.sendEmail(payload);
             }
+            if (!sent && brevoProvider.isAvailable()) {
+                log.info("[EmailService] Primary provider 'gmail' failed or unavailable. Falling back to Brevo...");
+                sent = brevoProvider.sendEmail(payload);
+            }
             if (!sent && resendProvider.isAvailable()) {
-                log.info("[EmailService] Primary provider 'gmail' failed or unavailable. Falling back to Resend...");
+                log.info("[EmailService] Secondary fallback to Resend...");
                 sent = resendProvider.sendEmail(payload);
             }
         }
 
-        // 3. Fallback to mock if neither succeeded or in mock mode
+        // 4. Fallback to mock if neither succeeded or in mock mode
         if (!sent) {
             log.info("[EmailService] Live providers unconfigured or failed. Recording in MockEmailProvider.");
             mockProvider.sendEmail(payload);
