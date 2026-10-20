@@ -41,6 +41,19 @@ class EmailServiceTest {
         mockEmailProvider.clear();
     }
 
+    private com.scentiva.modules.notification.provider.dto.EmailPayload waitForEmailTo(String recipient, long maxWaitMs) throws InterruptedException {
+        long deadline = System.currentTimeMillis() + maxWaitMs;
+        while (System.currentTimeMillis() < deadline) {
+            for (var email : mockEmailProvider.getSentEmails()) {
+                if (recipient.equalsIgnoreCase(email.getTo())) {
+                    return email;
+                }
+            }
+            Thread.sleep(50);
+        }
+        throw new AssertionError("Email to " + recipient + " was not dispatched within " + maxWaitMs + "ms. Current sent: " + mockEmailProvider.getSentEmails().size());
+    }
+
     @Test
     @DisplayName("Should render and dispatch Order Confirmation email template")
     void testSendOrderConfirmationEmail() throws InterruptedException {
@@ -56,11 +69,7 @@ class EmailServiceTest {
 
         emailService.sendOrderConfirmationEmail(recipient, customerName, orderNumber, amount, "https://scentiva.luxury/orders/" + orderNumber, items, address);
 
-        // Wait brief moment for async execution
-        Thread.sleep(200);
-
-        assertThat(mockEmailProvider.getSentEmails()).isNotEmpty();
-        var sent = mockEmailProvider.getSentEmails().get(0);
+        var sent = waitForEmailTo(recipient, 2000);
         assertThat(sent.getTo()).isEqualTo(recipient);
         assertThat(sent.getSubject()).contains("Order Confirmed");
         assertThat(sent.getSubject()).contains(orderNumber);
@@ -75,10 +84,7 @@ class EmailServiceTest {
         String recipient = "client@scentiva.luxury";
         emailService.sendOrderShippedEmail(recipient, "Aria", "SC-2026-0099", "Blue Dart Apex", "SC-TRK-88123", "https://scentiva.luxury/track");
 
-        Thread.sleep(200);
-
-        assertThat(mockEmailProvider.getSentEmails()).isNotEmpty();
-        var sent = mockEmailProvider.getSentEmails().get(0);
+        var sent = waitForEmailTo(recipient, 2000);
         assertThat(sent.getTo()).isEqualTo(recipient);
         assertThat(sent.getSubject()).contains("Dispatched");
         assertThat(sent.getHtmlContent()).contains("SC-TRK-88123");
@@ -91,10 +97,7 @@ class EmailServiceTest {
         String recipient = "newmember@scentiva.luxury";
         emailService.sendWelcomeEmail(recipient, "Vikram", "VIP");
 
-        Thread.sleep(200);
-
-        assertThat(mockEmailProvider.getSentEmails()).isNotEmpty();
-        var sent = mockEmailProvider.getSentEmails().get(0);
+        var sent = waitForEmailTo(recipient, 2000);
         assertThat(sent.getTo()).isEqualTo(recipient);
         assertThat(sent.getSubject()).contains("Welcome to SCENTIVA Privé Club");
         assertThat(sent.getHtmlContent()).contains("VIP");
@@ -107,10 +110,7 @@ class EmailServiceTest {
         String recipient = "security@scentiva.luxury";
         emailService.sendPasswordResetEmail(recipient, "Vikram", "token-xyz-123", "https://scentiva.luxury/auth/reset?token=xyz");
 
-        Thread.sleep(200);
-
-        assertThat(mockEmailProvider.getSentEmails()).isNotEmpty();
-        var sent = mockEmailProvider.getSentEmails().get(0);
+        var sent = waitForEmailTo(recipient, 2000);
         assertThat(sent.getTo()).isEqualTo(recipient);
         assertThat(sent.getSubject()).contains("Reset Your SCENTIVA Password");
         assertThat(sent.getHtmlContent()).contains("https://scentiva.luxury/auth/reset?token=xyz");
