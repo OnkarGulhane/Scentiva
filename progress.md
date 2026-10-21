@@ -1,16 +1,17 @@
 # SCENTIVA — Daily Progress & Verification Log
-> **Date:** October 9, 2026  
-> **Status:** Full Modular Monolith Backend + Next.js 14 Storefront + Scentiva AI Platform (FastAPI + pgvector + Multi-Lingual AI Assistant) + Supabase PostgreSQL 17 & Storage + Razorpay Gateway + Google OAuth 2.0 + Mobile-First PWA & Responsiveness Suite 100% Completed & Verified (Phases 0–24).  
-> **Latest Git Commit:** `eb43e81` on branch `main`  
-> **Deployment Architecture:** Next.js 14 on **Vercel** + Spring Boot 3.3.4 (Java 21) on **Render** (`https://scentiva-backend-zmvo.onrender.com`) + Python AI Service (FastAPI) + **Supabase PostgreSQL 17 & Storage** + **Razorpay Payment Gateway** + **Google OAuth 2.0** + **PWA Standalone Web App**  
+> **Date:** October 21, 2026  
+> **Status:** Full Modular Monolith Backend + Next.js 14 Storefront + Scentiva AI Platform (FastAPI + pgvector + Multi-Lingual AI Assistant) + Supabase PostgreSQL 17 & Storage + Razorpay Gateway + Google OAuth 2.0 + Mobile-First PWA Suite + Shiprocket Logistics + Brevo REST API v3 Email Provider & n8n Autonomous Promotional Marketing Suite 100% Completed & Verified (Phases 0–26).  
+> **Latest Git Commit:** `cf65476` on branch `main`  
+> **Deployment Architecture:** Next.js 14 on **Vercel** + Spring Boot 3.3.4 (Java 21) on **Render** (`https://scentiva-backend-zmvo.onrender.com`) + Python AI Service (FastAPI) + **Supabase PostgreSQL 17 & Storage** + **Razorpay Payment Gateway** + **Google OAuth 2.0** + **Shiprocket Courier API** + **Brevo REST API v3 & n8n Automation Engine** + **PWA Standalone Web App**  
 > **Build Status:** 
 > - **Backend:** 243 / 243 Java Tests Passing (`mvn test` -> 100% BUILD SUCCESS, 0 Failures, 0 Errors)  
 > - **Python AI Service:** 21 / 21 Pytest Tests Passing (`pytest` -> 100% PASS, 0 Failures)  
 > - **Live Integration Tests:** 86 / 86 Assertions Passing (`node scratch/test_all_apis.js` -> 100% PASS, 0 Failures)  
 > - **Live Render Production Audit:** 13 / 13 Production Assertions Passing (`node scratch/test_live_render.cjs` -> 100% PASS, 0 Failures)  
 > - **Frontend:** 50 / 50 Static & Dynamic Routes Prerendered (`npm run build` -> Exit Code 0, 0 TypeScript Errors)  
+> - **Marketing Automation:** n8n Autonomous Pipeline Published & Active (10:00 AM Cron -> Supabase Views -> Brevo API -> Delivery Logs)  
 > - **Mobile & PWA:** Standalone manifest, iOS safe area insets (`pb-safe`), Native Web Share API, Numeric input modes, and 2-column mobile grid optimization verified.
-> - **Database:** Supabase PostgreSQL 17 active with 35 relational tables + pgvector RAG store.
+> - **Database:** Supabase PostgreSQL 17 active with 35 relational tables + pgvector RAG store + promotional automation views & RLS logs.
 
 ---
 
@@ -210,7 +211,7 @@
   - Next.js build: **50 / 50 static and dynamic routes prerendered with 0 errors**.
 - [x] **Git Commit:** `660f402` on branch `main` (Pushed to GitHub).
 
-### 26. Automated Shiprocket Logistics & Courier Integration Suite (Phase 25)
+### 25. Automated Shiprocket Logistics & Courier Integration Suite (Phase 25)
 - [x] **Spring Boot Shiprocket Integration Architecture:**
   - Configured `scentiva.shipping.shiprocket` properties in [application.yml](file:///e:/Scentiva/backend/src/main/resources/application.yml) with mock-mode auto fallback.
   - Implemented [ShiprocketProperties.java](file:///e:/Scentiva/backend/src/main/java/com/scentiva/modules/shipping/config/ShiprocketProperties.java) with credentials validation.
@@ -226,6 +227,33 @@
   - Added 1-Click **"Ship via Shiprocket"** dispatch button in [AdminOrdersPage.tsx](file:///e:/Scentiva/src/views/admin/AdminOrdersPage.tsx) with live AWB badge and direct Shiprocket tracking hub link.
   - Enhanced [OrderTrackingPage.tsx](file:///e:/Scentiva/src/views/OrderTrackingPage.tsx) to display dynamic Shiprocket carrier information and live Shiprocket tracking link (`https://shiprocket.co/tracking/{awb}`).
   - Frontend build: **50 / 50 static and dynamic routes prerendered with 0 errors**.
+- [x] **Git Commit:** `fa71c68` on branch `main`
+
+### 26. Brevo Email Provider & n8n Autonomous Promotional Marketing Automation Suite (Phase 26)
+- [x] **Spring Boot Brevo REST API v3 Integration (`BrevoEmailProvider.java`):**
+  - Integrated Brevo's v3 transactional transactional mail API endpoint (`POST https://api.brevo.com/v3/smtp/email`) conforming to Scentiva's pluggable `EmailProvider` SPI.
+  - Added configuration binding in [application.yml](file:///e:/Scentiva/backend/src/main/resources/application.yml) under `scentiva.notification.email.brevo` (`api-key`, `sender-email`, `sender-name`, `enabled`).
+  - Implemented 4-tier resilient hybrid failover in [ScentivaEmailServiceImpl.java](file:///e:/Scentiva/backend/src/main/java/com/scentiva/modules/notification/service/impl/ScentivaEmailServiceImpl.java): `Brevo -> Resend -> Gmail SMTP -> Mock`.
+  - Added unit test suite in [BrevoEmailProviderTest.java](file:///e:/Scentiva/backend/src/test/java/com/scentiva/modules/notification/provider/BrevoEmailProviderTest.java) and refined asynchronous assertions in [EmailServiceTest.java](file:///e:/Scentiva/backend/src/test/java/com/scentiva/modules/notification/service/EmailServiceTest.java).
+  - Java test suite verified: **243 / 243 tests passing (100% BUILD SUCCESS, 0 failures, 0 errors)**.
+  - Git Commits: `f29046e`, `cf65476`.
+- [x] **Supabase Database Marketing Views & RLS Audit Log:**
+  - Authored & executed PostgreSQL view `v_active_campaigns` joining valid campaigns and active coupons with non-expired dates and positive quotas.
+  - Authored & executed PostgreSQL view `v_promotional_audience` performing join between `customers` and `users` (`WHERE status = 'ACTIVE' AND is_deleted = FALSE`) to extract verified email addresses.
+  - Created audit table `campaign_email_logs` (`id`, `campaign_id`, `customer_id`, `recipient_email`, `status`, `sent_at`) with Row Level Security (RLS) enabled to track every promotional dispatch and eliminate spam duplicates.
+  - Granted schema permissions (`anon`, `authenticated`, `service_role`) and reloaded PostgREST schema cache.
+  - Seeded launch promotion coupon `ROYAL20` (20% OFF flat discount).
+- [x] **n8n Autonomous Promotional Marketing Workflow (Published & Live 🟢):**
+  - Built 6-node autonomous production pipeline:
+    1. **Schedule Trigger:** Cron trigger set for Mon, Wed, Fri at 10:00 AM (plus manual test dispatch).
+    2. **Get Active Offer (Supabase Node):** Direct relational select against `v_active_campaigns`.
+    3. **Is Offer Active? (If Node):** Validates campaign validity and non-empty coupon code.
+    4. **Get Customers (Supabase Node):** Streams active customer records from `v_promotional_audience`.
+    5. **Send via Brevo (HTTP Request Node):** Executes Brevo REST API v3 with Header Auth (`api-key`) and verified sender (`omkar288113@gmail.com`).
+    6. **Log to Supabase (Supabase Node):** Writes idempotent delivery audit record into `campaign_email_logs`.
+  - Crafted ultra-luxury HTML email template utilizing Deep Plum (`#321027`) background, Prestige Gold (`#C7A66A`) badges, personalized greeting, dynamic promo code card (`ROYAL20`), shop CTA button, and compliance unsubscribe link.
+  - Verified live delivery directly in real customer Gmail inbox (`omkar288113@gmail.com`).
+  - Workflow status: **Published & Active 🟢**.
 
 ---
 
@@ -233,13 +261,14 @@
 
 | Metric | Measured Value |
 |---|---|
-| Total Phases Completed | 26 (Phases 0 to 25) |
+| Total Phases Completed | 27 (Phases 0 to 26) |
 | Backend Java Unit/Integration Tests | 243 / 243 Passed (100%) |
 | Python AI Service Unit/Integration Tests | 21 / 21 Passed (100%) |
 | Live API Assertions Executed | 86 / 86 Passed (100%) |
 | Frontend Next.js Prerendered Routes | 50 / 50 Built Successfully |
 | Logistics & Fulfillment | Shiprocket API + BlueDart / Delhivery automated dispatch + Webhooks |
-| PostgreSQL Relational Tables | 35 Tables + pgvector RAG (Active on Supabase) |
+| Autonomous Marketing Engine | n8n 6-node cron pipeline (Mon/Wed/Fri 10AM) + Supabase Views + Brevo API |
+| PostgreSQL Relational Tables | 35 Tables + pgvector RAG + Marketing Views & Logs (Active on Supabase) |
 | Multi-Lingual AI Assistant | English, Marathi (मराठी), Hindi (हिंदी) |
 | Cloud Storage | Supabase Storage (`scentiva-media`) Active |
 | Payment Gateway | Razorpay Live Test Mode Active (`rzp_test_TkFZU8ecNzFnCq`) |
